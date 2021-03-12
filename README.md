@@ -1,2 +1,5 @@
 # reporter
-A Flask web app to capture and display energy information
+
+## Setup
+
+1. `conda create -n aimlacReporter python=3.8`
