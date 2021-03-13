@@ -10,7 +10,7 @@ from reporter_app import app, db
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    return 'Dashboard'
+    return render_template('dashboard.html', title='Dashboard')
 
 
 @app.route('/login', methods=['GET', 'POST'])

@@ -13,5 +13,6 @@ login.login_view = 'login'
 
 import reporter_app.routes
 import reporter_app.models
+import reporter_app.errors
 
 db.init_app(app)
