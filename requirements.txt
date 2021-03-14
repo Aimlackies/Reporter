@@ -1,7 +1,9 @@
 alembic==1.5.7
 backcall==0.2.0
 certifi==2020.12.5
+cffi==1.14.5
 click==7.1.2
+cryptography==3.4.6
 decorator==4.4.2
 dnspython==2.1.0
 email-validator==1.1.2
@@ -26,6 +28,7 @@ pexpect==4.8.0
 pickleshare==0.7.5
 prompt-toolkit==3.0.17
 ptyprocess==0.7.0
+pycparser==2.20
 Pygments==2.8.1
 PyMySQL==1.0.2
 python-dateutil==2.8.1
