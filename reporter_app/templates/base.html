@@ -1,10 +1,13 @@
 <html>
     <head>
-        {% if title %}
-        <title>{{ title }} - Aimlac Reporter</title>
-        {% else %}
-        <title>microblog</title>
-        {% endif %}
+      <link href="{{ url_for('static', filename='css/style.scss.css') }}" rel="stylesheet" type="text/css">
+      <script type=text/javascript src="{{url_for('static', filename='js/bootstrap/bootstrap.min.js') }}"></script>
+
+      {% if title %}
+      <title>{{ title }} - Aimlac Reporter</title>
+      {% else %}
+      <title>microblog</title>
+      {% endif %}
     </head>
     <body>
         <div>

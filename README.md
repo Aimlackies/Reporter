@@ -10,6 +10,8 @@
 ### No Docker
 1. `conda create -n aimlacReporter python=3.8`
 2. set up mySQL, create database table, mySQL user, update config with details (remane configExample to config)
+3. `pip install -r requirements.txt`
+4. `export FLASK_APP=reporter_app`
 2. `flask db init`
 3. `flask db migrate`
 3. `flask db upgrade`
