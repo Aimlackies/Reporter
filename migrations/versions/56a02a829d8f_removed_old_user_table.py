@@ -1,4 +1,4 @@
-"""empty message
+"""removed old user table
 
 Revision ID: 56a02a829d8f
 Revises: e78aff590714

@@ -1,28 +1,50 @@
 from reporter_app import db
-from flask_login import UserMixin
-from reporter_app import login
-from werkzeug.security import generate_password_hash, check_password_hash
+from flask_security import UserMixin, RoleMixin
+from sqlalchemy import create_engine
+from sqlalchemy.orm import relationship, backref
+from sqlalchemy import Boolean, DateTime, Column, Integer, String, ForeignKey, UnicodeText
+from sqlalchemy.sql import func
+import datetime
 
 
-@login.user_loader
-def load_user(id):
-    return User.query.get(int(id))
+class RolesUsers(db.Model):
+    __tablename__ = 'roles_users'
+    id = Column(Integer(), primary_key=True)
+    user_id = Column('user_id', Integer(), ForeignKey('user.id'))
+    role_id = Column('role_id', Integer(), ForeignKey('role.id'))
 
 
-class User(UserMixin, db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(120), index=True, unique=True, nullable=False)
-    first_name = db.Column(db.String(128), nullable=False)
-    surname = db.Column(db.String(128), nullable=False)
-    type = db.Column(db.String(32), default="user", nullable=False)
-    verified = db.Column(db.Boolean, default=False, nullable=False)
-    password_hash = db.Column(db.String(128))
+class Role(db.Model, RoleMixin):
+    __tablename__ = 'role'
+    id = Column(Integer(), primary_key=True)
+    name = Column(String(80), unique=True)
+    description = Column(String(255))
+    update_datetime = Column(DateTime(), nullable=False)
+    permissions = Column(UnicodeText(), nullable=False)
 
-    def __repr__(self):
-        return '<User {}>'.format(self.email)
 
-    def set_password(self, password):
-        self.password_hash = generate_password_hash(password)
-
-    def check_password(self, password):
-        return check_password_hash(self.password_hash, password)
+class User(db.Model, UserMixin):
+    __tablename__ = 'user'
+    id = Column(Integer, primary_key=True)
+    email = Column(String(255), unique=True)
+    username = Column(String(255), unique=True, nullable=True)
+    password = Column(String(255), nullable=False)
+    first_name = Column(String(128), nullable=False)
+    surname = Column(String(128), nullable=False)
+    last_login_at = Column(DateTime())
+    current_login_at = Column(DateTime())
+    last_login_ip = Column(String(100))
+    current_login_ip = Column(String(100))
+    login_count = Column(Integer)
+    active = Column(Boolean())
+    fs_uniquifier = Column(String(255), unique=True, nullable=False)
+    confirmed_at = Column(DateTime())
+    roles = relationship('Role', secondary='roles_users',
+                         backref=backref('users', lazy='dynamic'))
+    create_datetime = Column(DateTime(), nullable=False, server_default=func.now())
+    update_datetime = Column(
+        DateTime(),
+        nullable=False,
+        server_default=func.now(),
+        onupdate=datetime.datetime.utcnow,
+    )
