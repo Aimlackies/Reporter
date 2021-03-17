@@ -1,6 +1,6 @@
 from flask import Flask, request, Response, flash
 from flask import render_template, url_for, redirect
-from flask_login import current_user, login_user, login_required
+from flask_login import current_user, login_user, login_required, logout_user
 from reporter_app.forms import Login, Registration
 from reporter_app.models import User
 from reporter_app import app, db

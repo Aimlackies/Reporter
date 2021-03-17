@@ -15,3 +15,8 @@
 2. `flask db init`
 3. `flask db migrate`
 3. `flask db upgrade`
+
+
+### Deploying
+
+* compile scss into css https://sass.github.io/libsass-python/frameworks/flask.html#building-sass-scss-for-each-request

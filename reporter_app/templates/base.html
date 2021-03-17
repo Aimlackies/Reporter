@@ -1,7 +1,6 @@
 <html>
     <head>
       <link href="{{ url_for('static', filename='css/style.scss.css') }}" rel="stylesheet" type="text/css">
-      <script type=text/javascript src="{{url_for('static', filename='js/bootstrap/bootstrap.min.js') }}"></script>
 
       {% if title %}
       <title>{{ title }} - Aimlac Reporter</title>
@@ -9,22 +8,45 @@
       <title>microblog</title>
       {% endif %}
     </head>
-    <body>
-        <div>
-            Aimlac Reporter:
-            <a href="{{ url_for('dashboard') }}">Home</a>
-            <a href="/login">Login</a>
+    <body class="bg-light">
+      {% if current_user.is_authenticated %}
+
+        {% block navigation %}
+          {% include "navigation.html" %}
+        {% endblock %}
+
+      {% endif %}
+
+      <div class="container-fluid">
+        <div class="row">
+
+          {% if current_user.is_authenticated %}
+
+            {% block sidebar %}
+              {% include "sidebar.html" %}
+            {% endblock %}
+
+          {% endif %}
+
+          {% with messages = get_flashed_messages() %}
+            {% if messages %}
+            <ul>
+                {% for message in messages %}
+                <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+          {% endwith %}
+
+          {% block content %}{% endblock %}
+
         </div>
-        <hr>
-        {% with messages = get_flashed_messages() %}
-        {% if messages %}
-        <ul>
-            {% for message in messages %}
-            <li>{{ message }}</li>
-            {% endfor %}
-        </ul>
-        {% endif %}
-        {% endwith %}
-        {% block content %}{% endblock %}
+      </div>
+
+      {% block footer %}
+        {% include "footer.html" %}
+      {% endblock %}
+
+      <script type=text/javascript src="{{url_for('static', filename='js/bootstrap/bootstrap.bundle.min.js') }}"></script>
     </body>
 </html>
