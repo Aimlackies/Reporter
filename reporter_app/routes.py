@@ -21,9 +21,10 @@ def login():
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
         if user is None or not user.check_password(form.password.data):
-            flash('Invalid email or password')
+            flash('Invalid email or password', 'danger')
             return redirect(url_for('login'))
         login_user(user)
+        flash('Successfully logged in', 'success')
         return redirect(url_for('dashboard'))
     return render_template('login.html', title='Sign In', form=form)
 
@@ -48,6 +49,6 @@ def register():
         user.set_password(form.password.data)
         db.session.add(user)
         db.session.commit()
-        flash('Congratulations, you are now a registered user!')
+        flash('Congratulations, you are now a registered user!', 'success')
         return redirect(url_for('login'))
     return render_template('register.html', title='Register', form=form)
