@@ -19,7 +19,7 @@
 
 ### Before working on something new
 
-1. `pip pull`
+1. `git pull`
 2. unix: `export FLASK_APP=reporter_app`, Windows: `set FLASK_APP=reporter_app`
 3. unix: `export FLASK_ENV=development`, Windows: `set FLASK_ENV=development`
 4. `flask db upgrade`
