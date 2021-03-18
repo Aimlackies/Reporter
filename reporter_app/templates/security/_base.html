@@ -1,0 +1,36 @@
+<html>
+    <head>
+      <link href="{{ url_for('static', filename='css/style.scss.css') }}" rel="stylesheet" type="text/css">
+
+      {% if title %}
+      <title>{{ title }} - Aimlac Reporter</title>
+      {% else %}
+      <title>Reporter</title>
+      {% endif %}
+    </head>
+    <body class="bg-light">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="alert alert-{{ category }} rounded-0 mb-0" role="alert">
+              {{ message }}
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      <div class="container-fluid">
+        <div class="row">
+
+          {% block content %}{% endblock %}
+
+        </div>
+      </div>
+
+      {% block footer %}
+        {% include "footer.html" %}
+      {% endblock %}
+
+      <script type=text/javascript src="{{url_for('static', filename='js/bootstrap/bootstrap.bundle.min.js') }}"></script>
+    </body>
+</html>

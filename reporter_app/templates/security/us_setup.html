@@ -1,26 +1,4 @@
-{#
-  This template receives the following pieces of context in addition to the form:
-  On GET:
-    available_methods: Value of SECURITY_US_ENABLED_METHODS
-    active_methods: Which methods user has already set up
-    setup_methods: Which methods require a setup (e.g. password doesn't require any setup)
-
-  On successful POST:
-    available_methods: Value of SECURITY_US_ENABLED_METHODS
-    active_methods: Which methods user has already set up
-    setup_methods: Which methods require a setup (e.g. password doesn't require any setup)
-    chosen_method: which identity method was chosen (e.g. sms, authenticator)
-    code_sent: Was a code sent?
-    state: a signed state token used to validate the code.
-
-    If chosen method is 'authenticator' then additionally:
-    authr_qrcode: the image source for the qrcode
-    authr_key: same key as in qrcode - for possible manual entry
-    authr_username: same username as in qrcode
-    authr_issuer: same issuer as in qrcode
-#}
-
-{% extends "security/base.html" %}
+{% extends "security/_base.html" %}
 {% from "security/_macros.html" import render_field_with_errors, render_field, render_field_errors %}
 
 {% block styles %}
