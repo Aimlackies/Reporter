@@ -1,8 +1,55 @@
 from wtforms import StringField, PasswordField, BooleanField, SubmitField
 from wtforms.validators import DataRequired
-from flask_security import RegisterForm
+from flask_security import RegisterForm, LoginForm
+from flask_security.forms import get_form_field_label, Required
+from flask_security.utils import find_user, get_message, hash_password
+from flask_security.confirmable import requires_confirmation
+from wtforms.fields.html5 import EmailField
+from flask import flash
+from werkzeug.local import LocalProxy
+from reporter_app import app as current_app
 
 
 class ExtendedRegisterForm(RegisterForm):
     first_name = StringField('First Name', [DataRequired()])
     surname = StringField('Surname', [DataRequired()])
+
+
+class ExtendedLoginForm(LoginForm):
+    """Extended login form to remove default error messages"""
+
+    def validate(self):
+
+        super(ExtendedLoginForm, self).validate()
+
+        _security = LocalProxy(lambda: current_app.extensions["security"])
+
+        # Historically, this used get_user() which would look at all
+        # USER_IDENTITY_ATTRIBUTES - even though the field name is 'email'
+        # We keep that behavior (for now) as we transition to find_user.
+        self.user = find_user(self.email.data)
+
+        if self.user is None:
+            self.email.errors.append(get_message("USER_DOES_NOT_EXIST")[0])
+            flash(get_message("USER_DOES_NOT_EXIST")[0], get_message("USER_DOES_NOT_EXIST")[1])
+            # Reduce timing variation between existing and non-existing users
+            hash_password(self.password.data)
+            return False
+        if not self.user.password:
+            flash(get_message("PASSWORD_NOT_SET")[0], get_message("PASSWORD_NOT_SET")[1])
+            # Reduce timing variation between existing and non-existing users
+            hash_password(self.password.data)
+            return False
+        self.password.data = _security._password_util.normalize(self.password.data)
+        if not self.user.verify_and_update_password(self.password.data):
+            self.password.errors.append(get_message("INVALID_PASSWORD")[0])
+            flash(get_message("INVALID_PASSWORD")[0], get_message("INVALID_PASSWORD")[1])
+            return False
+        self.requires_confirmation = requires_confirmation(self.user)
+        if self.requires_confirmation:
+            flash(get_message("CONFIRMATION_REQUIRED")[0], get_message("CONFIRMATION_REQUIRED")[1])
+            return False
+        if not self.user.is_active:
+            flash(get_message("DISABLED_ACCOUNT")[0], get_message("DISABLED_ACCOUNT")[1])
+            return False
+        return True

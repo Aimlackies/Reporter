@@ -5,7 +5,7 @@
       {% if title %}
       <title>{{ title }} - Aimlac Reporter</title>
       {% else %}
-      <title>microblog</title>
+      <title>Reporter</title>
       {% endif %}
     </head>
     <body class="bg-light">
@@ -28,7 +28,7 @@
       {% endwith %}
 
       <div class="container-fluid">
-        <div class="row">
+        <div class="row main-container">
 
           {% if current_user.is_authenticated %}
 

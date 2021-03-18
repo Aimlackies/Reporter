@@ -6,6 +6,9 @@
     </button>
     <ul class="navbar-nav px-3">
       <li class="nav-item text-nowrap">
+        <a class="nav-link" href="{{ url_for('profile', id=current_user.id) }}">Profile</a>
+      </li>
+      <li class="nav-item text-nowrap">
         <a class="nav-link" href="{{ url_for_security('logout') }}">Sign out</a>
       </li>
     </ul>

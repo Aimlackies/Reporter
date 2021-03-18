@@ -25,7 +25,8 @@ user_datastore = SQLAlchemySessionUserDatastore(db.session, reporter_app.models.
 security = Security(
     app,
     user_datastore,
-    register_form=reporter_app.forms.ExtendedRegisterForm
+    register_form=reporter_app.forms.ExtendedRegisterForm,
+    login_form=reporter_app.forms.ExtendedLoginForm
 )
 
 db.init_app(app)
