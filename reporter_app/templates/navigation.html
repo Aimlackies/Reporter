@@ -5,11 +5,18 @@
       <span class="navbar-toggler-icon"></span>
     </button>
     <ul class="navbar-nav px-3">
-      <li class="nav-item text-nowrap">
-        <a class="nav-link" href="{{ url_for('profile', id=current_user.id) }}">Profile</a>
-      </li>
-      <li class="nav-item text-nowrap">
-        <a class="nav-link" href="{{ url_for_security('logout') }}">Sign out</a>
+      <li class="nav-item">
+        <a class="nav-link p-0 h2 mb-0" data-bs-toggle="dropdown" aria-expanded="false">
+          <i class="bi-person-circle"></i>
+        </a>
+        <ul class="dropdown-menu dropdown-menu-end">
+          <li>
+            <a class="dropdown-item" href="{{ url_for('profile', id=current_user.id) }}">Open profile</a>
+          </li>
+          <li>
+            <a class="dropdown-item" href="{{ url_for_security('logout') }}">Sign out</a>
+          </li>
+        </ul>
       </li>
     </ul>
   </div>
