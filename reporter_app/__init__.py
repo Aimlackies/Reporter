@@ -16,10 +16,15 @@ db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 mail = Mail(app)
 
+from reporter_app.dashboard import bp as dashboard_bp
+app.register_blueprint(dashboard_bp)
+
 from reporter_app.errors import bp as errors_bp
 app.register_blueprint(errors_bp)
 
-import reporter_app.routes
+from reporter_app.users import bp as users_bp
+app.register_blueprint(users_bp)
+
 import reporter_app.models
 import reporter_app.forms
 
@@ -51,7 +56,5 @@ def seed():
     )
     userAdmin.roles.append(roleAdmin)
     db.session.commit()
-
-    print("done")
 
 db.init_app(app)
