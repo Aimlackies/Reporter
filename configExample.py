@@ -16,3 +16,4 @@ class Config(object):
 	SECURITY_MSG_PASSWORD_NOT_SET = ('Password not set', 'danger')
 	SECURITY_MSG_CONFIRMATION_REQUIRED = ('Email has not been confirmed yet. Please check your emails.', 'info')
 	SECURITY_MSG_DISABLED_ACCOUNT = ('This account has been disabled', 'danger')
+	SECURITY_EMAIL_VALIDATOR_ARGS={"check_deliverability":False}
