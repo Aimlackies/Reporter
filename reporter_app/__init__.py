@@ -16,9 +16,11 @@ db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 mail = Mail(app)
 
+from reporter_app.errors import bp as errors_bp
+app.register_blueprint(errors_bp)
+
 import reporter_app.routes
 import reporter_app.models
-import reporter_app.errors
 import reporter_app.forms
 
 # Setup Flask-Security

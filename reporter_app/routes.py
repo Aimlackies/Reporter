@@ -2,7 +2,6 @@ from flask import Flask, request, Response, flash
 from flask import render_template, url_for, redirect
 from reporter_app import app, db
 from reporter_app.models import User
-
 from flask_security import auth_required, hash_password, current_user
 
 
