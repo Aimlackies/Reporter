@@ -1,22 +1,27 @@
-from wtforms import StringField, PasswordField, BooleanField, SubmitField
+from wtforms import StringField
 from wtforms.validators import DataRequired
 from flask_security import RegisterForm, LoginForm
-from flask_security.forms import get_form_field_label, Required
 from flask_security.utils import find_user, get_message, hash_password
 from flask_security.confirmable import requires_confirmation
-from wtforms.fields.html5 import EmailField
 from flask import flash
 from werkzeug.local import LocalProxy
 from reporter_app import app as current_app
 
 
 class ExtendedRegisterForm(RegisterForm):
+    """
+    Add first_name and surname to register form from Flask-security-too
+    """
     first_name = StringField('First Name', [DataRequired()])
     surname = StringField('Surname', [DataRequired()])
 
 
+# Add
 class ExtendedLoginForm(LoginForm):
-    """Extended login form to remove default error messages"""
+    """
+    Extended login form to remove default error messages and add flash
+    messages
+    """
 
     def validate(self):
 
@@ -24,9 +29,6 @@ class ExtendedLoginForm(LoginForm):
 
         _security = LocalProxy(lambda: current_app.extensions["security"])
 
-        # Historically, this used get_user() which would look at all
-        # USER_IDENTITY_ATTRIBUTES - even though the field name is 'email'
-        # We keep that behavior (for now) as we transition to find_user.
         self.user = find_user(self.email.data)
 
         if self.user is None:

@@ -59,3 +59,6 @@ class User(db.Model, UserMixin):
         server_default=func.now(),
         onupdate=datetime.datetime.utcnow,
     )
+
+    def has_role(self, role):
+        return role in self.roles
