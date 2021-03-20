@@ -9,9 +9,15 @@ import datetime
 
 class RolesUsers(db.Model):
     __tablename__ = 'roles_users'
-    id = Column(Integer(), primary_key=True)
-    user_id = Column('user_id', Integer(), ForeignKey('user.id'))
-    role_id = Column('role_id', Integer(), ForeignKey('role.id'))
+    user_id = Column('user_id', Integer(), ForeignKey('user.id', ondelete='CASCADE'), primary_key=True)
+    role_id = Column('role_id', Integer(), ForeignKey('role.id', ondelete='CASCADE'), primary_key=True)
+    create_datetime = Column(DateTime(), nullable=False, server_default=func.now())
+    update_datetime = Column(
+        DateTime(),
+        nullable=False,
+        server_default=func.now(),
+        onupdate=datetime.datetime.utcnow,
+    )
 
 
 class Role(db.Model, RoleMixin):
@@ -19,8 +25,13 @@ class Role(db.Model, RoleMixin):
     id = Column(Integer(), primary_key=True)
     name = Column(String(80), unique=True)
     description = Column(String(255))
-    update_datetime = Column(DateTime(), nullable=False)
-    permissions = Column(UnicodeText(), nullable=False)
+    create_datetime = Column(DateTime(), nullable=False, server_default=func.now())
+    update_datetime = Column(
+        DateTime(),
+        nullable=False,
+        server_default=func.now(),
+        onupdate=datetime.datetime.utcnow,
+    )
 
 
 class User(db.Model, UserMixin):

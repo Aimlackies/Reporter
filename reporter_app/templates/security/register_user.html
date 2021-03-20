@@ -11,21 +11,21 @@
             {{ register_user_form.hidden_tag() }}
             <p>
               {{ register_user_form.first_name.label(class_='form-label') }}<br>
-              {{ register_user_form.first_name(size=32, class_='form-control') }}<br>
+              {{ register_user_form.first_name(size=255, class_='form-control') }}<br>
               {% for error in register_user_form.first_name.errors %}
               <span class="text-danger">{{ error }}</span>
               {% endfor %}
             </p>
             <p>
                 {{ register_user_form.surname.label(class_='form-label') }}<br>
-                {{ register_user_form.surname(size=32, class_='form-control') }}<br>
+                {{ register_user_form.surname(size=255, class_='form-control') }}<br>
                 {% for error in register_user_form.surname.errors %}
                 <span class="text-danger">{{ error }}</span>
                 {% endfor %}
             </p>
             <p>
                 {{ register_user_form.email.label(class_='form-label') }}<br>
-                {{ register_user_form.email(size=64, class_='form-control') }}<br>
+                {{ register_user_form.email(size=255, class_='form-control') }}<br>
                 {% for error in register_user_form.email.errors %}
                 <span class="text-danger">{{ error }}</span>
                 {% endfor %}

@@ -13,9 +13,10 @@
 3. `pip install -r requirements.txt`
 4. `export FLASK_APP=reporter_app`
 5. `export FLASK_ENV=development`
-2. `flask db init`
-3. `flask db migrate`
-3. `flask db upgrade`
+6. `flask db init`
+7. `flask db migrate`
+8. `flask db upgrade`
+9. `flask seed`
 
 ### Before working on something new
 
