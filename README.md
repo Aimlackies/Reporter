@@ -11,7 +11,7 @@
 1. `conda create -n aimlacReporter python=3.8`
 2. set up mySQL, create database table, mySQL user, update config with details (remane configExample to config)
 3. `pip install -r requirements.txt`
-4. `export FLASK_APP=reporter_app`
+4. `export FLASK_APP=reporter.py`
 5. `export FLASK_ENV=development`
 6. `flask db init`
 7. `flask db migrate`
@@ -21,7 +21,7 @@
 ### Before working on something new
 
 1. `git pull`
-2. unix: `export FLASK_APP=reporter_app`, Windows: `set FLASK_APP=reporter_app`
+2. unix: `export FLASK_APP=reporter.py`, Windows: `set FLASK_APP=reporter.py`
 3. unix: `export FLASK_ENV=development`, Windows: `set FLASK_ENV=development`
 4. `flask db upgrade`
 5. `flask run`

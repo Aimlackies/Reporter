@@ -5,7 +5,7 @@ from flask_security.utils import find_user, get_message, hash_password
 from flask_security.confirmable import requires_confirmation
 from flask import flash
 from werkzeug.local import LocalProxy
-from reporter_app import app as current_app
+from flask import current_app
 
 
 class ExtendedRegisterForm(RegisterForm):
