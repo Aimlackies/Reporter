@@ -12,7 +12,7 @@
       {% if current_user.is_authenticated %}
 
         {% block navigation %}
-          {% include "navigation.html" %}
+          {% include "template_parts/navigation.html" %}
         {% endblock %}
 
       {% endif %}
@@ -33,7 +33,7 @@
           {% if current_user.is_authenticated %}
 
             {% block sidebar %}
-              {% include "sidebar.html" %}
+              {% include "template_parts/sidebar.html" %}
             {% endblock %}
 
           {% endif %}
@@ -44,7 +44,7 @@
       </div>
 
       {% block footer %}
-        {% include "footer.html" %}
+        {% include "template_parts/footer.html" %}
       {% endblock %}
 
       <script type=text/javascript src="{{url_for('static', filename='js/bootstrap/bootstrap.bundle.min.js') }}"></script>
