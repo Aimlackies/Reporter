@@ -57,7 +57,14 @@ The following instructions will set up a local instance of the reporter applicat
     flask seed
     ```
 
-5. Start the application.
+5. Create `config.py`  
+    Currently there is no `config.py` file. Copy `configExample.py` to a new file in the same directory called `config.py`. In this file you will need to add the username, password and database you created earlier for MySQL. The following line in `config.py` will be changed to include the MySQL username in place of `reporter_db_user`, the password in place of `reporter_db_Acce55` and database name in place of `local_reporter`.
+
+    ```py
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'mysql+pymysql://reporter_db_user:reporter_db_Acce55@127.0.0.1/local_reporter'
+    ```
+
+6. Start the application.
 
     You're done! All that is left now is to start the application and start developing!
 
@@ -177,7 +184,7 @@ Follow these basic instructions before starting work on any new feature.
     flask db upgrade
     ```
 
-    **Note:** To generate a new migration once modifying `models.py`, run the command `flask db migrate`.
+    **Note:** To generate a new migration once modifying `models.py`, run the command `flask db migrate -m "migration message"`.
 
 4. Start the application.
 
