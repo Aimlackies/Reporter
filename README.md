@@ -5,13 +5,13 @@ This is the web application to report on energy usage.
 
 ## Sections
 
-* [Getting started](##-Getting-started)  
-  * [Installation](###-Installation)  
-  * [Application structure](###-Application-structure)  
-  * [Routes](###-Routes)  
-  * [Before starting a new development](###-Before-starting-a-new-development)  
-  * [Creating a blueprint](###-Creating-a-blueprint)  
-* [Deploying](##-Deploying)  
+* [Getting started](##getting-started)  
+  * [Installation](###installation)  
+  * [Application structure](###application-structure)  
+  * [Routes](###routes)  
+  * [Before starting a new development](###before-starting-a-new-development)  
+  * [Creating a blueprint](###creating-a-blueprint)  
+* [Deploying](##deploying)  
 
 Getting started
 ------------
