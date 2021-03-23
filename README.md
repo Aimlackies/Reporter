@@ -5,13 +5,13 @@ This is the web application to report on energy usage.
 
 ## Sections
 
-* [Getting started](##getting-started)  
-  * [Installation](###installation)  
-  * [Application structure](###application-structure)  
-  * [Routes](###routes)  
-  * [Before starting a new development](###before-starting-a-new-development)  
-  * [Creating a blueprint](###creating-a-blueprint)  
-* [Deploying](##deploying)  
+* [Getting started](#getting-started)  
+  * [Installation](#installation)  
+  * [Application structure](#application-structure)  
+  * [Routes](#routes)  
+  * [Before starting a new development](#before-starting-a-new-development)  
+  * [Creating a blueprint](#creating-a-blueprint)  
+* [Deploying](#deploying)  
 
 Getting started
 ------------
@@ -200,7 +200,41 @@ This is a basic guide on creating a new blueprint
     app.register_blueprint(blueprint_name_bp)
     ```
 
-2. Create 2 folders with the name of the blueprint. The first will go at `reporter_app/blueprint_name` and the second `reporter_app/templates/blueprint_name`
+2. Create 2 folders with the name of the blueprint. The first will go at `reporter_app/blueprint_name` and the second `reporter_app/templates/blueprint_name`.
+
+3. Create the basic blueprint files in `reporter_app/blueprint_name`
+    i. Create a file called `__init__.py` and past this code (changing `blueprint_name` to the name of the blueprint)
+
+    ```py
+    from flask import Blueprint
+
+    bp = Blueprint('blueprint_name', __name__)
+
+    from reporter_app.blueprint_name import routes
+    from reporter_app.blueprint_name import forms
+
+    ```
+    ii. Create two additional files in `reporter_app/blueprint_name`. The first will be called `routes.py` and the second `forms.py`
+
+4. You are done! Well... kind of. Now its up to you to add the rest, but that will depend on what you are adding so the steps for doing so are down to you. From steps 1 to 3 you will have a file structure with a few new folders and files which will kind of look like this:
+
+```
+Repository root
+|
+|-reporter_app
+|     |
+|     |-blueprint folder
+|     |     |
+|     |     |-__init__.py
+|     |     |-routes.py
+|     |     |-forms.py
+|     |
+|     |-templates
+|     |     |
+|     |     |-blueprint folders
+|     |
+|     |-__init__.py
+```
 
 ## Deploying
 
