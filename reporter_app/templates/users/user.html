@@ -3,9 +3,10 @@
 {% block content %}
 <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
   <div class="bg-white p-3 mt-4">
-    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3">
       <h1 class="h2">Profile</h1>
     </div>
+		<hr/>
 
     <h2>About</h2>
     <div class="row">
@@ -22,17 +23,24 @@
     </div>
 
     <h2>Info</h2>
+		<div class="row">
+			<div class="col col-12 col-md-6"><p><span class="h6">Last login time:</span> {{ user.last_login_at.strftime("%m/%d/%Y, %H:%M:%S") }}</p></div>
+			<div class="col col-12 col-md-6"><p><span class="h6">Current login time:</span> {{ user.current_login_at.strftime("%m/%d/%Y, %H:%M:%S") }}</p></div>
+		</div>
     <div class="row">
       <div class="col col-12 col-md-6"><p><span class="h6">Last login IP:</span> {{ user.last_login_ip }}</p></div>
       <div class="col col-12 col-md-6"><p><span class="h6">Current login IP:</span> {{ user.current_login_ip }}</p></div>
     </div>
     <div class="row">
       <div class="col col-12 col-md-6"><p><span class="h6">Login count:</span> {{ user.login_count }}</p></div>
+			<div class="col col-12 col-md-6"><p><span class="h6">Confirmed at:</span> {{ user.confirmed_at.strftime("%m/%d/%Y, %H:%M:%S") }}</p></div>
     </div>
     <div class="row">
       <div class="col col-12 col-md-6"><p><span class="h6">Created at:</span> {{ user.create_datetime.strftime("%m/%d/%Y, %H:%M:%S") }}</p></div>
       <div class="col col-12 col-md-6"><p><span class="h6">Last updated at:</span> {{ user.update_datetime.strftime("%m/%d/%Y, %H:%M:%S") }}</p></div>
     </div>
+		<hr/>
+		<a class="btn btn-outline-secondary" href="{{ url_for_security('change_password') }}">Update password</a>
   </div>
 </main>
 {% endblock %}
