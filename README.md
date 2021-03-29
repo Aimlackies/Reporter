@@ -57,11 +57,43 @@ The following instructions will set up a local instance of the reporter applicat
     flask seed
     ```
 
-5. Create `config.py`  
-    Currently there is no `config.py` file. Copy `configExample.py` to a new file in the same directory called `config.py`. In this file you will need to add the username, password and database you created earlier for MySQL. The following line in `config.py` will be changed to include the MySQL username in place of `reporter_db_user`, the password in place of `reporter_db_Acce55` and database name in place of `local_reporter`.
+5. Setup environmental variables for `config.py`  
+    For some aspects of the web application to function we will need to provide a variable value that should **NOT** be added to the repository. We will therefore set these up as environmental variables that the web application can access, but is not set as part of the application. To set these variables follow the corresponding steps for your operating system.
 
-    ```py
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'mysql+pymysql://reporter_db_user:reporter_db_Acce55@127.0.0.1/local_reporter'
+    **Windows**:
+
+    https://support.shotgunsoftware.com/hc/en-us/articles/114094235653-Setting-global-environment-variables-on-Windows
+
+    *Note*: Can someone who has Windows update this to include instructions
+
+    **Unix based systems**:
+
+    i.
+
+    ```sh
+    nano ~/.bash_profile
+
+    ```
+
+    ii. Enter the following variables
+
+    ```sh
+    export AIMLACKIES_REPORTER_SECRET_KEY= # Enter your generated secret key (e.g. openssl rand -base64 64)
+    export AIMLACKIES_REPORTER_SECURITY_PASSWORD_SALT= # Enter your generated password salt (e.g. secrets.SystemRandom().getrandbits(128))
+    export AIMLACKIES_REPORTER_DATABASE_URL=mysql+pymysql://reporter_db_user:reporter_db_password@127.0.0.1/local_reporter
+
+    # reporter_db_user = database user name
+    # reporter_db_password = database user password
+    # local_reporter = local database name
+
+    # generate secure random varables on your local machine. This can be done use command line utilities such as `openssl rand -base64 64`
+    # or in python with `secrets.SystemRandom().getrandbits(128)`
+
+    ```
+
+    iii. Save the variables
+    ```sh
+    source ~/.bash_profile
     ```
 
 6. Start the application.
