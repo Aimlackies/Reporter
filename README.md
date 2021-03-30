@@ -20,22 +20,105 @@ Getting started
 
 The following instructions will set up a local instance of the reporter application for development.
 
-1. Create a Conda environment and install Python packages. The Conda enviroemtn is set to use Python 3.8 as, at the time of creation, that was the latest version PyTorch supported. Ensure compatibility with dependencies before upgrading.
+1. Clone repository to your local machine.
+
+    ```sh
+    git clone https://github.com/Aimlackies/Reporter.git
+    ```
+
+2. Create a Conda environment and install Python packages. The Conda enviroemtn is set to use Python 3.8 as, at the time of creation, that was the latest version PyTorch supported. Ensure compatibility with dependencies before upgrading.
 
     ```sh
     conda create -n aimlacReporter python=3.8
+    conda activate aimlacReporter
     pip install -r requirements.txt
     ```
 
-2. Set up local MySQL server
+3. Set up local MySQL server
 
-    Follow this guide for your operating system. You may also wish to download the workbench for easier access to the database from outside the flask application  
-    https://dev.mysql.com/doc/mysql-getting-started/en/#mysql-getting-started-installing  
-    i. Create a user and keep a record of its username and password  
-    ii. Create a new database and give your user from step (i) permission to access and write to it.  
+    **Useful guide**: https://dev.mysql.com/doc/mysql-getting-started/en/#mysql-getting-started-installing
+
+    **Note**: MySQL workbench is not required to use MySQL but it makes viewing database entries easier.
+
     **Note:** If this system is live then ensure the password for both root and the database user is strong.
 
-3. Set system environment varables for the Flask application. The first tells the Flask command the file to run on startup and the second will cause the Flask application to start in development mode.
+    **Windows**:
+
+    i. Download MySQL installer and install and install MySQL server and Workbench (you do not need any other MySQL applications): https://dev.mysql.com/downloads/installer/
+
+    ii. Configure MySQL within MySQL installer so it starts on computer start-up and has a root password (note down this password)
+
+    iii. Start MySQL server command line utility
+
+    iv. Continue from `all operating systems`
+
+    **Unix based systems**:
+
+    i. Install MySQL server and workbench for your distro / Mac OS
+
+    iii. Enable start-up on computer boot and start MySQL server now
+
+    ```sh
+    sudo systemctl enable mysqld.service
+    sudo systemctl start mysqld.service
+    ```
+
+    ii. Find the default password for MySQL
+
+    ```sh
+    sudo grep 'temporary password' /var/log/mysqld.log
+    ```
+
+    iii. Change the default password and configure MySQL server
+
+    ```sh
+    sudo mysql_secure_installation
+    ```
+
+    iv. Enter MySQL interactive shell
+
+    ```sh
+    mysql -u root -p
+    ```
+
+    v. Continue from `all operating systems`
+
+    **All operating systems**:
+
+    i. Create a user with a password (note these down)
+
+    ```sh
+    CREATE USER 'newuser'@'localhost' IDENTIFIED BY 'password';
+
+    # Change newuser to a username of your choosing
+    # Change password to a password of your choosing
+    ```
+
+    ii. Create database
+
+    ```sh
+    CREATE DATABASE db_name;
+
+    # Change db_name to a name of your choosing for the database
+    ```
+
+    iii. Grant access to the database for your user
+
+    ```sh
+    GRANT ALL ON db_name.* TO 'newuser'@'localhost';
+
+    # Change db_name to the name you set for the database
+    # Change newuser to the username you set for your user
+    ```
+
+    iv. Save changes made to mysql. You can exit MySQL once done
+
+    ```sh
+    FLUSH PRIVILEGES;
+    ```
+
+
+4. Set system environment varables for the Flask application. The first tells the Flask command the file to run on startup and the second will cause the Flask application to start in development mode.
 
     **Windows**:
     ```sh
@@ -48,23 +131,31 @@ The following instructions will set up a local instance of the reporter applicat
     export FLASK_ENV=development
     ```
 
-4. Initiate, create and seed your local database with a default admin user. The commands to `migrate` and `upgrade` the database will also be used to make updates to the database schema. The default admin user will have the email `admin@aimlackies.com` and the password `password`. **The password should be changed straight away on a live Installation**.
-
-    ```sh
-    flask db init
-    flask db migrate
-    flask db upgrade
-    flask seed
-    ```
-
 5. Setup environmental variables for `config.py`  
     For some aspects of the web application to function we will need to provide a variable value that should **NOT** be added to the repository. We will therefore set these up as environmental variables that the web application can access, but is not set as part of the application. To set these variables follow the corresponding steps for your operating system.
 
     **Windows**:
 
-    https://support.shotgunsoftware.com/hc/en-us/articles/114094235653-Setting-global-environment-variables-on-Windows
+    i. Open `Control Panel`
 
-    *Note*: Can someone who has Windows update this to include instructions
+    ii. Click on the Advanced system settings link and then click `Environment Variables`. Click create new variable under your users Environment Variables.
+
+    iii. Set a variable for each of the following
+
+    ```sh
+    AIMLACKIES_REPORTER_SECRET_KEY
+    AIMLACKIES_REPORTER_SECURITY_PASSWORD_SALT
+    AIMLACKIES_REPORTER_DATABASE_URL
+
+    # AIMLACKIES_REPORTER_DATABASE_URL = mysql+pymysql://reporter_db_user:reporter_db_password@127.0.0.1/local_reporter
+
+    # reporter_db_user = database user name
+    # reporter_db_password = database user password
+    # local_reporter = local database name
+
+    # generate secure random varables on your local machine. This can be done use command line utilities such as `openssl rand -base64 64`
+    # or in python with `secrets.SystemRandom().getrandbits(128)`
+    ```
 
     **Unix based systems**:
 
@@ -96,7 +187,16 @@ The following instructions will set up a local instance of the reporter applicat
     source ~/.bash_profile
     ```
 
-6. Start the application.
+    4. Initiate, create and seed your local database with a default admin user. The commands to `migrate` and `upgrade` the database will also be used to make updates to the database schema. The default admin user will have the email `admin@aimlackies.com` and the password `password`. **The password should be changed straight away on a live Installation**.
+
+        ```sh
+        flask db init
+        flask db migrate
+        flask db upgrade
+        flask seed
+        ```
+
+7. Start the application.
 
     You're done! All that is left now is to start the application and start developing!
 
