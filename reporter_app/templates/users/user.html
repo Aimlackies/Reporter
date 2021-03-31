@@ -19,7 +19,14 @@
     </div>
     <div class="row">
       <div class="col col-12 col-md-6"><p><span class="h6">Username:</span> {{ user.username }}</p></div>
-      <div class="col col-12 col-md-6"><p><span class="h6">Roles:</span> {{ user.roles }}</p></div>
+      <div class="col col-12 col-md-6">
+				<p>
+					<span class="h6">Roles:</span>
+					{% for role in user.roles %}
+						<span class="badge rounded-pill bg-secondary">{{role.name}}</span>
+					{% endfor %}
+				</p>
+			</div>
     </div>
 
     <h2>Info</h2>
