@@ -1,52 +1,53 @@
 <html>
-    <head>
-      <link href="{{ url_for('static', filename='css/style.scss.css') }}" rel="stylesheet" type="text/css">
+	<head>
+		<link href="{{ url_for('static', filename='css/style.scss.css') }}" rel="stylesheet" type="text/css">
 
-      {% if title %}
-      <title>{{ title }} - Aimlac Reporter</title>
-      {% else %}
-      <title>Reporter</title>
-      {% endif %}
-    </head>
-    <body class="bg-light">
-      {% if current_user.is_authenticated %}
+		{% if title %}
+		<title>{{ title }} - Aimlac Reporter</title>
+		{% else %}
+		<title>Reporter</title>
+		{% endif %}
+	</head>
+	<body class="bg-light">
+		{% if current_user.is_authenticated %}
 
-        {% block navigation %}
-          {% include "template_parts/navigation.html" %}
-        {% endblock %}
+			{% block navigation %}
+				{% include "template_parts/navigation.html" %}
+			{% endblock %}
 
-      {% endif %}
+		{% endif %}
 
-      {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-          {% for category, message in messages %}
-            <div class="alert alert-{{ category }} rounded-0 mb-0" role="alert">
-              {{ message }}
-            </div>
-          {% endfor %}
-        {% endif %}
-      {% endwith %}
+		{% with messages = get_flashed_messages(with_categories=true) %}
+			{% if messages %}
+				{% for category, message in messages %}
+					<div class="alert alert-{{ category }} alert-dismissible fade show rounded-0 mb-0" role="alert">
+						{{ message }}
+						<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+					</div>
+				{% endfor %}
+			{% endif %}
+		{% endwith %}
 
-      <div class="container-fluid">
-        <div class="row main-container">
+		<div class="container-fluid">
+			<div class="row main-container">
 
-          {% if current_user.is_authenticated %}
+				{% if current_user.is_authenticated %}
 
-            {% block sidebar %}
-              {% include "template_parts/sidebar.html" %}
-            {% endblock %}
+					{% block sidebar %}
+						{% include "template_parts/sidebar.html" %}
+					{% endblock %}
 
-          {% endif %}
+				{% endif %}
 
-          {% block content %}{% endblock %}
+				{% block content %}{% endblock %}
 
-        </div>
-      </div>
+			</div>
+		</div>
 
-      {% block footer %}
-        {% include "template_parts/footer.html" %}
-      {% endblock %}
+		{% block footer %}
+			{% include "template_parts/footer.html" %}
+		{% endblock %}
 
-      <script type=text/javascript src="{{url_for('static', filename='js/bootstrap/bootstrap.bundle.min.js') }}"></script>
-    </body>
+		<script type=text/javascript src="{{url_for('static', filename='js/bootstrap/bootstrap.bundle.min.js') }}"></script>
+	</body>
 </html>
