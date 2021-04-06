@@ -47,3 +47,4 @@ traitlets==5.0.5
 wcwidth==0.2.5
 Werkzeug==1.0.1
 WTForms==2.3.3
+pytest==2.4.7
