@@ -1,52 +1,87 @@
-from reporter_app import create_app, db
-from reporter_app.models import User, Role
+from reporter_app import create_app
+from reporter_app import db as _db
+from reporter_app.models import Role
 from sqlalchemy.sql import func
 from config_testing import TestConfig
 import secrets
 import pytest
 
-STANDARD_USER = User(
-	username='standard',
-	first_name='standard',
-	surname='standard',
-	email='standard@aimlackies.com',
-	password='password',
-	confirmed_at=func.now(),
-	fs_uniquifier=secrets.token_urlsafe(64),
-	active=True
-)
+STANDARD_USER = {
+	'username': 'standard',
+	'first_name': 'standard',
+	'surname': 'standard',
+	'email': 'standard@aimlackies.com',
+	'password': 'password',
+	'confirmed_at': func.now(),
+	'fs_uniquifier': secrets.token_urlsafe(64),
+	'active': True
+}
 
-ADMIN_USER = User(
-	username='admin',
-	first_name='admin',
-	surname='admin',
-	email='admin@aimlackies.com',
-	password='password',
-	confirmed_at=func.now(),
-	fs_uniquifier=secrets.token_urlsafe(64),
-	active=True
-)
+ADMIN_USER = {
+	'username': 'admin',
+	'first_name': 'admin',
+	'surname': 'admin',
+	'email': 'admin@aimlackies.com',
+	'password': 'password',
+	'confirmed_at': func.now(),
+	'fs_uniquifier': secrets.token_urlsafe(64),
+	'active': True
+}
 
 
-@pytest.fixture(scope='module')
-def test_client():
+@pytest.fixture(scope='session')
+def app(request):
 	flask_app, user_datastore = create_app(TestConfig)
 
-	# Create a test client using the Flask application configured for testing
-	with flask_app.test_client() as testing_client:
-		# Establish an application context
+	"""
+	ctx = flask_app.app_context()
+	ctx.push()
+
+	def teardown():
+		ctx.pop()
+
+	request.addfinalizer(teardown)
+
+	return flask_app
+	"""
+
+
+	with flask_app.test_client() as client:
 		with flask_app.app_context():
-			yield testing_client  # this is where the testing happens!
+			yield client
 
 
-@pytest.fixture(scope='module')
-def init_database():
-	# Create the database and the database table
-	db.create_all()
+@pytest.fixture(scope='session')
+def create_db_with_sqlalchemy(app, request):
+	# bind the app the database instance
+	_db.app = app
 
-	# Insert user data
-	db.session.add(ADMIN_USER)
-	db.session.add(STANDARD_USER)
+	_db.create_all()
+
+
+	def teardown():
+		_db.session.remove()
+		_db.drop_all()
+
+	request.addfinalizer(teardown)
+
+	return _db
+
+
+@pytest.fixture
+def db(create_db_with_sqlalchemy, request):
+	db = create_db_with_sqlalchemy
+
+	def cleanup_tables():
+		# sort tables with topology order, ensure children tables are
+		# deleted first
+		for table in db.metadata.sorted_tables[::-1]:
+			db.session.execute(table.delete())
+		db.session.commit()
+
+	cleanup_tables()
+	request.addfinalizer(cleanup_tables)
+
 	db.session.add(Role(
 		name='admin',
 		description='Manage other users on the system')
@@ -59,30 +94,10 @@ def init_database():
 	# Commit the changes for the users
 	db.session.commit()
 
-	# Add roles to users (this is a bit of a hack)
-	standard_user = User.query.filter_by(email=STANDARD_USER.email).first()
-	admin_user = User.query.filter_by(email=ADMIN_USER.email).first()
-	standard_role = Role.query.filter_by(name="standard").first()
-	admin_role = Role.query.filter_by(name="admin").first()
-
-	standard_user.roles.append(standard_role)
-	admin_user.roles.append(admin_role)
-
-	# Commit the changes for the users
-	db.session.commit()
-
-	yield db  # this is where the testing happens!
-
-	db.drop_all()
+	return db
 
 
-@pytest.fixture(scope='module')
-def new_admin_user():
-	user = ADMIN_USER
-	return user
-
-
-@pytest.fixture(scope='module')
-def new_standard_user():
-	user = STANDARD_USER
-	return user
+@pytest.fixture
+def app_client(db, app):
+	"""Create api request client."""
+	return app

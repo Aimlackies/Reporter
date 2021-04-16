@@ -1,4 +1,5 @@
-from conftest import test_client, init_database, new_admin_user, new_standard_user
+from conftest import app_client, STANDARD_USER, ADMIN_USER, db
+from reporter_app.models import Role, User
 import pytest
 from flask_security import current_user
 
@@ -11,19 +12,39 @@ def login(client, email, password):
 		password=password
 	), follow_redirects=True)
 
-def test_dashboard_page_no_user(test_client):
+
+def create_user(db, user_dict, role_name):
+	db.session.add(User(
+		username=user_dict['username'],
+		first_name=user_dict['first_name'],
+		surname=user_dict['surname'],
+		email=user_dict['email'],
+		password=user_dict['password'],
+		confirmed_at=user_dict['confirmed_at'],
+		fs_uniquifier=user_dict['fs_uniquifier'],
+		active=user_dict['active']
+	))
+
+	db.session.commit()
+	standard_user = User.query.filter_by(email=user_dict['email']).first()
+	standard_role = Role.query.filter_by(name=role_name).first()
+	standard_user.roles.append(standard_role)
+	db.session.commit()
+
+
+def test_dashboard_page_no_user(app_client):
 	"""
 	GIVEN a Flask application configured for testing and no user
 	WHEN the '/' page is requested (GET)
 	THEN check that the response is 302 and redirected to login page
 	"""
-	response = test_client.get('/')
+	response = app_client.get('/')
 	assert response.status_code == 302
 	assert b"login" in response.data
 	assert b"Redirecting..." in response.data
 
 
-def test_dashboard_page_admin_user(test_client, new_admin_user):
+def test_dashboard_page_admin_user(app_client):
 	"""
 	GIVEN a Flask application configured for testing and admin user (verified)
 	WHEN the '/' page is requested (GET)
@@ -32,7 +53,7 @@ def test_dashboard_page_admin_user(test_client, new_admin_user):
 	pass
 
 
-def test_dashboard_page_standard_user(test_client, new_standard_user):
+def test_dashboard_page_standard_user(app_client):
 	"""
 	GIVEN a Flask application configured for testing and standard user (verified)
 	WHEN the '/' page is requested (GET)
@@ -41,7 +62,7 @@ def test_dashboard_page_standard_user(test_client, new_standard_user):
 	pass
 
 
-def test_dashboard_page_standard_user_unverified(test_client, new_standard_user):
+def test_dashboard_page_standard_user_unverified(app_client):
 	"""
 	GIVEN a Flask application configured for testing and standard user (unverified)
 	WHEN the '/' page is requested (GET)
@@ -50,7 +71,7 @@ def test_dashboard_page_standard_user_unverified(test_client, new_standard_user)
 	pass
 
 
-def test_dashboard_page_admin_user_unverified(test_client, new_admin_user):
+def test_dashboard_page_admin_user_unverified(app_client):
 	"""
 	GIVEN a Flask application configured for testing and admin user (unverified)
 	WHEN the '/' page is requested (GET)
@@ -59,67 +80,50 @@ def test_dashboard_page_admin_user_unverified(test_client, new_admin_user):
 	pass
 
 
-#@pytest.mark.parametrize("response_expect, data_expect_include", [
-#	(None, 200, b"form action=\"/login\""),
-#	(new_admin_user, 200, b"form action=\"/login\""),
-#	(new_standard_user, 200, b"form action=\"/login\"")
-#])
-def test_login_page_no_user(test_client, init_database):
+def test_login_page_no_user(app_client):
 	"""
 	GIVEN a Flask application configured for testing and no user
 	WHEN the '/login' page is requested (GET)
 	THEN check that the response is 200
 	"""
 
-	response = test_client.get('/login')
+	response = app_client.get('/login')
 	assert response.status_code == 200
 	assert b"form action=\"/login\"" in response.data
 	assert current_user.is_authenticated == False  # No user currently logged in
 
 
-def test_login_page_admin_user(test_client, init_database, new_admin_user):
+def test_login_page_admin_user(db, app_client):
 	"""
 	GIVEN a Flask application configured for testing and admin user
 	WHEN the '/login' page is requested (GET)
 	THEN check that the response is 302 and redirected to dashboard page
 	"""
 
-	user = new_admin_user
+	create_user(db, ADMIN_USER, 'admin')
+	login(app_client, ADMIN_USER['email'], ADMIN_USER['password'])
 
-	response = test_client.post('/login', data=dict(
-		email=user.email,
-		password=user.password
-	), follow_redirects=True)
-
-	response = test_client.get('/login')
+	response = app_client.get('/login')
 	assert response.status_code == 302
 	assert b"Redirecting..." in response.data
 	assert b"href=\"/\"" in response.data
 	assert current_user.roles[0].name == "admin"
 	assert len(current_user.roles) == 1
 
-	test_client.get('/logout')  # This is required to rest the session to default
 
-
-def test_login_page_standard_user(test_client, init_database, new_standard_user):
+def test_login_page_standard_user(db, app_client):
 	"""
 	GIVEN a Flask application configured for testing and standard user
 	WHEN the '/login' page is requested (GET)
 	THEN check that the response is 302 and redirected to dashboard page
 	"""
 
-	user = new_standard_user
+	create_user(db, STANDARD_USER, 'standard')
+	login(app_client, STANDARD_USER['email'], STANDARD_USER['password'])
 
-	response = test_client.post('/login', data=dict(
-		email=user.email,
-		password=user.password
-	), follow_redirects=True)
-
-	response = test_client.get('/login')
+	response = app_client.get('/login')
 	assert response.status_code == 302
 	assert b"Redirecting..." in response.data
 	assert b"href=\"/\"" in response.data
 	assert current_user.roles[0].name == "standard"
 	assert len(current_user.roles) == 1
-
-	test_client.get('/logout')  # This is required to rest the session to default
