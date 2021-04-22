@@ -1,0 +1,41 @@
+{% extends "template_parts/base.html" %}
+
+{% block content %}
+<main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+  <div class="bg-white p-3 mt-4">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3">
+      <h1 class="h2">Users</h1>
+    </div>
+		<hr/>
+
+		<table class="table table-striped">
+			<thead>
+		    <tr>
+		      <th scope="col">ID</th>
+		      <th scope="col">First name</th>
+		      <th scope="col">Surname</th>
+		      <th scope="col">Email</th>
+					<th scope="col">Roles</th>
+					<th scope="col">Actions</th>
+		    </tr>
+		  </thead>
+			<tbody>
+				{% for user in users %}
+				<tr>
+					<th scope="row">{{ user.id }}</th>
+					<td>{{ user.first_name }}</td>
+					<td>{{ user.surname }}</td>
+					<td>{{ user.email }}</td>
+					<td>
+						{% for role in user.roles %}
+							<span class="badge rounded-pill bg-secondary">{{role.name}}</span>
+						{% endfor %}
+					</td>
+					<td><a type="button" class="btn btn-outline-primary btn-sm" href="{{ url_for('users.user', id=user.id) }}">View</a></td>
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+  </div>
+</main>
+{% endblock %}

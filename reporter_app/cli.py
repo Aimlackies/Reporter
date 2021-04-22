@@ -15,6 +15,9 @@ def register(app, user_datastore):
         roleStandard = user_datastore.create_role(
             name='standard',
             description='Manage the system')
+        roleVerified = user_datastore.create_role(
+            name='verified',
+            description='User has been verified and can use the system')
         userAdmin = user_datastore.create_user(
             username='admin',
             first_name='admin',
