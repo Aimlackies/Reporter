@@ -3,6 +3,11 @@ from reporter_app.errors import bp
 from reporter_app import db
 
 
+@bp.app_errorhandler(403)
+def not_found_error(error):
+    return render_template('errors/403.html'), 403
+
+
 @bp.app_errorhandler(404)
 def not_found_error(error):
     return render_template('errors/404.html'), 404

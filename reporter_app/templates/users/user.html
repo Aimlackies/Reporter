@@ -19,7 +19,14 @@
     </div>
     <div class="row">
       <div class="col col-12 col-md-6"><p><span class="h6">Username:</span> {{ user.username }}</p></div>
-      <div class="col col-12 col-md-6"><p><span class="h6">Roles:</span> {{ user.roles }}</p></div>
+      <div class="col col-12 col-md-6">
+				<p>
+					<span class="h6">Roles:</span>
+					{% for role in user.roles %}
+						<span class="badge rounded-pill bg-secondary">{{role.name}}</span>
+					{% endfor %}
+				</p>
+			</div>
     </div>
 
     <h2>Info</h2>
@@ -39,10 +46,38 @@
       <div class="col col-12 col-md-6"><p><span class="h6">Created at:</span> {{ user.create_datetime.strftime("%m/%d/%Y, %H:%M:%S") if user.create_datetime else user.create_datetime }}</p></div>
       <div class="col col-12 col-md-6"><p><span class="h6">Last updated at:</span> {{ user.update_datetime.strftime("%m/%d/%Y, %H:%M:%S") if user.update_datetime else user.update_datetime }}</p></div>
     </div>
-		{% if user.id == current_user.id %}
 			<hr/>
-			<a class="btn btn-outline-secondary" href="{{ url_for_security('change_password') }}">Update password</a>
-		{% endif %}
+			<h2>Actions</h2>
+			<div class="">
+			{% if user.id == current_user.id %}
+				<a class="btn btn-outline-secondary d-md-inline d-sm-block" href="{{ url_for_security('change_password') }}">Update password</a>
+			{% endif %}
+			{% if current_user.has_role('admin') and current_user.has_role('verified') %}
+				<a class="btn btn-outline-{{ 'danger' if user.has_role('verified') else 'success'}} d-md-inline d-sm-block mb-2" href="{{ url_for('users.toggle_user_role', id=user.id, role_name='verified') }}">{{ 'Unverify' if user.has_role('verified') else 'Verify'}}</a>
+
+				<div class="dropdown d-md-inline d-sm-block mb-2">
+					<button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuAddRole" data-bs-toggle="dropdown" aria-expanded="false">
+						Add Role
+					</button>
+					<ul class="dropdown-menu" aria-labelledby="dropdownMenuAddRole">
+						{% for role in other_roles %}
+							<li><a class="dropdown-item" href="{{ url_for('users.toggle_user_role', id=user.id, role_name=role.name) }}">{{role.name}}</a></li>
+						{% endfor %}
+					</ul>
+				</div>
+
+				<div class="dropdown d-md-inline d-sm-block mb-2">
+					<button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuRemoveRole" data-bs-toggle="dropdown" aria-expanded="false">
+						Remove Role
+					</button>
+					<ul class="dropdown-menu" aria-labelledby="dropdownMenuRemoveRole">
+						{% for role in has_roles %}
+							<li><a class="dropdown-item" href="{{ url_for('users.toggle_user_role', id=user.id, role_name=role.name) }}">{{role.name}}</a></li>
+						{% endfor %}
+					</ul>
+				</div>
+			{% endif %}
+			</div>
   </div>
 </main>
 {% endblock %}
