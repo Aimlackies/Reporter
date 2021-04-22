@@ -33,19 +33,6 @@ ADMIN_USER = {
 def app(request):
 	flask_app, user_datastore = create_app(TestConfig)
 
-	"""
-	ctx = flask_app.app_context()
-	ctx.push()
-
-	def teardown():
-		ctx.pop()
-
-	request.addfinalizer(teardown)
-
-	return flask_app
-	"""
-
-
 	with flask_app.test_client() as client:
 		with flask_app.app_context():
 			yield client
@@ -57,7 +44,6 @@ def create_db_with_sqlalchemy(app, request):
 	_db.app = app
 
 	_db.create_all()
-
 
 	def teardown():
 		_db.session.remove()

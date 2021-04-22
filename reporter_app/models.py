@@ -37,7 +37,7 @@ class Role(db.Model, RoleMixin):
 class User(db.Model, UserMixin):
     __tablename__ = 'user'
     id = Column(Integer, primary_key=True)
-    email = Column(String(255), unique=True)
+    email = Column(String(255), unique=True, nullable=False)
     username = Column(String(255), unique=True, nullable=True)
     password = Column(String(255), nullable=False)
     first_name = Column(String(128), nullable=False)
