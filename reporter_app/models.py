@@ -2,13 +2,14 @@ from reporter_app import db
 from flask_security import UserMixin, RoleMixin
 from sqlalchemy import create_engine
 from sqlalchemy.orm import relationship, backref
-from sqlalchemy import Boolean, DateTime, Column, Integer, String, ForeignKey, UnicodeText
+from sqlalchemy import Boolean, DateTime, Column, Integer, String, ForeignKey, UnicodeText, UniqueConstraint
 from sqlalchemy.sql import func
 import datetime
 
 
 class RolesUsers(db.Model):
     __tablename__ = 'roles_users'
+    __table_args__ = (UniqueConstraint('user_id', 'role_id'),)
     user_id = Column('user_id', Integer(), ForeignKey('user.id', ondelete='CASCADE'), primary_key=True)
     role_id = Column('role_id', Integer(), ForeignKey('role.id', ondelete='CASCADE'), primary_key=True)
     create_datetime = Column(DateTime(), nullable=False, server_default=func.now())
