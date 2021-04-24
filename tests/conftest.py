@@ -76,6 +76,10 @@ def db(create_db_with_sqlalchemy, request):
 		name='standard',
 		description='Manage the system')
 	)
+	db.session.add(Role(
+		name='verified',
+		description='User has been verified and can use the system')
+	)
 
 	# Commit the changes for the users
 	db.session.commit()

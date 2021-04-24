@@ -30,9 +30,10 @@ def test_dashboard_page_admin_user(db, app_client):
 
 	response = app_client.get('/')
 	assert response.status_code == 200
-	assert b"Dashboard" in response.data
-	assert current_user.roles[0].name == "admin"
-	assert len(current_user.roles) == 1
+	assert b"<h1 class=\"h2\">Dashboard</h1>" in response.data
+	assert current_user.has_role('admin') == True
+	assert current_user.has_role('standard') == False
+	assert len(current_user.roles) == 2  # verified and admin
 
 
 def test_dashboard_page_standard_user(db, app_client):
@@ -46,27 +47,46 @@ def test_dashboard_page_standard_user(db, app_client):
 
 	response = app_client.get('/')
 	assert response.status_code == 200
-	assert b"Dashboard" in response.data
-	assert current_user.roles[0].name == "standard"
-	assert len(current_user.roles) == 1
+	assert b"<h1 class=\"h2\">Dashboard</h1>" in response.data
+	assert current_user.has_role('standard') == True
+	assert current_user.has_role('admin') == False
+	assert len(current_user.roles) == 2  # verified and standard
 
 
 def test_dashboard_page_admin_user_unverified(db, app_client):
 	"""
 	GIVEN a Flask application configured for testing and admin user (unverified)
 	WHEN the '/' page is requested (GET)
-	THEN check that the response is XXX and redirected to login page
+	THEN check that the response is 403 and redirected to login page
 	"""
-	pass
+	create_user(db, ADMIN_USER, 'admin', verified=False)
+	login(app_client, ADMIN_USER['email'], ADMIN_USER['password'])
+
+	response = app_client.get('/')
+	assert response.status_code == 403
+	assert b"<h1>403" in response.data
+	assert current_user.has_role('admin') == True
+	assert current_user.has_role('standard') == False
+	assert current_user.has_role('verified') == False
+	assert len(current_user.roles) == 1  # admin
 
 
 def test_dashboard_page_standard_user_unverified(db, app_client):
 	"""
 	GIVEN a Flask application configured for testing and standard user (unverified)
 	WHEN the '/' page is requested (GET)
-	THEN check that the response is XXX and redirected to login page
+	THEN check that the response is 403 and redirected to login page
 	"""
-	pass
+	create_user(db, STANDARD_USER, 'standard', verified=False)
+	login(app_client, STANDARD_USER['email'], STANDARD_USER['password'])
+
+	response = app_client.get('/')
+	assert response.status_code == 403
+	assert b"<h1>403" in response.data
+	assert current_user.has_role('standard') == True
+	assert current_user.has_role('admin') == False
+	assert current_user.has_role('verified') == False
+	assert len(current_user.roles) == 1  # standard
 
 
 def test_login_page_no_user(app_client):
@@ -96,8 +116,9 @@ def test_login_page_admin_user(db, app_client):
 	assert response.status_code == 302
 	assert b"Redirecting..." in response.data
 	assert b"href=\"/\"" in response.data
-	assert current_user.roles[0].name == "admin"
-	assert len(current_user.roles) == 1
+	assert current_user.has_role('admin') == True
+	assert current_user.has_role('standard') == False
+	assert len(current_user.roles) == 2  # verified and admin
 
 
 def test_login_page_standard_user(db, app_client):
@@ -114,5 +135,6 @@ def test_login_page_standard_user(db, app_client):
 	assert response.status_code == 302
 	assert b"Redirecting..." in response.data
 	assert b"href=\"/\"" in response.data
-	assert current_user.roles[0].name == "standard"
-	assert len(current_user.roles) == 1
+	assert current_user.has_role('standard') == True
+	assert current_user.has_role('admin') == False
+	assert len(current_user.roles) == 2  # verified and standard
