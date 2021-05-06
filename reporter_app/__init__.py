@@ -7,7 +7,6 @@ from sassutils.wsgi import SassMiddleware
 from flask_mail import Mail
 from reporter_app.utils import seed as seed_db
 
-
 db = SQLAlchemy()
 migrate = Migrate()
 mail = Mail()
@@ -51,6 +50,10 @@ def create_app(config_class=Config):
     # User pages
     from reporter_app.users import bp as users_bp
     app.register_blueprint(users_bp)
+    
+    # Building electricity usage data page
+    from reporter_app.electricity_use import bp as electricity_use_bp
+    app.register_blueprint(electricity_use_bp)
 
     # Normal app startup
     if not app.debug and not app.testing:
