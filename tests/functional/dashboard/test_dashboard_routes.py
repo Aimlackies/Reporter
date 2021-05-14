@@ -4,8 +4,6 @@ from reporter_app.models import Role, User
 import pytest
 from flask_security import current_user
 
-from reporter_app.models import User
-
 
 def test_dashboard_page_no_user(app_client):
 	"""
@@ -57,7 +55,7 @@ def test_dashboard_page_admin_user_unverified(db, app_client):
 	"""
 	GIVEN a Flask application configured for testing and admin user (unverified)
 	WHEN the '/' page is requested (GET)
-	THEN check that the response is 403 and redirected to login page
+	THEN check that the response is 403 and redirected to 403 page
 	"""
 	create_user(db, ADMIN_USER, 'admin', verified=False)
 	login(app_client, ADMIN_USER['email'], ADMIN_USER['password'])
@@ -75,7 +73,7 @@ def test_dashboard_page_standard_user_unverified(db, app_client):
 	"""
 	GIVEN a Flask application configured for testing and standard user (unverified)
 	WHEN the '/' page is requested (GET)
-	THEN check that the response is 403 and redirected to login page
+	THEN check that the response is 403 and redirected to 403 page
 	"""
 	create_user(db, STANDARD_USER, 'standard', verified=False)
 	login(app_client, STANDARD_USER['email'], STANDARD_USER['password'])

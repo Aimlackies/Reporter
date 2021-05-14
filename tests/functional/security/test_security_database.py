@@ -5,8 +5,16 @@ import pytest
 from flask_security import current_user
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
-from reporter_app.models import User
 
+"""
+NOTE:
+=======
+
+The test database is using SQlite3 and therfore may not behave the same as a
+MySQL database in all situations. Known ones are as follows:
+
+* There is no validation for length of a string
+"""
 
 def test_create_valid_user(db, app_client):
 	"""

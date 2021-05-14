@@ -29,7 +29,7 @@ ADMIN_USER = {
 }
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope='function')
 def app(request):
 	flask_app, user_datastore = create_app(TestConfig)
 
@@ -38,7 +38,7 @@ def app(request):
 			yield client
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope='function')
 def create_db_with_sqlalchemy(app, request):
 	# bind the app the database instance
 	_db.app = app
@@ -54,7 +54,7 @@ def create_db_with_sqlalchemy(app, request):
 	return _db
 
 
-@pytest.fixture
+@pytest.fixture(scope='function')
 def db(create_db_with_sqlalchemy, request):
 	db = create_db_with_sqlalchemy
 
@@ -87,7 +87,7 @@ def db(create_db_with_sqlalchemy, request):
 	return db
 
 
-@pytest.fixture
+@pytest.fixture(scope='function')
 def app_client(db, app):
 	"""Create api request client."""
 	return app
