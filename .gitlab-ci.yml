@@ -6,6 +6,7 @@ stages:
 build job:
   stage: build
   script:
+    - export PYTHONPATH=.
     - export FLASK_APP=reporter.py
     - pip3 install --upgrade pip
     - pip3 install bcrypt
