@@ -9,7 +9,7 @@ before_script:
 stages:
   - test
 
-build job:
+test_job:
   stage: test
   tags:
     - general-docker 
