@@ -4,6 +4,7 @@ stages:
 build job:
   stage: build
   script:
+    - echo "$SECRET_KEY"
     - export PYTHONPATH=.
     - export FLASK_APP=reporter.py
     - apt-get update
