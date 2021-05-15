@@ -7,12 +7,11 @@ before_script:
   - source venv/bin/activate
 
 stages:
-  - build
+  - test
 
 build job:
-  stage: build
+  stage: test
   script:
-    - python -V
     - export PYTHONPATH=.
     - export FLASK_APP=reporter.py
     - pip3 install --upgrade pip
