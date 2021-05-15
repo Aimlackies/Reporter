@@ -11,6 +11,8 @@ stages:
 
 build job:
   stage: test
+  tags:
+    - docker
   script:
     - export PYTHONPATH=.
     - export FLASK_APP=reporter.py
