@@ -1,12 +1,5 @@
 image: python:latest
 
-before_script:
-  - python -V  # Print out python version for debugging
-  - pip install virtualenv
-  - virtualenv venv
-  - source venv/bin/activate
-
-
 stages:
   - build
 
@@ -15,7 +8,9 @@ build job:
   script:
     - export PYTHONPATH=.
     - export FLASK_APP=reporter.py
-    - pip install --upgrade pip
-    - pip install bcrypt
-    - pip install -r requirements.txt
+    - apt-get update
+    - apt-get install -y python3-dev python3-pip
+    - pip3 install --upgrade pip
+    - pip3 install bcrypt
+    - pip3 install -r requirements.txt
     - pytest
