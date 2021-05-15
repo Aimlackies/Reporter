@@ -1,11 +1,18 @@
 image: python:latest
 
+before_script:
+  - python -V
+  - pip install virtualenv
+  - virtualenv venv
+  - source venv/bin/activate
+
 stages:
   - build
 
 build job:
   stage: build
   script:
+    - python -V
     - export PYTHONPATH=.
     - export FLASK_APP=reporter.py
     - pip3 install --upgrade pip
