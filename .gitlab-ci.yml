@@ -8,7 +8,7 @@ build job:
   script:
     - export PYTHONPATH=.
     - export FLASK_APP=reporter.py
-    - pip install --upgrade pip
-    - pip install bcrypt
-    - pip install -r requirements.txt
+    - pip3 install --upgrade pip
+    - pip3 install bcrypt
+    - pip3 install -r requirements.txt
     - pytest
