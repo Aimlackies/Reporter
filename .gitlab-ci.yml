@@ -19,4 +19,4 @@ build job:
     - pip3 install --upgrade pip
     - pip3 install bcrypt
     - pip3 install -r requirements.txt
-    - pytest
+    - pytest --cov=reporter_app/ tests/
