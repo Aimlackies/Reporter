@@ -1,6 +1,7 @@
 stages:
   - build
 
+build job:
   stage: build
   script:
     - export PYTHONPATH=.
