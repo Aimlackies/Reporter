@@ -54,7 +54,6 @@ def create_app(config_class=Config):
 
     # Normal app startup
     if not app.debug and not app.testing:
-        # ... no changes to logging setup
         pass
 
     return app, user_datastore

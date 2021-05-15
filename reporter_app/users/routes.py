@@ -1,4 +1,4 @@
-from flask import flash
+from flask import flash, request
 from flask import render_template, url_for, redirect
 from reporter_app.users import bp
 from reporter_app.models import User, Role
@@ -47,8 +47,9 @@ def users():
 @auth_required("token", "session")
 def toggle_user_role(id, role_name):
 	user = User.query.filter_by(id=id).first_or_404()
-	# If the user accessing the page has permission render user
-	if current_user.has_role('admin') and current_user.has_role('verified'):  # Only admin allowed
+	# If the user accessing the route has permission render user
+	# A user has to be an admin, verified and a user cannot change their own permissions
+	if (current_user.id != int(id)) and current_user.has_role('admin') and current_user.has_role('verified'):
 		role = Role.query.filter_by(name=role_name).first()
 		if user.has_role(role_name):
 			user.roles.remove(role)
@@ -59,4 +60,5 @@ def toggle_user_role(id, role_name):
 		return redirect(url_for('users.user', id=user.id))
 	# If the user does not have permission then reload user template
 	flash('You do not have permission to do that', 'danger')
-	return redirect(url_for('users.user', id=user.id))
+	#return redirect(url_for('users.user', id=user.id), code=403)
+	return render_template('errors/403.html'), 403
