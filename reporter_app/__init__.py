@@ -12,6 +12,7 @@ migrate = Migrate()
 mail = Mail()
 security = Security()
 
+
 import reporter_app.models
 import reporter_app.forms
 
@@ -50,7 +51,7 @@ def create_app(config_class=Config):
     # User pages
     from reporter_app.users import bp as users_bp
     app.register_blueprint(users_bp)
-    
+
     # Building electricity usage data page
     from reporter_app.electricity_use import bp as electricity_use_bp
     app.register_blueprint(electricity_use_bp)
