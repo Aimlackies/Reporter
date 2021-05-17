@@ -1,0 +1,25 @@
+image: python:3.8
+
+before_script:
+  - python -V
+  - pip install virtualenv
+  - virtualenv venv
+  - source venv/bin/activate
+
+stages:
+  - test
+
+test_job:
+  stage: test
+  tags:
+    - general-docker 
+  script:
+    - export PYTHONPATH=.
+    - export FLASK_APP=reporter.py
+    - pip3 install --upgrade pip
+    - pip3 install bcrypt
+    - pip3 install -r requirements.txt
+    - pytest --cov=reporter_app/ tests/
+  only:
+    - main
+    - merge_requests

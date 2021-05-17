@@ -11,4 +11,4 @@ from flask_security import auth_required, hash_password, current_user, roles_req
 @auth_required("token", "session")
 @roles_required('verified')
 def dashboard():
-    return render_template('dashboard/dashboard.html', title='Dashboard')
+	return render_template('dashboard/dashboard.html', title='Dashboard')
