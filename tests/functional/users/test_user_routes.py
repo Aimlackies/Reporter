@@ -128,9 +128,14 @@ def test_user_profile_single_user(db, app_client, user_params, loggin_user, expe
 ])
 def test_user_profile_multi_user(db, app_client, current_user_params, target_user_params, expect):
 	"""
-	GIVEN a Flask application configured for testing and 2 standard users (verified)
-	WHEN the '/user/<id>' page is requested (GET) for the non current_user
-	THEN check that the response is 302
+	GIVEN a Flask application configured for testing and 2 user parameters
+	WHEN the '/user/<id>' page is requested (GET)
+	THEN do not authorise any user but verified admins
+
+	parmas:
+	current_user_params: [dict of user parameters, string user role, bool verifed]
+	target_user_params: [dict of user parameters, string user role, bool verifed]
+	expect: [int expected response code]
 	"""
 	create_user(db, current_user_params[0], current_user_params[1], verified=current_user_params[2])
 	create_user(db, target_user_params[0], target_user_params[1], verified=target_user_params[2])
