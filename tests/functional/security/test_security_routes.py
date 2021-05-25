@@ -90,6 +90,37 @@ def test_login_post(db, app_client, user_params, login_params, expect):
 
 # Logout
 
+@pytest.mark.parametrize("user_params, expect", [
+	([ADMIN_USER, 'admin', True], [302]),
+	([ADMIN_USER, 'admin', False], [302]),
+	([STANDARD_USER, 'standard', True], [302]),
+	([STANDARD_USER, 'standard', False], [302]),
+	(None, [302])  # no user is redirected to login
+])
+def test_logout_get(db, app_client, user_params, expect):
+	"""
+	GIVEN a Flask application configured for testing and zero or one user parameters
+	WHEN the '/logout' page is sent form data (GET)
+	THEN if a user is logged in their request sould be accepted, otherwise declined
+
+	parmas:
+	user_params: [dict of user parameters, string user role, bool verifed]; else None
+	expect: [int expected response code, bool user loged in]
+	"""
+
+	if user_params != None:
+		create_user(db, user_params[0], user_params[1], verified=user_params[2])
+		login(app_client, user_params[0]['email'], user_params[0]['password'])
+
+	if user_params != None:
+		assert current_user.is_authenticated == True
+	else:
+		app_client.get('/')  # If no user is logged in then there needs to be some interaction with the client to initilise the anonymous user
+		assert current_user.is_authenticated == False
+	response = app_client.get('/logout')
+	assert response.status_code == expect[0]
+	assert current_user.is_authenticated == False
+
 # register page
 
 # reset password page

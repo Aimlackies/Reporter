@@ -5,83 +5,36 @@ import pytest
 from flask_security import current_user
 
 
-def test_dashboard_page_no_user(app_client):
+@pytest.mark.parametrize("user_params, expect", [
+	([ADMIN_USER, 'admin', True], [200]),
+	([ADMIN_USER, 'admin', False], [403]),
+	([STANDARD_USER, 'standard', True], [200]),
+	([STANDARD_USER, 'standard', False], [403]),
+	(None, [302]),
+])
+def test_dashboard_page(db, app_client, user_params, expect):
 	"""
-	GIVEN a Flask application configured for testing and no user
+	GIVEN a Flask application configured for testing and zero or one user parameters
 	WHEN the '/' page is requested (GET)
-	THEN check that the response is 302 and redirected to login page
+	THEN make sure only verified users can access it and correct status code for all access attempts
+
+	parmas:
+	user_params: [dict of user parameters, string user role, bool verifed]
+	expect: [int expected response code]
 	"""
-	response = app_client.get('/')
-	assert response.status_code == 302
-	assert b"login" in response.data
-	assert b"Redirecting..." in response.data
+	if user_params != None:
+		create_user(db, user_params[0], user_params[1], verified=user_params[2])
+		login(app_client, user_params[0]['email'], user_params[0]['password'])
 
-
-def test_dashboard_page_admin_user(db, app_client):
-	"""
-	GIVEN a Flask application configured for testing and admin user (verified)
-	WHEN the '/' page is requested (GET)
-	THEN check that the response is 200
-	"""
-	create_user(db, ADMIN_USER, 'admin')
-	login(app_client, ADMIN_USER['email'], ADMIN_USER['password'])
-
-	response = app_client.get('/')
-	assert response.status_code == 200
-	assert b"<h1 class=\"h2\">Dashboard</h1>" in response.data
-	assert current_user.has_role('admin') == True
-	assert current_user.has_role('standard') == False
-	assert len(current_user.roles) == 2  # verified and admin
-
-
-def test_dashboard_page_standard_user(db, app_client):
-	"""
-	GIVEN a Flask application configured for testing and standard user (verified)
-	WHEN the '/' page is requested (GET)
-	THEN check that the response is 200
-	"""
-	create_user(db, STANDARD_USER, 'standard')
-	login(app_client, STANDARD_USER['email'], STANDARD_USER['password'])
-
-	response = app_client.get('/')
-	assert response.status_code == 200
-	assert b"<h1 class=\"h2\">Dashboard</h1>" in response.data
-	assert current_user.has_role('standard') == True
-	assert current_user.has_role('admin') == False
-	assert len(current_user.roles) == 2  # verified and standard
-
-
-def test_dashboard_page_admin_user_unverified(db, app_client):
-	"""
-	GIVEN a Flask application configured for testing and admin user (unverified)
-	WHEN the '/' page is requested (GET)
-	THEN check that the response is 403 and redirected to 403 page
-	"""
-	create_user(db, ADMIN_USER, 'admin', verified=False)
-	login(app_client, ADMIN_USER['email'], ADMIN_USER['password'])
-
-	response = app_client.get('/')
-	assert response.status_code == 403
-	assert b"<h1>403" in response.data
-	assert current_user.has_role('admin') == True
-	assert current_user.has_role('standard') == False
-	assert current_user.has_role('verified') == False
-	assert len(current_user.roles) == 1  # admin
-
-
-def test_dashboard_page_standard_user_unverified(db, app_client):
-	"""
-	GIVEN a Flask application configured for testing and standard user (unverified)
-	WHEN the '/' page is requested (GET)
-	THEN check that the response is 403 and redirected to 403 page
-	"""
-	create_user(db, STANDARD_USER, 'standard', verified=False)
-	login(app_client, STANDARD_USER['email'], STANDARD_USER['password'])
-
-	response = app_client.get('/')
-	assert response.status_code == 403
-	assert b"<h1>403" in response.data
-	assert current_user.has_role('standard') == True
-	assert current_user.has_role('admin') == False
-	assert current_user.has_role('verified') == False
-	assert len(current_user.roles) == 1  # standard
+	response = app_client.get('/', follow_redirects=False)
+	assert response.status_code == expect[0]
+	# If user logged in then make sure their parameeters are as expected
+	if current_user.is_authenticated:
+		assert current_user.has_role(user_params[1]) == True
+		if user_params[2]:
+			assert current_user.has_role('verified') == True
+		else:
+			assert current_user.has_role('verified') == False
+	# Else make sure no user was provided and meant to be logged in
+	else:
+		assert user_params == None
