@@ -20,23 +20,20 @@
     <table class="table table-striped table-sm">
       <thead>
         <tr>
-          {% for col in column_names %}
-	  <th>{{col}}</th>
-	  {% endfor %}
+          <th>Date & Time</th>
+          <th>CO2</th>
         </tr>
       </thead>
       <tbody>
-        {% for row in row_data %}
-	<tr>
-          {% for col, row_ in zip(column_names, row) %}
-          <td>{{row_}}</td>
-          {% endfor %}
+        {% for row in co2_entries %}
+	       <tr>
+          <td>{{row.date_time}}</td>
+          <td>{{row.co2}}</td>
         </tr>
-	{% endfor %}
+        {% endfor %}
       </tbody>
     </table>
   </div>
 
 </main>
 {% endblock %}
-
