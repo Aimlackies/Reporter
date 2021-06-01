@@ -123,6 +123,34 @@ def test_logout_get(db, app_client, user_params, expect):
 
 # register page
 
-# reset password page
+@pytest.mark.parametrize("user_params, expect", [
+	([ADMIN_USER, 'admin', True], [302]),
+	([ADMIN_USER, 'admin', False], [302]),
+	([STANDARD_USER, 'standard', True], [302]),
+	([STANDARD_USER, 'standard', False], [302]),
+	(None, [200]),
+])
+def test_register_get(db, app_client, user_params, expect):
+	"""
+	GIVEN a Flask application configured for testing and zero or one user parameters
+	WHEN the '/register' page is requested (GET)
+	THEN if a user is provided redirect, otherwise allow the request
 
-# verify page
+	parmas:
+	user_params: [dict of user parameters, string user role, bool verifed]
+	expect: [int expected response code]
+	"""
+
+	if user_params != None:
+		create_user(db, user_params[0], user_params[1], verified=user_params[2])
+		login(app_client, user_params[0]['email'], user_params[0]['password'])
+
+	response = app_client.get('/register')
+	assert response.status_code == expect[0]
+	if user_params != None:
+		assert current_user.is_authenticated == True  # User currently logged in
+		assert current_user.has_role(user_params[1]) == True
+	else:
+		assert current_user.is_authenticated == False  # No user currently logged in
+
+# reset password page
