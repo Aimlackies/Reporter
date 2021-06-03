@@ -357,7 +357,7 @@ def test_create_user_has_all_roles(db, app_client):
 	db.session.commit()
 
 	assert User.query.filter_by(username=STANDARD_USER['username']).count() == 1  # user does not exist
-	assert len(User.query.filter_by(username=STANDARD_USER['username']).first().roles) == 3  # user has 2 roles
+	assert len(User.query.filter_by(username=STANDARD_USER['username']).first().roles) == 3  # user has 3 roles
 	assert User.query.filter_by(username=STANDARD_USER['username']).first().has_role('standard') == True  # user has standard role
 	assert User.query.filter_by(username=STANDARD_USER['username']).first().has_role('verified') == True  # user has verified role
 	assert User.query.filter_by(username=STANDARD_USER['username']).first().has_role('admin') == True  # user has verified role
