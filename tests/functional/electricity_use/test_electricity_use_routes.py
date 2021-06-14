@@ -6,13 +6,13 @@ from flask_security import current_user
 
 
 @pytest.mark.parametrize("user_params, expect", [
-	#([ADMIN_USER, 'admin', True], [200]),
-	#([ADMIN_USER, 'admin', False], [403]),
-	#([STANDARD_USER, 'standard', True], [200]),
-	#([STANDARD_USER, 'standard', False], [403]),
-	#(None, [302]),
+	([ADMIN_USER, 'admin', True], [200]),
+	([ADMIN_USER, 'admin', False], [403]),
+	([STANDARD_USER, 'standard', True], [200]),
+	([STANDARD_USER, 'standard', False], [403]),
+	(None, [302]),
 ])
-def test_dashboard_page(db, app_client, user_params, expect):
+def test_electricity_use_page(db, app_client, user_params, expect):
 	"""
 	GIVEN a Flask application configured for testing and zero or one user parameters
 	WHEN the '/electricity_use' page is requested (GET)
