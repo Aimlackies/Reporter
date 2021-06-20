@@ -27,4 +27,5 @@ def register(app, user_datastore):
             confirmed_at=func.now()
         )
         userAdmin.roles.append(roleAdmin)
+        userAdmin.roles.append(roleVerified)
         db.session.commit()

@@ -18,7 +18,7 @@
       <div class="col col-12 col-md-6"><p><span class="h6">Email:</span> {{ user.email }}</p></div>
     </div>
     <div class="row">
-      <div class="col col-12 col-md-6"><p><span class="h6">Username:</span> {{ user.username }}</p></div>
+      <div class="col col-12 col-md-6"><p><span class="h6">Username:</span> {{ user.username if user.username != none }}</p></div>
       <div class="col col-12 col-md-6">
 				<p>
 					<span class="h6">Roles:</span>
@@ -52,7 +52,7 @@
 			{% if user.id == current_user.id %}
 				<a class="btn btn-outline-secondary d-md-inline d-sm-block" href="{{ url_for_security('change_password') }}">Update password</a>
 			{% endif %}
-			{% if current_user.has_role('admin') and current_user.has_role('verified') %}
+			{% if current_user.has_role('admin') and current_user.has_role('verified') and user.id != current_user.id %}
 				<a class="btn btn-outline-{{ 'danger' if user.has_role('verified') else 'success'}} d-md-inline d-sm-block mb-2" href="{{ url_for('users.toggle_user_role', id=user.id, role_name='verified') }}">{{ 'Unverify' if user.has_role('verified') else 'Verify'}}</a>
 
 				<div class="dropdown d-md-inline d-sm-block mb-2">

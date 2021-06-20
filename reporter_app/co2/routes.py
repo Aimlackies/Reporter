@@ -11,7 +11,6 @@ from flask_security import auth_required, roles_required
 @bp.route('/co2')
 @auth_required("token", "session")
 @roles_required('verified')
-
 def co2():
     co2_entries = Co2.query.all()
     return render_template('co2/co2.html', co2_entries=co2_entries)

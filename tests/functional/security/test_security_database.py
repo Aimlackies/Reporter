@@ -6,68 +6,53 @@ from flask_security import current_user
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
 
-"""
-NOTE:
-=======
-
-The test database is using SQlite3 and therfore may not behave the same as a
-MySQL database in all situations. Known ones are as follows:
-
-* There is no validation for length of a string
-"""
-
-def test_create_valid_user(db, app_client):
+@pytest.mark.parametrize("user_params, change, expect", [
+	(get_standard_user(), {"drop": False, "param": "username", "value": "new_username"}, {"user_count": [1, "email"], "error_msg": None}),
+	(get_standard_user(), {"drop": True, "param": "email"}, {"user_count": [0, "username"], "error_msg": "NOT NULL constraint failed: user.email"}),
+	(get_standard_user(), {"drop": True, "param": "password"}, {"user_count": [0, "username"], "error_msg": "NOT NULL constraint failed: user.password"}),
+	(get_standard_user(), {"drop": True, "param": "first_name"}, {"user_count": [0, "username"], "error_msg": "NOT NULL constraint failed: user.first_name"}),
+	(get_standard_user(), {"drop": True, "param": "surname"}, {"user_count": [0, "username"], "error_msg": "NOT NULL constraint failed: user.surname"}),
+])
+def test_user_creation(db, app_client, user_params, change, expect):
 	"""
-	GIVEN a Flask application configured for testing
+	GIVEN a Flask application configured for testing and zero or one user parameters
 	WHEN submitting a transaction to create a valid user
-	THEN check the transaction has been a success and the user is in the DB
+	THEN make sure the database responds as expected
+
+	parmas:
+	user_params: dict of user parameters
+	change: dict{
+		drop: True if param to change is to be removed, else False
+		param: string parameter name to alter
+		value: value to chame param value to (only use if drop == False)
+	}
+	expect: dict{
+		user_count: [int number of users expected, string parmeter filter by ("username" or "email")]
+		error_msg: String of error message to expect, else None if no error expected
+	}
 	"""
+	if change["drop"]:
+		del user_params[change["param"]]
+	else:
+		user_params[change["param"]] = change["value"]
 
-	user = get_standard_user()
+	if expect["error_msg"] == None:
+		db.session.add(User(**user_params))
+	else:
+		db.session.begin_nested()
+		with pytest.raises(IntegrityError) as e:
+			db.session.add(User(**user_params))
+			db.session.commit()
+		db.session.rollback()
 
-	db.session.add(User(
-		username=user['username'],
-		first_name=user['first_name'],
-		surname=user['surname'],
-		email=user['email'],
-		password=user['password'],
-		confirmed_at=user['confirmed_at'],
-		fs_uniquifier=user['fs_uniquifier'],
-		active=user['active']
-	))
-
-	db.session.commit()
-
-	assert User.query.filter_by(username=STANDARD_USER['username']).count() == 1  # user does not exist
-	assert len(User.query.filter_by(username=STANDARD_USER['username']).first().roles) == 0  # New user has no roles
+	if expect["error_msg"] != None:
+		assert expect["error_msg"] in str(e.value)
+	if expect["user_count"][1] == "username":
+		assert User.query.filter_by(username=user_params[expect["user_count"][1]]).count() == expect["user_count"][0]
+	elif expect["user_count"][1] == "email":
+		assert User.query.filter_by(email=user_params[expect["user_count"][1]]).count() == expect["user_count"][0]
 
 
-def test_create_user_missing_email(db, app_client):
-	"""
-	GIVEN a Flask application configured for testing
-	WHEN submitting a transaction to create a user without an email
-	THEN check the transaction has been a unsuccessful for the email parameter and the user is not in the DB
-	"""
-
-	user = get_standard_user()
-
-	db.session.begin_nested()
-	with pytest.raises(IntegrityError) as e:
-		db.session.add(User(
-			username="user_missing_email",
-			first_name=user['first_name'],
-			surname=user['surname'],
-			password=user['password'],
-			confirmed_at=user['confirmed_at'],
-			fs_uniquifier=user['fs_uniquifier'],
-			active=user['active']
-		))
-
-		db.session.commit()
-	db.session.rollback()
-
-	assert "NOT NULL constraint failed: user.email" in str(e.value)  # email missing
-	assert User.query.filter_by(username="user_missing_email").count() == 0  # user does not exist
 
 
 def test_create_user_email_not_unique(db, app_client):
@@ -114,7 +99,7 @@ def test_create_user_email_not_unique(db, app_client):
 
 	assert "UNIQUE constraint failed: user.email" in str(e.value)  # email not unique
 	assert User.query.filter_by(email="email@email.com").count() == 1  # Only one uesr exists
-	assert User.query.filter_by(email="email@email.com").first().username == "not_unique_user_1" # First user that was created still exists
+	assert User.query.filter_by(email="email@email.com").first().username == "not_unique_user_1"  # First user that was created still exists
 
 
 def test_create_user_username_not_unique(db, app_client):
@@ -165,88 +150,13 @@ def test_create_user_username_not_unique(db, app_client):
 	assert User.query.filter_by(email="email@email.com").first().username == "not_unique_user" # First user that was created still exists
 
 
-def test_create_user_password_missing(db, app_client):
-	"""
-	GIVEN a Flask application configured for testing
-	WHEN submitting a transaction to create a user without a password
-	THEN check the transaction has been a unsuccessful for the password parameter and the user is not in the DB
-	"""
-
-	user = get_standard_user()
-
-	db.session.begin_nested()
-	with pytest.raises(IntegrityError) as e:
-		db.session.add(User(
-			username="user_missing_password",
-			first_name=user['first_name'],
-			surname=user['surname'],
-			email=user['email'],
-			confirmed_at=user['confirmed_at'],
-			fs_uniquifier=user['fs_uniquifier'],
-			active=user['active']
-		))
-
-		db.session.commit()
-	db.session.rollback()
-
-	assert "NOT NULL constraint failed: user.password" in str(e.value)  # email missing
-	assert User.query.filter_by(username="user_missing_password").count() == 0  # user does not exist
 
 
-def test_create_user_first_name_missing(db, app_client):
-	"""
-	GIVEN a Flask application configured for testing
-	WHEN submitting a transaction to create a user without a first name
-	THEN check the transaction has been a unsuccessful for the first_name parameter and the user is not in the DB
-	"""
-
-	user = get_standard_user()
-
-	db.session.begin_nested()
-	with pytest.raises(IntegrityError) as e:
-		db.session.add(User(
-			username="user_missing_first_name",
-			surname=user['surname'],
-			email=user['email'],
-			password=user['password'],
-			confirmed_at=user['confirmed_at'],
-			fs_uniquifier=user['fs_uniquifier'],
-			active=user['active']
-		))
-
-		db.session.commit()
-	db.session.rollback()
-
-	assert "NOT NULL constraint failed: user.first_name" in str(e.value)  # email missing
-	assert User.query.filter_by(username="user_missing_first_name").count() == 0  # user does not exist
 
 
-def test_create_user_surname_missing(db, app_client):
-	"""
-	GIVEN a Flask application configured for testing
-	WHEN submitting a transaction to create a user without a surname
-	THEN check the transaction has been a unsuccessful for the surname parameter and the user is not in the DB
-	"""
 
-	user = get_standard_user()
 
-	db.session.begin_nested()
-	with pytest.raises(IntegrityError) as e:
-		db.session.add(User(
-			username="user_missing_surname",
-			first_name=user['first_name'],
-			email=user['email'],
-			password=user['password'],
-			confirmed_at=user['confirmed_at'],
-			fs_uniquifier=user['fs_uniquifier'],
-			active=user['active']
-		))
 
-		db.session.commit()
-	db.session.rollback()
-
-	assert "NOT NULL constraint failed: user.surname" in str(e.value)  # email missing
-	assert User.query.filter_by(username="user_missing_surname").count() == 0  # user does not exist
 
 
 def test_create_user_has_verified_role(db, app_client):
@@ -447,7 +357,7 @@ def test_create_user_has_all_roles(db, app_client):
 	db.session.commit()
 
 	assert User.query.filter_by(username=STANDARD_USER['username']).count() == 1  # user does not exist
-	assert len(User.query.filter_by(username=STANDARD_USER['username']).first().roles) == 3  # user has 2 roles
+	assert len(User.query.filter_by(username=STANDARD_USER['username']).first().roles) == 3  # user has 3 roles
 	assert User.query.filter_by(username=STANDARD_USER['username']).first().has_role('standard') == True  # user has standard role
 	assert User.query.filter_by(username=STANDARD_USER['username']).first().has_role('verified') == True  # user has verified role
 	assert User.query.filter_by(username=STANDARD_USER['username']).first().has_role('admin') == True  # user has verified role

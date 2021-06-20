@@ -53,7 +53,7 @@
                 </a>
 			</li>
 			<li class="nav-item">
-				<a class="nav-link" aria-current="page" href="{{ url_for('co2.co2') }}">
+				<a class="nav-link {{ 'active' if request.endpoint == 'co2.co2'}}" aria-current="page" href="{{ url_for('co2.co2') }}">
 					<span data-feather="home"></span>
 					<i class="bi-thermometer-half"></i> CO2 Savings
 				</a>

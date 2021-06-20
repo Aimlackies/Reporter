@@ -19,3 +19,5 @@ class Config(object):
 	SECURITY_EMAIL_VALIDATOR_ARGS = {"check_deliverability": False}
 	SECURITY_CHANGEABLE = True
 	SECURITY_RECOVERABLE = True
+	SECURITY_POST_REGISTER_VIEW = "/new_user"
+	SECURITY_POST_LOGOUT_VIEW = "/login"

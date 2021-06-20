@@ -12,10 +12,10 @@ from flask_security import current_user
 	([STANDARD_USER, 'standard', False], [403]),
 	(None, [302]),
 ])
-def test_dashboard_page(db, app_client, user_params, expect):
+def test_co2_page(db, app_client, user_params, expect):
 	"""
 	GIVEN a Flask application configured for testing and zero or one user parameters
-	WHEN the '/' page is requested (GET)
+	WHEN the '/co2' page is requested (GET)
 	THEN make sure only verified users can access it and correct status code for all access attempts
 
 	parmas:
@@ -26,7 +26,7 @@ def test_dashboard_page(db, app_client, user_params, expect):
 		create_user(db, user_params[0], user_params[1], verified=user_params[2])
 		login(app_client, user_params[0]['email'], user_params[0]['password'])
 
-	response = app_client.get('/', follow_redirects=False)
+	response = app_client.get('/co2', follow_redirects=False)
 	assert response.status_code == expect[0]
 	# If user logged in then make sure their parameeters are as expected
 	if current_user.is_authenticated:

@@ -1,6 +1,15 @@
 {% extends "template_parts/base.html" %}
 
 {% block content %}
-    <h1>403 - You do not have permission</h1>
-    <p><a href="{{ url_for('dashboard.dashboard') }}">Back</a></p>
+<main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+	<div class="bg-white p-3 mt-4">
+		<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3">
+			<h1>403 - You do not have permission</h1>
+		</div>
+		<hr/>
+
+		<a type="button" class="btn btn-outline-primary btn-sm" href="{{ url_for('dashboard.dashboard') }}">Go to Dashboard</a>
+
+	</div>
+</main>
 {% endblock %}
