@@ -43,6 +43,9 @@
                 {% for error in register_user_form.password_confirm.errors %}
                 <span class="text-danger">{{ error }}</span>
                 {% endfor %}
+                {% for error in register_user_form.errors %}
+                <span class="text-danger">{{ error }}</span>
+                {% endfor %}
             </p>
             <p>{{ register_user_form.submit(class_='btn btn-primary') }}</p>
         </form>

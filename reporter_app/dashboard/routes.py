@@ -12,3 +12,8 @@ from flask_security import auth_required, hash_password, current_user, roles_req
 @roles_required('verified')
 def dashboard():
 	return render_template('dashboard/dashboard.html', title='Dashboard')
+
+@bp.route('/new_user')
+@auth_required("token", "session")
+def new_user():
+	return render_template('dashboard/new_user.html', title='Congratulations for signing up!')

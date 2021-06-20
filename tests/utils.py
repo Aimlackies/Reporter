@@ -50,4 +50,29 @@ def get_standard_user():
 
 
 def get_admin_user():
-	return ADMIN_USER
+	return {
+		'username': 'admin',
+		'first_name': 'admin',
+		'surname': 'admin',
+		'email': 'admin@aimlackies.com',
+		'password': 'password',
+		'confirmed_at': func.now(),
+		'fs_uniquifier': secrets.token_urlsafe(64),
+		'active': True
+	}
+
+
+def get_register_params(base="standard"):
+	if base == "standard":
+		params = get_standard_user()
+	else:
+		params = get_admin_user()
+
+	del params["username"]
+	del params["confirmed_at"]
+	del params["fs_uniquifier"]
+	del params["active"]
+
+	params["password_confirm"] = params["password"]
+
+	return params
