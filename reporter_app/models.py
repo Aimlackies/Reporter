@@ -63,3 +63,8 @@ class User(db.Model, UserMixin):
 
 	def has_role(self, role):
 		return role in self.roles
+
+class Co2(db.Model):
+	__tablename__ = 'co2'
+	date_time = Column(DateTime(), primary_key=True)
+	co2 = Column(db.Float)

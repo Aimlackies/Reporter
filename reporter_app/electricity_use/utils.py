@@ -94,15 +94,26 @@ def get_grib_data(parameter, time):
 
 
 class getWeather:
-    def __init__(self, time, source='OWM'):
+    def __init__(self, source='OWM'):
         '''
         Generates and interpolates for next 5 days on initialisation, can call full df now
         '''
-        self.time = time
+        self.time = self.get_time()
         self.source = source
         self.date = datetime.datetime.today().strftime('%Y-%m-%d')
         self.data = self.get_weather()[1]
         self.full_df = self.interpolate_df()
+
+    def get_time(self):
+        '''
+        Grabs time in correct format
+        '''
+        t = datetime.datetime.now().hour + 1
+        if t < 10:
+            t = f'0{t}'
+        else:
+            t = str(t)
+        return t
 
     def get_weather(self, variable='all'):
         date_time = self.date + f' {self.time}:00:00'
@@ -153,6 +164,7 @@ class getWeather:
             return forecast, df
         else:
             print('Unable to get forecast')
+
     def interpolate_df(self):
         # Add to this to interpolate more columns
         interpolated_columns = ['temp', 'all', 'speed']
@@ -189,7 +201,7 @@ class getWeather:
             interpolated_df = interpolated_df.append(intdata[intdata.index==i], ignore_index=True)
             interpolated_df = interpolated_df.append(this_row, ignore_index=True)
         out_df = interpolated_df.rename(columns={'all':'cloud_percent', 'speed':'wind_speed', 'index':'time'})
-        return(out_df)
+        return(out_df.iloc[1:, :])
 
 def electricity(time, weather):
     temp = weather[weather.time == time]

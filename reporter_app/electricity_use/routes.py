@@ -8,7 +8,7 @@ from flask_security import auth_required, roles_required
 
 
 def call_leccyfunc():
-    weather = getWeather(16, 'OWM').full_df
+    weather = getWeather('OWM').full_df
     temp = weather[['time', 'temp']]
     leccy_df = pd.DataFrame(columns=['Time', 'Electricity Usage (Kw)'])
     for i, time in enumerate(weather.time):
