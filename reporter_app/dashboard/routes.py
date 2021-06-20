@@ -5,6 +5,10 @@ from reporter_app import db
 from reporter_app.models import User
 from flask_security import auth_required, hash_password, current_user, roles_required
 
+# for graphs
+import pandas as pd
+import json
+
 
 @bp.route('/')
 @bp.route('/dashboard')
