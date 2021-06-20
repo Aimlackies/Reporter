@@ -15,13 +15,13 @@ def call_MET_API(parameter, run='00'):
     '''
     Function to grab data from the met office API - forecast for 24 h from 00:00 the day the model    is called
 
-    Inputs: parameter (str) - weather parameter to grab, defaults to 250_agl_temperature (t 250m 
+    Inputs: parameter (str) - weather parameter to grab, defaults to 250_agl_temperature (t 250m
                               above ground level).
-            run (str)       - choices: 00, 06, 12, 18, indicates when in the day the model 
+            run (str)       - choices: 00, 06, 12, 18, indicates when in the day the model
                               is run, e.g. 00 gets midnight run data, RR(default) gets most
                               recent run.
 
-    Outputs: '{parameter}_{run}.grib' - saves grib file locally to be used by 
+    Outputs: '{parameter}_{run}.grib' - saves grib file locally to be used by
                                         process_grib.py
     '''
     conn = http.client.HTTPSConnection("api-metoffice.apiconnect.ibmcloud.com")
@@ -91,7 +91,7 @@ def get_grib_data(parameter, time):
     j = -3.6680
     data = this_grbs.data(lat1=i-tol, lon1=j-tol, lat2=i+tol, lon2=j+tol)
     return data[0][0]
-    
+
 
 class getWeather:
     def __init__(self, source='OWM'):
@@ -206,7 +206,7 @@ class getWeather:
 def electricity(time, weather):
     temp = weather[weather.time == time]
     # Determine if building is occupied
-    
+
     date, hour = time.split(' ')
     yr, mn, dy = date.split('-')
     hour = hour[:5].replace(':', '.')
