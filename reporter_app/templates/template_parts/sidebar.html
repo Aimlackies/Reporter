@@ -48,11 +48,16 @@
 			</li>
 			<li class="nav-item">
 				<a class="nav-link" aria-current="page" href="{{ url_for('electricity_use.electricity_use') }}">
-                                        <span data-feather="home"></span>
-                                        <i class="bi-lightning-charge"></i> Electricity usage
-                                </a>
-                        </li>
-
+                    <span data-feather="home"></span>
+                    <i class="bi-lightning-charge"></i> Electricity usage
+                </a>
+			</li>
+			<li class="nav-item">
+				<a class="nav-link {{ 'active' if request.endpoint == 'co2.co2'}}" aria-current="page" href="{{ url_for('co2.co2') }}">
+					<span data-feather="home"></span>
+					<i class="bi-thermometer-half"></i> CO2 Savings
+				</a>
+			</li>
 		</ul>
 	</div>
 </nav>
