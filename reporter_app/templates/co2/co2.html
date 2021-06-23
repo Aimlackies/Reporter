@@ -5,16 +5,27 @@
   <div class="bg-white p-3 mt-4">
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3">
       <h1 class="h2">CO2 savings</h1>
-			<div class="btn-toolbar mb-2 mb-md-0">
+		<div class="btn-toolbar mb-2 mb-md-0">
 	      <div class="btn-group me-2">
 	        <button type="button" class="btn btn-sm btn-outline-secondary">Share</button>
 	        <button type="button" class="btn btn-sm btn-outline-secondary">Export</button>
 	      </div>
-	      <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle">
-	        <span data-feather="calendar"></span>
-	        This week
-	      </button>
-	    </div>
+
+		  <div class="dropdown">
+			<a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+			  Time Period
+			</a>
+		  
+			<ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+			  <li><a class="dropdown-item" href="/co2">24 hours</a></li>
+			  <li><a class="dropdown-item" href="/co2/48_hours">48 hours</a></li>
+			  <li><a class="dropdown-item" href="/co2/7_days">7 days</a></li>
+			  <li><a class="dropdown-item" href="/co2/28_days">28 days</a></li>
+			  <li><a class="dropdown-item" href="/co2/all">All time</a></li>
+			</ul>
+		  </div>
+		  </div>
+
     </div>
 		<hr/>
 
@@ -22,8 +33,8 @@
 	    <table class="table table-striped table-sm">
 	      <thead>
 	        <tr>
-	          <th>Date & Time</th>
-	          <th>CO2</th>
+	          <th>Date and Time</th>
+	          <th>CO2 Grid Intensity</th>
 	        </tr>
 	      </thead>
 	      <tbody>
@@ -38,5 +49,4 @@
 	  </div>
   </div>
 </main>
-
 {% endblock %}
