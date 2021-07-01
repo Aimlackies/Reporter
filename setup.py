@@ -2,6 +2,7 @@ from setuptools import setup
 
 setup(
     name='reporter_app',
+    version="0.0.1",
     packages=['reporter_app'],
     setup_requires=['libsass >= 0.6.0'],
     sass_manifests={
