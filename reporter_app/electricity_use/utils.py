@@ -15,13 +15,13 @@ def call_MET_API(parameter, run='00'):
     '''
     Function to grab data from the met office API - forecast for 24 h from 00:00 the day the model    is called
 
-    Inputs: parameter (str) - weather parameter to grab, defaults to 250_agl_temperature (t 250m 
+    Inputs: parameter (str) - weather parameter to grab, defaults to 250_agl_temperature (t 250m
                               above ground level).
-            run (str)       - choices: 00, 06, 12, 18, indicates when in the day the model 
+            run (str)       - choices: 00, 06, 12, 18, indicates when in the day the model
                               is run, e.g. 00 gets midnight run data, RR(default) gets most
                               recent run.
 
-    Outputs: '{parameter}_{run}.grib' - saves grib file locally to be used by 
+    Outputs: '{parameter}_{run}.grib' - saves grib file locally to be used by
                                         process_grib.py
     '''
     conn = http.client.HTTPSConnection("api-metoffice.apiconnect.ibmcloud.com")
@@ -91,18 +91,29 @@ def get_grib_data(parameter, time):
     j = -3.6680
     data = this_grbs.data(lat1=i-tol, lon1=j-tol, lat2=i+tol, lon2=j+tol)
     return data[0][0]
-    
+
 
 class getWeather:
-    def __init__(self, time, source='OWM'):
+    def __init__(self, source='OWM'):
         '''
         Generates and interpolates for next 5 days on initialisation, can call full df now
         '''
-        self.time = time
+        self.time = self.get_time()
         self.source = source
         self.date = datetime.datetime.today().strftime('%Y-%m-%d')
         self.data = self.get_weather()[1]
         self.full_df = self.interpolate_df()
+
+    def get_time(self):
+        '''
+        Grabs time in correct format
+        '''
+        t = datetime.datetime.now().hour + 1
+        if t < 10:
+            t = f'0{t}'
+        else:
+            t = str(t)
+        return t
 
     def get_weather(self, variable='all'):
         date_time = self.date + f' {self.time}:00:00'
@@ -153,6 +164,7 @@ class getWeather:
             return forecast, df
         else:
             print('Unable to get forecast')
+
     def interpolate_df(self):
         # Add to this to interpolate more columns
         interpolated_columns = ['temp', 'all', 'speed']
@@ -189,12 +201,12 @@ class getWeather:
             interpolated_df = interpolated_df.append(intdata[intdata.index==i], ignore_index=True)
             interpolated_df = interpolated_df.append(this_row, ignore_index=True)
         out_df = interpolated_df.rename(columns={'all':'cloud_percent', 'speed':'wind_speed', 'index':'time'})
-        return(out_df)
+        return(out_df.iloc[1:, :])
 
 def electricity(time, weather):
     temp = weather[weather.time == time]
     # Determine if building is occupied
-    
+
     date, hour = time.split(' ')
     yr, mn, dy = date.split('-')
     hour = hour[:5].replace(':', '.')

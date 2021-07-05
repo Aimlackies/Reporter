@@ -24,7 +24,7 @@ class RolesUsers(db.Model):
 class Role(db.Model, RoleMixin):
 	__tablename__ = 'role'
 	id = Column(Integer(), primary_key=True)
-	name = Column(String(80), unique=True)
+	name = Column(String(80), unique=True, nullable=False)
 	description = Column(String(255))
 	create_datetime = Column(DateTime(), nullable=False, server_default=func.now())
 	update_datetime = Column(
@@ -63,3 +63,8 @@ class User(db.Model, UserMixin):
 
 	def has_role(self, role):
 		return role in self.roles
+
+class Co2(db.Model):
+	__tablename__ = 'co2'
+	date_time = Column(DateTime(), primary_key=True)
+	co2 = Column(db.Float)
