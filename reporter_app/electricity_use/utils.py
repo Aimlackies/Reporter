@@ -204,6 +204,15 @@ class getWeather:
         return(out_df.iloc[1:, :])
 
 def electricity(time, weather):
+    '''
+    Function to calculate electricity use for a given time and temperature
+    
+    Inputs: time (str)   - time to calculate electricity use for,
+                           in year-month-day hour:minute_second format
+            weather (df) - dataframe of weather values from getWeather class
+    
+    Outputs: electricity (float) - value of electricity used at time (in kW)
+    '''
     temp = weather[weather.time == time]
     # Determine if building is occupied
 
@@ -228,3 +237,22 @@ def electricity(time, weather):
     electricity = 200 + (30 + heating)*occupied
 
     return round(electricity, 1)
+
+
+def call_leccyfunc():
+    '''
+    Function to call electricity and construct dataframe of electricity use
+
+    Inputs: none
+
+    Outputs: leccy_df (df) - Dataframe of electricity use in half hour 
+                             intervals for next 5 days
+    '''
+    weather = getWeather('OWM').full_df
+    temp = weather[['time', 'temp']]
+    leccy_df = pd.DataFrame(columns=['Time', 'Electricity Usage (kW)'])
+    for i, time in enumerate(weather.time):
+        leccy_df.loc[i] = [time, electricity(time, temp[temp.time == time])]
+    return leccy_df
+
+

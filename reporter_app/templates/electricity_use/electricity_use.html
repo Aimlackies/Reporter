@@ -4,20 +4,32 @@
 <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
   <div class="bg-white p-3 mt-4">
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3">
-      <h1 class="h2">Electricity usage data</h1>
-			<div class="btn-toolbar mb-2 mb-md-0">
+      <h1 class="h2">Electricity Usage</h1>
+		<div class="btn-toolbar mb-2 mb-md-0">
 	      <div class="btn-group me-2">
 	        <button type="button" class="btn btn-sm btn-outline-secondary">Share</button>
 	        <button type="button" class="btn btn-sm btn-outline-secondary">Export</button>
 	      </div>
-	      <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle">
-	        <span data-feather="calendar"></span>
-	        This week
-	      </button>
-	    </div>
-    </div>
+
+		  <div class="dropdown">
+			<a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+			  Time Period
+			</a>
+		  
+			<ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+			  <li><a class="dropdown-item" href="/electricity_use">24 hours</a></li>
+			  <li><a class="dropdown-item" href="/electricity_use/48_hours">48 hours</a></li>
+			  <li><a class="dropdown-item" href="/electricity_use/7_days">7 days</a></li>
+			  <li><a class="dropdown-item" href="/electricity_use/28_days">28 days</a></li>
+			  <li><a class="dropdown-item" href="/electricity_use/all">All time</a></li>
+			</ul>
+		  </div>
+		  </div>
+
+		</div>
 		<hr/>
 
+<<<<<<< HEAD
 <<<<<<< HEAD
   <div class="table-responsive">
     <table class="table table-striped table-sm">
@@ -60,6 +72,67 @@
 	    </table>
 	  </div>
 >>>>>>> 1c8ceec160c647a46f2f9121f278dc69d9b0b515
+=======
+		<!--Chart-->
+		<div>
+			<canvas id="myChart"></canvas>
+		</div>
+		<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+		<script>
+			const labels = [
+			{% for row in e_use_entries %}
+				'{{row.date_time}}',
+			{% endfor %}
+			];
+
+			const data = {
+			labels: labels,
+			datasets: [{
+				label: 'Site Electricity Usage (kW)',
+				backgroundColor: 'rgb(80, 64, 227)',
+				borderColor: 'rgb(80, 64, 227)',
+				data: [
+				{% for row in e_use_entries %}
+					{{row.electricity_use}},
+				{% endfor %}
+				],
+			}]
+			};
+
+			const config = {
+				type: 'line',
+				data,
+				options: {}
+			};
+			
+			var myChart = new Chart(
+				document.getElementById('myChart'),
+				config
+			);
+		</script>
+		<br/>
+
+		<!--Data table-->
+		<div class="table-responsive">
+			<table class="table table-striped table-sm">
+				<thead>
+					<tr>
+					<th>Date and Time</th>
+					<th>Electriity usage (kW)</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for row in e_use_entries %}
+					<tr>
+					<td>{{row.date_time}}</td>
+					<td>{{row.electricity_use}}</td>
+					</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+		</div>
+>>>>>>> main
   </div>
 </main>
 {% endblock %}
+
