@@ -4,11 +4,19 @@ import requests
 from datetime import date, timedelta, datetime
 import pytest
 import os
+import json
 
 
 AIMLAC_CC_MACHINE = os.getenv("AIMLACkies275001901")
 #assert AIMLAC_CC_MACHINE is not None
 host = f"http://34.72.51.59"
+
+def call_power_API():
+    url = f'http://34.72.51.59/sim/llanwrtyd-wells'
+    response = requests.get(url)
+    data = json.loads(response.text)
+    print(data)
+    
 
 def test_set_and_get_bids():
 
@@ -72,6 +80,23 @@ def see_get_market_data(kind_of_data):
     for entry in g.json():
         print(entry)
 
+def get_market_data(kind_of_data):
+    '''
+    kind_of_data in [ "imbalance","clearout-prices" ]
+    '''
+    start_date = date.today() - timedelta(days=1)
+    end_date = date.today() + timedelta(days=1)
+    g = requests.get(url=host + f"/auction/market/{kind_of_data}",
+                     params=dict(start_date=start_date.isoformat(),
+                                 end_date=end_date.isoformat()))
+
+    # Some data should be present!
+    assert len(g.json()) > 0
+
+    print(f"Getting data ({kind_of_data}):")
+    print("GET JSON reply:")
+    return g.json()
+
 
 def test_get_sim_status():
     g = requests.get(url=host + "/sim/llanwrtyd-wells")
@@ -95,6 +120,7 @@ def test_get_average_power():
     print("Getting average power:")
     assert "average power" in g.json()
     print("GET JSON reply:", g.json())
+
 
 
 def main():
