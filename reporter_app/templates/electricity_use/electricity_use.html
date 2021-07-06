@@ -18,6 +18,7 @@
     </div>
 		<hr/>
 
+<<<<<<< HEAD
   <div class="table-responsive">
     <table class="table table-striped table-sm">
       <thead>
@@ -37,6 +38,28 @@
         {% endfor %}
       </tbody>
     </table>
+=======
+		<div class="table-responsive">
+	    <table class="table table-striped table-sm">
+	      <thead>
+	        <tr>
+	          {% for col in column_names %}
+		  <th>{{col}}</th>
+		  {% endfor %}
+	        </tr>
+	      </thead>
+	      <tbody>
+	        {% for row in row_data %}
+		<tr>
+	          {% for col, row_ in zip(column_names, row) %}
+	          <td>{{row_}}</td>
+	          {% endfor %}
+	        </tr>
+		{% endfor %}
+	      </tbody>
+	    </table>
+	  </div>
+>>>>>>> 1c8ceec160c647a46f2f9121f278dc69d9b0b515
   </div>
 </main>
 {% endblock %}

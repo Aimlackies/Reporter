@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.3.2/chart.min.js"        
+        integrity="sha512-VCHVc5miKoln972iJPvkQrUYYq7XpxXzvqNfiul1H4aZDwGBGC0lq373KNleaB2LpnC2a/iNfE5zoRYmB4TRDQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <title>Document</title>
+</head>
+<body>
+    <canvas id="myChart" width="400" height="400"></canvas>
+    <script>
+    var ctx = document.getElementById('myChart').getContext('2d');
+    var myChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24],
+            datasets: [{
+                label: 'Clearout prices per period',
+                data: [
+                    68.67, 67.96000000000001,  71.305,  77.44999999999999, 71.015,  72.375,  78.25,  80.435,  73.725,  85.44999999999999,  96.635,  105.895,  106.07,  102.345, 92.155, 81.28999999999999, 83.59,  84.965,  88.78,  78.97, 71.58, 67.30000000000001, 66.755,  59.125, ],
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(153, 102, 255, 0.2)',
+                    'rgba(255, 159, 64, 0.2)'
+                ],
+                borderColor: [
+                    'rgba(54, 162, 235, 1)',
+                    
+                ],
+                borderWidth: 1
+            }
+        ]
+        },
+        options: {
+            scales: [{
+                y: {
+                    suggestedMin: 55,
+                    suggestedMax: 100
+                }
+            }],
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Clearout prices on Sun, 20 Jun 2021 00:00:00 GMT'
+                    }
+            
+            
+          
+            }
+        }
+    });
+    </script>
+</body>
+
+</html> 
+#this needs to be fixed, ask RSE's whether this should represent the price*volume
