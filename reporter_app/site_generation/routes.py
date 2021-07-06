@@ -11,7 +11,8 @@ rezult = test_set_and_get_bids(2000)
 print(rezult)
 
 def auction_bidding_accepted():
-    bids = 
+    bids = test_set_and_get_bids()
+    
     
 # def call_leccyfunc():
 #     weather = getWeather(16, 'OWM').full_df
