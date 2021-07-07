@@ -71,7 +71,7 @@ class Co2(db.Model):
 	co2 = Column(db.Float)
 
 
-class eUse(db.Model):
+class ElecUse(db.Model):
 	_tablename__ = 'electricity_use'
 	date_time = Column(DateTime(), primary_key=True)
 	electricity_use = Column(db.Float)
