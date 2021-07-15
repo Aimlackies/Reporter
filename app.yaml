@@ -1,5 +1,4 @@
 runtime: python38
-env: flex
 entrypoint: gunicorn -b :$PORT reporter:app
 
 # This sample incurs costs to run on the App Engine flexible environment.
