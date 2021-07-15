@@ -56,6 +56,10 @@ def create_app(config_class=Config):
     from reporter_app.electricity_use import bp as electricity_use_bp
     app.register_blueprint(electricity_use_bp)
 
+    # Site electricity generation data page
+    from reporter_app.electricity_gen import bp as electricity_gen_bp
+    app.register_blueprint(electricity_gen_bp)
+
     # CO2 savings
     from reporter_app.co2 import bp as co2_bp
     app.register_blueprint(co2_bp)
