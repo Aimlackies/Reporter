@@ -75,3 +75,8 @@ class ElecUse(db.Model):
 	_tablename__ = 'electricity_use'
 	date_time = Column(DateTime(), primary_key=True)
 	electricity_use = Column(db.Float)
+
+class ElecGen(db.Model):
+	_tablename__ = 'electricity_gen'
+	date_time = Column(DateTime(), primary_key=True)
+	electricity_use = Column(db.Float)
