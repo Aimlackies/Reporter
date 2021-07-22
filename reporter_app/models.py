@@ -68,3 +68,12 @@ class Co2(db.Model):
 	__tablename__ = 'co2'
 	date_time = Column(DateTime(), primary_key=True)
 	co2 = Column(db.Float)
+    
+class Trading(db.Model):
+    __tablename__='trading'
+    date_time=Column(DateTime(), primary_key=True)
+    volume_traded=Column(db.Float)
+    volume_untraded=Column(db.Float)
+    Clearout_price=Column(db.Float)
+    
+    
