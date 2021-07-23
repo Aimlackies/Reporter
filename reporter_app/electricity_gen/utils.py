@@ -11,7 +11,6 @@ import urllib.request
 import http.client
 from urllib.parse import urlsplit
 import numpy as np
-from get_weather import getWeather
 import datetime
 import argparse
 from scipy.interpolate import interp1d
