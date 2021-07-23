@@ -79,4 +79,5 @@ class ElecUse(db.Model):
 class ElecGen(db.Model):
 	_tablename__ = 'electricity_gen'
 	date_time = Column(DateTime(), primary_key=True)
-	electricity_use = Column(db.Float)
+	electricity_gen = Column(db.Float)
+	device = Column(String(5))
