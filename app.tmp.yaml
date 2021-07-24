@@ -1,5 +1,9 @@
 runtime: python38
 entrypoint: gunicorn -b :$PORT reporter:app
+env_variables:
+  AIMLACKIES_REPORTER_SECRET_KEY:
+  AIMLACKIES_REPORTER_SECURITY_PASSWORD_SALT:
+  AIMLACKIES_REPORTER_DATABASE_URL:
 
 # This sample incurs costs to run on the App Engine flexible environment.
 # The settings below are to reduce costs during testing and are not appropriate
