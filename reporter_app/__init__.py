@@ -62,6 +62,9 @@ def create_app(config_class=Config):
 
     # Normal app startup
     if not app.debug and not app.testing:
-        pass
+        manager = Manager(app)
+        manager.add_command('db', "init")  # if database is not configured
+        manager.add_command('db', "upgrade")  # apply new migrations if there are any
+        manager.run()
 
     return app, user_datastore
