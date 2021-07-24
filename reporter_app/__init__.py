@@ -3,6 +3,7 @@ from config import Config
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_security import Security, SQLAlchemySessionUserDatastore
+from flask_script import Manager
 from sassutils.wsgi import SassMiddleware
 from flask_mail import Mail
 from reporter_app.utils import seed as seed_db
