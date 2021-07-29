@@ -80,6 +80,8 @@ class Trading(db.Model):
     __tablename__='trading'
     date_time=Column("Date, time" , DateTime(), primary_key=True)
     period=Column("Period",Integer(),nullable=False)
+    predicted_load=Column("Predicted grid load",db.Float,nullable=False)
+    predicted_price=Column("Predicted market price",db.Float, nullable=False)
     bid_units=Column("Bid Units Volume(kWh)",db.Float)
     bid_type=Column("Bid type",String(255))
     bid_price=Column("Bid Price",db.Float,nullable=False)
