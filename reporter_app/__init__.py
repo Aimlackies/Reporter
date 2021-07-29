@@ -60,6 +60,10 @@ def create_app(config_class=Config):
     from reporter_app.co2 import bp as co2_bp
     app.register_blueprint(co2_bp)
 
+    # trading
+    from reporter_app.trading import bp as trading_bp
+    app.register_blueprint(trading_bp)
+    
     # Normal app startup
     if not app.debug and not app.testing:
         pass
