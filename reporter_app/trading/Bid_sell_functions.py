@@ -1,20 +1,31 @@
 import requests
-from datetime import date, timedelta, datetime
+from datetime import date, timedelta
+from datetime import datetime as dt
 import pytest
 import os
-from api_call_examples import *
+# from api_call_examples import *
 import json
 import pandas as pd
 import numpy as np
+import sqlalchemy as db
 
 AIMLAC_CC_MACHINE = os.getenv("AIMLAC_CC_MACHINE")
 assert AIMLAC_CC_MACHINE is not None
 host = f"http://{AIMLAC_CC_MACHINE}"
 
 
+engine = db.create_engine(os.environ.get('AIMLACKIES_REPORTER_DATABASE_URL'))
+connection = engine.connect()
+metadata = db.MetaData()
+trading_table=db.Table('trading', metadata, autoload=True, autoload_with=engine)
 
         
 def post_bids(surplus,posted_price,host):
+    ''' 
+    Post bids and report to the database table once bids posted
+    Surplus and posted price supplied as numpy arrays in descending
+    order(to match predicted load)
+    '''
     applying_date = date.today() + timedelta(days=2)
     for i, value in enumerate(surplus): 
         
@@ -35,7 +46,7 @@ def post_bids(surplus,posted_price,host):
                                       "applying_date": applying_date.isoformat(),
                                       "hour_ID": i+1,
                                       "type": "BUY",
-                                      "volume": str(-1* surplus[i]),
+                                      "volume": str(-1 * surplus[i]),
                                       "price": str( posted_price[i])
                                       }] 
                                   })
@@ -70,8 +81,13 @@ def post_bids(surplus,posted_price,host):
             print("POST JSON reply:", d)
             assert d["accepted"] == 1
             assert d["message"] == ''
+        
+        
+    
         else:
-            print("No bids posted"  )  
+            print("No bids posted"  ) 
+    query=db.insert(trading_table).values(bid_units=surplus,bid_price=posted_price)
+    connection.execute(query)
     
         
    
@@ -185,5 +201,21 @@ def see_get_market_data(kind_of_data):
     for entry in g.json():
         print(entry)
  
+ 
+def get_predicted_load_next_day():
+    api_key= "cncw84m146gcswv"
+    
+    base_url="https://api.bmreports.com"
+    tdelta=dt.timedelta(days=1)
+    settlementdate=(dt.date.today()+tdelta).isoformat()
+    tab=pd.read_csv(f"{base_url}/BMRS/B0620/V1?ServiceType=CSV&Period=*&APIKey={api_key}&SettlementDate={settlementdate}",skiprows=4)
+    filtered_tab=tab[["Settlement Date", "Settlement Period", "Quantity"]]
+    
+    #write to database
+    query=db.insert(trading_table).values(date_time=filtered_tab["Settlement Date"]
+    ,period=filtered_tab["Settlement Period"],predicted_load=filtered_tab["Quantity"])
+    ResultProxy = connection.execute(query)
+    
+    return filtered_tab
     
     
