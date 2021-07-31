@@ -12,7 +12,7 @@ co2_table = db.Table('co2', metadata, autoload=True, autoload_with=engine)
 
 def co2ForTime(start):
     '''
-    Lookup CO2 intensity from api.carbonintensity.org and write to database
+    Looks up CO2 intensity from api.carbonintensity.org and writes to the database
 
     Parameters
     ----------
@@ -37,33 +37,15 @@ def co2ForTime(start):
     co2Forecast = data["data"]["data"][0]["intensity"]["forecast"]
 
     #write to database
-    query = db.insert(co2_table).values(date_time=start, co2_intensity=co2Forecast)
+    query = db.insert(co2_table).values(date_time=start, co2=co2Forecast)
     ResultProxy = connection.execute(query)
 
     return co2Forecast
+    
+#rounds the current time down to nearest 30 minutes (to allow for database relationship with electricity usage
+now = datetime.now()
+rounded = now - (now - datetime.min) % timedelta(minutes=30)
 
-def co2Savings(dateProduced, energyProduced):
-    '''
-    Calculates the amount of CO2 emissions saved from the onsite renewables over the grid
-
-    Parameters
-    ----------
-    float64
-        The energy produced by the renewables in kWh
-
-    date
-        a python datetime for the 30-minute period in which the energy was produced
-
-    Returns
-    -------
-    integer
-        The grams of CO2 saved during the 30 minute period specified
-    '''
-
-    carbonIntensity = co2ForTime(dateProduced)
-    emissionsSavings = carbonIntensity * energyProduced
-
-    return emissionsSavings
-
-co2 = co2ForTime(datetime.now())
-print ("Grid CO2 intensity (gCO2/kWh):", co2)
+#fetch co2 intensity for the period and write to db
+co2 = co2ForTime(rounded)
+print ("For the 30-min time period starting:", rounded, "the grid CO2 intensity (gCO2/kWh) was:", co2)
