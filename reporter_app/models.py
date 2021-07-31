@@ -67,8 +67,9 @@ class User(db.Model, UserMixin):
 
 class Co2(db.Model):
 	__tablename__ = 'co2'
-	date_time = Column(DateTime(), primary_key=True)
+	date_time = Column(DateTime(), ForeignKey('elec_use.date_time', ondelete='CASCADE'), primary_key=True)
 	co2 = Column(db.Float)
+	usage = relationship('ElecUse', backref=backref('co2', lazy='dynamic'))
 
 class ElecUse(db.Model):
 	_tablename__ = 'electricity_use'
