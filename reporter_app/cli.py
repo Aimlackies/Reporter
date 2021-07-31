@@ -32,10 +32,12 @@ def register(app, user_datastore):
 		userAdmin.roles.append(roleVerified)
 		db.session.commit()
 
-	@app.cli.command("seed_dummy_data")
-	def seed_dummy_data():
+		print("Created seed user data")
+
+	@app.cli.command("generate_elec_use_data")
+	def generate_elec_use_data():
 		"""
-		Seed database with dummy data for testing. This should not be run on production
+		Grab electricity usage data and add it to electricity use DB table
 		"""
 
 		# grab elctricity usage data
@@ -49,5 +51,3 @@ def register(app, user_datastore):
 			)
 			db.session.add(newElecUse)
 		db.session.commit()
-
-		print("Seeded database with dummy data")
