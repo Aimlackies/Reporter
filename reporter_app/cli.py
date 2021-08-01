@@ -60,16 +60,6 @@ def register(app, user_datastore):
 	def co2ForTime():
 		'''
 		Looks up CO2 intensity from api.carbonintensity.org and writes to the database
-
-		Parameters
-		----------
-		date
-			a python datetime
-
-		Returns
-		-------
-		integer
-			The forecast grams of CO2 per kilowatt-hour (gCO2/kWh) for the South Wales area for the 30-minute interval that includes the passed date parameter
 		'''
 		#rounds the current time down to nearest 30 minutes (to allow for database relationship with electricity usage
 		now = datetime.now()
