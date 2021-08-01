@@ -43,16 +43,28 @@
 
 			const data = {
 			labels: labels,
-			datasets: [{
-				label: 'CO2 Grid Intensity (gCO2/kWh)',
+			datasets: [
+				{
+					label: 'CO2 Grid Intensity (gCO2/kWh)',
+					backgroundColor: 'rgb(128, 128, 128)',
+					borderColor: 'rgb(128, 128, 128)',
+					data: [
+					{% for row in co2_entries %}
+						{{row.co2}},
+					{% endfor %}
+					]
+				},
+				{
+				label: 'Co2 Saved (kg)',
 				backgroundColor: 'rgb(255, 99, 132)',
 				borderColor: 'rgb(255, 99, 132)',
 				data: [
 				{% for row in co2_entries %}
-					{{row.co2}},
+					{{row.co2_saved}},
 				{% endfor %}
-				],
-			}]
+				]
+				}
+			]
 			};
 
 			const config = {
@@ -74,7 +86,9 @@
 				<thead>
 					<tr>
 					<th>Date and Time</th>
-					<th>CO2 Grid Intensity (gCO2/kWh)</th>
+					<th>CO2 Grid Intensity (g/kWh)</th>
+					<th>Electricity Usage (kWh)</th>
+					<th>CO2 Saved (kg)</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -82,6 +96,9 @@
 					<tr>
 					<td>{{row.date_time}}</td>
 					<td>{{row.co2}}</td>
+					<td>{{row.electricity_use}}</td>
+					<td>{{row.co2_saved}}</td>
+					</td>
 					</tr>
 					{% endfor %}
 				</tbody>
