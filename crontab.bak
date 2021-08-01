@@ -1,0 +1,10 @@
+# * * * * * command to be executed
+# - - - - -
+# | | | | |
+# | | | | +---- day of the week (0-6) (sunday=0)
+# | | | +----month (1-12)
+# | | +----day of the month (1-31)
+# | +----hour (0-23)
+# +----min (0-59)
+
+*/30 * * * * flask co2_for_time
