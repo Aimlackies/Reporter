@@ -1,8 +1,12 @@
 from flask_security import hash_password
 from sqlalchemy.sql import func
 from reporter_app import db
-from reporter_app.models import ElecUse
+from reporter_app.models import ElecUse, Co2
 from reporter_app.electricity_use.utils import call_leccyfunc
+
+from datetime import datetime, timedelta
+import json
+import requests
 
 
 def register(app, user_datastore):
@@ -51,3 +55,36 @@ def register(app, user_datastore):
 			)
 			db.session.add(newElecUse)
 		db.session.commit()
+
+	@app.cli.command("co2_for_time")
+	def co2ForTime():
+		'''
+		Looks up CO2 intensity from api.carbonintensity.org and writes to the database
+		'''
+		#rounds the current time down to nearest 30 minutes (to allow for database relationship with electricity usage
+		now = datetime.now()
+		start = now - (now - datetime.min) % timedelta(minutes=30)
+
+		print("start:", start)
+
+		#Get date and format it for url
+		end = start + timedelta(minutes=30) #api requires an end time as well, so add 30 minutes to the start time
+		url=("https://api.carbonintensity.org.uk/regional/intensity/" + str(start.strftime("%Y-%m-%dT%H:%MZ")) + "/" + str(end.strftime("%Y-%m-%dT%H:%MZ")) + "/regionid/7")
+		#print(url)
+
+		#Fetch data from from API
+		response = requests.get(url)
+
+		#select co2 forecast from within json data
+		data = response.json()
+		co2Forecast = data["data"]["data"][0]["intensity"]["forecast"]
+
+		newCo2Value = Co2(
+			date_time=start,
+			co2=co2Forecast
+		)
+
+		db.session.add(newCo2Value)
+		db.session.commit()
+
+		print ("For the 30-min time period starting:", start, "the grid CO2 intensity (gCO2/kWh) was:", co2Forecast)
