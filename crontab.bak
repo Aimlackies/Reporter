@@ -7,4 +7,6 @@
 # | +----hour (0-23)
 # +----min (0-59)
 
-*/30 * * * * flask co2_for_time
+SHELL=/bin/bash
+
+*/30 * * * * (source ~/.bashrc && source ~/.bash_profile && conda activate aimlacReporter && flask co2_for_time && conda deactivate) > /tmp/cronjob.log 2>&1
