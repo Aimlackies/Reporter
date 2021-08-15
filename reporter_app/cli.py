@@ -38,8 +38,9 @@ def register(app, user_datastore):
 		Seed database with dummy data for testing. This should not be run on production
 		"""
 
-		# grab elctricity usage data
+		# grab elctricity usage data end elec gen data.
 		e_use_df = call_leccyfunc()
+		e_gen_df = get_energy_gen()
 
 		# write elctricity usage data to database
 		for idx, row in e_use_df.iterrows():
@@ -49,5 +50,28 @@ def register(app, user_datastore):
 			)
 			db.session.add(newElecUse)
 		db.session.commit()
+
+		# write elctricity gen data to database
+		numOfTurbunes = 4 #2 Originals plus 2 extra Ed mentioned...?
+		for idx, row in e_gen_df['windenergy'].iterrows():
+			newElecGen = ElecGen(
+				date_time=row['Time'],
+				electricity_gen=row['windenergy'] * numOfTurbunes
+				device = "Wind"
+			)
+			db.session.add(newElecGen)
+		db.session.commit()
+
+		metresSquaredOfSolarPanels = 43.75 #This seems like quite a lot but apparently we have 1400 a5 panels so yea... ~44sqm 
+		for idx, row in e_gen_df['totalSolarEnergy'].iterrows():
+			newElecGen = ElecGen(
+				date_time=row['Time'],
+				electricity_gen=row['totalSolarEnergy'] * metresSquaredOfSolarPanels
+				device = "Solar"
+			)
+			db.session.add(newElecGen)
+		db.session.commit()
+
+
 
 		print("Seeded database with dummy data")
