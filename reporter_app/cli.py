@@ -1,8 +1,9 @@
 from flask_security import hash_password
 from sqlalchemy.sql import func
 from reporter_app import db
-from reporter_app.models import ElecUse, Co2
+from reporter_app.models import ElecUse, Co2, ElecGen
 from reporter_app.electricity_use.utils import call_leccyfunc
+from reporter_app.electricity_gen.utils import get_energy_gen
 
 from datetime import datetime, timedelta
 import json
@@ -44,8 +45,9 @@ def register(app, user_datastore):
 		Grab electricity usage data and add it to electricity use DB table
 		"""
 
-		# grab elctricity usage data
+		# grab elctricity usage data end elec gen data.
 		e_use_df = call_leccyfunc()
+		e_gen_df = get_energy_gen()
 
 		# write elctricity usage data to database
 		for idx, row in e_use_df.iterrows():
@@ -55,6 +57,7 @@ def register(app, user_datastore):
 			)
 			db.session.add(newElecUse)
 		db.session.commit()
+
 
 	@app.cli.command("co2_for_time")
 	def co2ForTime():
@@ -88,3 +91,24 @@ def register(app, user_datastore):
 		db.session.commit()
 
 		print ("For the 30-min time period starting:", start, "the grid CO2 intensity (gCO2/kWh) was:", co2Forecast)
+
+
+        @app.cli.command("elec_gen")
+        def elecGen():
+                '''
+                Writes electricity gen data to database (if i've correctly fixed Lukas' code)
+                '''
+                e_gen_df = get_energy_gen()
+		# write electricity gen data to database
+                metresSquaredOfSolarPanels = 43.75 #This seems like quite a lot but apparently we have 1400 a5 panels so yea... ~44sqm
+		numOfTurbunes = 4 #2 Originals plus 2 extra Ed mentioned...?
+		for idx, row in e_gen_df['windenergy'].iterrows():
+			newElecGen = ElecGen(
+				date_time=row['Time'],
+				electricity_gen=row['windenergy'] * numOfTurbunes + row['totalSolarEnergy'] * metresSquaredOfSolarPanels
+			)
+			db.session.add(newElecGen)
+		db.session.commit()
+
+		print("Seeded database with dummy data")
+
