@@ -334,19 +334,19 @@ def get_energy_gen(debugPlot = False):
     #Predict wind
     predict_wind_energy(weather)
     #Change to 1 if you want to see the plots.
-    if(debugPlot):
-        plt.plot(weather.index, weather['speed'], 'o', weather.index, weather['windenergy'], '-')
-        plt.legend(['wind speed m/s', 'energy produced kW'], loc='best')
-        plt.xticks(rotation=90)
-        plt.show()
+#    if(debugPlot):
+#        plt.plot(weather.index, weather['speed'], 'o', weather.index, weather['windenergy'], '-')
+#        plt.legend(['wind speed m/s', 'energy produced kW'], loc='best')
+#        plt.xticks(rotation=90)
+#        plt.show()
 
     #Predict solar
     predict_solar_energy(weather)
     #Change to 1 if you want to see the plots.
-    if(debugPlot):
-        plt.plot(weather.index, weather['rawEnergy'], 'o', weather.index, weather['totalSolarEnergy'], '-')
-        plt.legend(['maximum possible', 'total energy produced kW'], loc='best')
-        plt.xticks(rotation=90)
-        plt.show()
+#    if(debugPlot):
+#        plt.plot(weather.index, weather['rawEnergy'], 'o', weather.index, weather['totalSolarEnergy'], '-')
+#        plt.legend(['maximum possible', 'total energy produced kW'], loc='best')
+#        plt.xticks(rotation=90)
+#        plt.show()
 
     return df[['windenergy', 'totalSolarEnergy']]
