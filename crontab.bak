@@ -1,0 +1,14 @@
+# * * * * * command to be executed
+# - - - - -
+# | | | | |
+# | | | | +---- day of the week (0-6) (sunday=0)
+# | | | +----month (1-12)
+# | | +----day of the month (1-31)
+# | +----hour (0-23)
+# +----min (0-59)
+
+SHELL=/bin/bash
+
+*/30 * * * * (source ~/.bashrc && source ~/.bash_profile && conda activate aimlacReporter && flask co2_for_time && conda deactivate) > /tmp/cronjob.log 2>&1
+
+59 * * * * (source ~/.bashrc && source ~/.bash_profile && conda activate aimlacReporter && flask generate_elec_use_data && conda deactivate) > /tmp/cronjob.log 2>&1
