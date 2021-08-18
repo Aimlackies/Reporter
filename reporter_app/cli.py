@@ -106,6 +106,8 @@ def register(app, user_datastore):
 			newElecGen = ElecGen(
 				date_time=row['Time'],
 				electricity_gen=row['windenergy'] * numOfTurbunes + row['totalSolarEnergy'] * metresSquaredOfSolarPanels
+				electricity_gen=row['totalSolarEnergy'] * metresSquaredOfSolarPanels,
+				device = "Solar"
 			)
 			db.session.add(newElecGen)
 		db.session.commit()

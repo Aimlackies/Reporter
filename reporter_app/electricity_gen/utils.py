@@ -14,7 +14,7 @@ import numpy as np
 import datetime
 import argparse
 from scipy.interpolate import interp1d
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 
 def call_MET_API(parameter, run='00'):
     '''
@@ -272,10 +272,10 @@ def predict_wind_energy(df, debugPlot = False):
     xnew = np.linspace(0, 25, num=100, endpoint=True)
 
     #Will plot the power curve if turned on in input. 
-    if(debugPlot):
-        plt.plot(x, y, 'o', xnew, f(xnew), '-', xnew, f2(xnew), '--')
-        plt.legend(['data', 'linear', 'cubic'], loc='best')
-        plt.show()
+    #if(debugPlot):
+    #    plt.plot(x, y, 'o', xnew, f(xnew), '-', xnew, f2(xnew), '--')
+    #    plt.legend(['data', 'linear', 'cubic'], loc='best')
+    #    plt.show()
 
     #Calculates the wind energy using the power curve and the interpolation.
     df['windenergy'] = f2(df['speed'])
@@ -303,15 +303,15 @@ def predict_solar_energy(df, debugPlot = False):
             return 0
 
     #If debugPlot is on in the input it will plot all the sin curves. Use for debugging.
-    if(debugPlot):
-        x = np.linspace(0, 24, 360)
-        i = 0
-        for fact in outmultfactor:
-            y = [sinCurve(xs, outmultfactor[i], inmultfactor[i], additionfactor[i], additionfactor2[i]) for xs in x]
-            plt.plot(x, y)
-            plt.xticks(rotation=90)
-            i = i + 1
-        plt.show()
+    #if(debugPlot):
+    #    x = np.linspace(0, 24, 360)
+    #    i = 0
+    #    for fact in outmultfactor:
+    #        y = [sinCurve(xs, outmultfactor[i], inmultfactor[i], additionfactor[i], additionfactor2[i]) for xs in x]
+    #        plt.plot(x, y)
+    #        plt.xticks(rotation=90)
+    #        i = i + 1
+    #    plt.show()
 
     #This calculates the raw solar energy according to the sin curve, and then multiplies by the cover factor to account for clouds.
     df['coverfactor'] = (100 - df['all']*0.25)/100
