@@ -119,7 +119,7 @@ class getWeather:
         else:
             t = str(t)
         return t
-    
+
     def get_weather(self, variable='all'):
         date_time = self.date + f' {self.time}:00:00'
         #print(f'Selecting data for {date_time}')
@@ -139,8 +139,8 @@ class getWeather:
             data = call_OWM_API()
             for t in data['list']:
                 if t['dt_txt'] == date_time:
-                    forecast = {'Temperature' : t['main']['temp'], 
-                                'Wind_speed' : t['wind']['speed'], 
+                    forecast = {'Temperature' : t['main']['temp'],
+                                'Wind_speed' : t['wind']['speed'],
                                 'Percent_cloud' : t['clouds']['all']}
                     got = True
             if not got:
@@ -156,7 +156,7 @@ class getWeather:
                 dfWeath = dfWeath.append(pd.DataFrame(t['weather'][0], index = [t['dt_txt'], ]))
                 dfCloud = dfCloud.append(pd.DataFrame(t['clouds'], index = [t['dt_txt'], ]))
                 dfWind = dfWind.append(pd.DataFrame(t['wind'], index = [t['dt_txt'], ]))
-            #Concatenate the 4 dataframes horrizontally for one super weather dataframe. Ready for manipulation. 
+            #Concatenate the 4 dataframes horrizontally for one super weather dataframe. Ready for manipulation.
             df = pd.concat([dfMain, dfWeath], axis = 1)
             df = pd.concat([df, dfCloud], axis = 1)
             df = pd.concat([df, dfWind], axis = 1)
@@ -169,7 +169,7 @@ class getWeather:
             return forecast, df
         else:
             print('Unable to get forecast')
-    
+
     def interpolate_df(self):
         # Add to this to interpolate more columns
         interpolated_columns = ['temp', 'all', 'speed']
@@ -181,7 +181,7 @@ class getWeather:
         for i in range(1, len(intdata)-2):
             d = {'temp':0, 'all':0, 'speed':0, 'index':0}
             d['index'] = times[times.index == i].values[0]
-            d['index'] = [d['index'].replace(':00:00', ':30:00')]         
+            d['index'] = [d['index'].replace(':00:00', ':30:00')]
             for col in interpolated_columns:
                 thisdat = intdata[col]
                 x0 = thisdat[thisdat.index == i-1].values[0]
@@ -211,11 +211,11 @@ class getWeather:
 def electricity(time, weather):
     '''
     Function to calculate electricity use for a given time and temperature
-    
+
     Inputs: time (str)   - time to calculate electricity use for,
                            in year-month-day hour:minute_second format
             weather (df) - dataframe of weather values from getWeather class
-    
+
     Outputs: electricity (float) - value of electricity used at time (in kW)
     '''
     temp = weather[weather.time == time]
@@ -250,7 +250,7 @@ def call_leccyfunc():
 
     Inputs: none
 
-    Outputs: leccy_df (df) - Dataframe of electricity use in half hour 
+    Outputs: leccy_df (df) - Dataframe of electricity use in half hour
                              intervals for next 5 days
     '''
     weather = getWeather('OWM').full_df
@@ -271,7 +271,7 @@ def predict_wind_energy(df, debugPlot = False):
     f2 = interp1d(x, y, kind='cubic')
     xnew = np.linspace(0, 25, num=100, endpoint=True)
 
-    #Will plot the power curve if turned on in input. 
+    #Will plot the power curve if turned on in input.
     #if(debugPlot):
     #    plt.plot(x, y, 'o', xnew, f(xnew), '-', xnew, f2(xnew), '--')
     #    plt.legend(['data', 'linear', 'cubic'], loc='best')
@@ -279,7 +279,7 @@ def predict_wind_energy(df, debugPlot = False):
 
     #Calculates the wind energy using the power curve and the interpolation.
     df['windenergy'] = f2(df['speed'])
-    #If speed is above 25 we turn the turbine off to save damage, returning 0 energy. 
+    #If speed is above 25 we turn the turbine off to save damage, returning 0 energy.
     for i in range(df.shape[0]):
         if(df['speed'][i]>25):
             df['windenergy'][i] = 0
@@ -287,7 +287,7 @@ def predict_wind_energy(df, debugPlot = False):
 
 
 def predict_solar_energy(df, debugPlot = False):
-    #These are the factors required for the sin curves. We have 7 different ones and a lookup table to show where each month maps to on the year. 
+    #These are the factors required for the sin curves. We have 7 different ones and a lookup table to show where each month maps to on the year.
     outmultfactor = np.linspace(100, 200, 7)
     inmultfactor = np.linspace(3.2, 4.5, 7)
     additionfactor = np.linspace(21, 20, 7)

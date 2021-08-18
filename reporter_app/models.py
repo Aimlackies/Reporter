@@ -76,7 +76,13 @@ class ElecUse(db.Model):
 	date_time = Column(DateTime(), primary_key=True)
 	electricity_use = Column(db.Float)
 
-    
+class ElecGen(db.Model):
+	_tablename__ = 'electricity_gen'
+	date_time = Column(DateTime(), primary_key=True)
+	electricity_gen = Column(db.Float)
+	device = Column(String(5))
+
+
 #class Trading(db.Model):
 #    __tablename__='trading'
 #    date_time=Column("Date, time" , DateTime(), primary_key=True)
@@ -92,10 +98,3 @@ class ElecUse(db.Model):
 #    imbalance_vol=Column("Imbalance volume",db.Float)
 #    imbalance_price=Column("Imbalance Price",db.Float)
 #    net_profit=Column("Net profit",db.Float)
-
-class ElecGen(db.Model):
-	_tablename__ = 'electricity_gen'
-	date_time = Column(DateTime(), primary_key=True)
-	electricity_gen = Column(db.Float)
-
-
