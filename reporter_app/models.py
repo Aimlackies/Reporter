@@ -78,16 +78,27 @@ class ElecUse(db.Model):
     
 class Trading(db.Model):
     __tablename__='trading'
-    date_time=Column("Date, time" , DateTime())
-    period=Column("Period",Integer(),nullable=False)
-    predicted_load=Column("Predicted grid load(MWh)",db.Float,nullable=False)
-    predicted_price=Column("Predicted market price",db.Float, nullable=False)
+    date_time=Column("Date, time" , DateTime(),unique=True, primary_key=True)
+    period=Column("Period",Integer(),nullable=False)   
     bid_units=Column("Bid Units Volume(kWh)",db.Float)
     bid_type=Column("Bid type",String(255))
     bid_price=Column("Bid Price",db.Float,nullable=False)
     bid_outcome_vol=Column("Bid outcome Volume",db.Float)
     bid_outcome_price=Column("Bid closing price",db.Float,nullable=False)
     volume_untraded=Column("Volume untraded", db.Float)
+    
+
+class PredictedLoad(db.Model):
+    __tablename__='predicted_load'
+    date_time=Column("Date, time" , DateTime(),unique=True, primary_key=True)
+    period=Column("Period",Integer(),nullable=False)
+    predicted_load=Column("Predicted grid load(MWh)",db.Float,nullable=False)
+    predicted_price=Column("Predicted market price",db.Float, nullable=False)
+    
+class ActualLoad(db.Model):
+    __tablename__='actual_load'
+    date_time=Column("Date, time" , DateTime(),unique=True, primary_key=True)
+    period=Column("Period",Integer(),nullable=False)
     actual_generation=Column("Volume Generated onsite",db.Float)
     actual_usage=Column("Volume consumed onsite",db.Float)
     imbalance_vol=Column("Imbalance volume",db.Float)
