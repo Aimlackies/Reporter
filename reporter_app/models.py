@@ -79,8 +79,8 @@ class ElecUse(db.Model):
 class ElecGen(db.Model):
 	_tablename__ = 'electricity_gen'
 	date_time = Column(DateTime(), primary_key=True)
-	electricity_gen = Column(db.Float)
-	device = Column(String(5))
+	wind_gen = Column(db.Float)
+	solar_gen = Column(db.Float)
 
 
 #class Trading(db.Model):

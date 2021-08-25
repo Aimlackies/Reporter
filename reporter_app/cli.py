@@ -65,21 +65,12 @@ def register(app, user_datastore):
 
 		# write elctricity gen data to database
 		numOfTurbunes = 4  #2 Originals plus 2 extra Ed mentioned...?
-		for idx, row in e_gen_df['windenergy'].iterrows():
+		panel_area = 43.75
+		for idx, row in e_gen_df.iterrows():
 			newElecGen = ElecGen(
-				date_time=row['Time'],
-				electricity_gen=row['windenergy'] * numOfTurbunes,
-				device="Wind"
-			)
-			db.session.add(newElecGen)
-		db.session.commit()
-
-		metresSquaredOfSolarPanels = 43.75  #This seems like quite a lot but apparently we have 1400 a5 panels so yea... ~44sqm
-		for idx, row in e_gen_df['totalSolarEnergy'].iterrows():
-			newElecGen = ElecGen(
-				date_time=row['Time'],
-				electricity_gen=row['totalSolarEnergy'] * metresSquaredOfSolarPanels,
-				device="Solar"
+				date_time=row['time'],
+				wind_gen=row['windenergy'] * numOfTurbunes,
+				solar_gen=row['totalSolarEnergy'] * panel_area
 			)
 			db.session.add(newElecGen)
 		db.session.commit()

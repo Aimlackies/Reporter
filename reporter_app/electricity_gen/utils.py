@@ -10,8 +10,6 @@ import json
 import urllib.request
 import http.client
 from urllib.parse import urlsplit
-import numpy as np
-import datetime
 import argparse
 from scipy.interpolate import interp1d
 #import matplotlib.pyplot as plt
@@ -278,11 +276,12 @@ def predict_wind_energy(df, debugPlot = False):
     #    plt.show()
 
     #Calculates the wind energy using the power curve and the interpolation.
-    df['windenergy'] = f2(df['speed'])
+    df['windenergy'] = f2(df['wind_speed'])
     #If speed is above 25 we turn the turbine off to save damage, returning 0 energy.
     for i in range(df.shape[0]):
-        if(df['speed'][i]>25):
-            df['windenergy'][i] = 0
+        if(df.iloc[i]['wind_speed']>25):
+            df.iloc[i]['windenergy'] = 0
+    return df['windenergy']
 
 
 
@@ -314,25 +313,25 @@ def predict_solar_energy(df, debugPlot = False):
     #    plt.show()
 
     #This calculates the raw solar energy according to the sin curve, and then multiplies by the cover factor to account for clouds.
-    df['coverfactor'] = (100 - df['all']*0.25)/100
-    df['timestamp'] = df.index
-    df['ts'] = [time.strptime(t, '%Y-%m-%d  %H:%M:%S') for t in df['timestamp']]
-    df['month'] = [df['ts'][i].tm_mon for i in range(df.shape[0])]
-    df['hour'] = [df['ts'][i].tm_hour + (df['ts'][i].tm_min/60) for i in range(df.shape[0])]
-    df['rawEnergy'] = [ sinCurve(df['hour'][i], outmultfactor[lut[df['month'][i]]], inmultfactor[lut[df['month'][i]]],
-                                 additionfactor[lut[df['month'][i]]], additionfactor2[lut[df['month'][i]]])
+    df['coverfactor'] = (100 - df['cloud_percent']*0.25)/100
+    #df['timestamp'] = df.index
+    df['ts'] = [datetime.datetime.strptime(t, '%Y-%m-%d  %H:%M:%S') for t in df['time']]
+    df['month'] = [df.iloc[i]['ts'].month for i in range(df.shape[0])]
+    df['hour'] = [df.iloc[i]['ts'].hour + (df.iloc[i]['ts'].minute/60.0) for i in range(df.shape[0])]
+    df['rawEnergy'] = [ sinCurve(df.iloc[i]['hour'], outmultfactor[lut[df.iloc[i]['month']]], inmultfactor[lut[df.iloc[i]['month']]],
+                                 additionfactor[lut[df.iloc[i]['month']]], additionfactor2[lut[df.iloc[i]['month']]])
                         for i in range(df.shape[0]) ]
     df['totalSolarEnergy'] = df['rawEnergy'] * df['coverfactor']
-
+    return df['totalSolarEnergy']
 
 
 def get_energy_gen(debugPlot = False):
-    weatherObj = getWeather(16, 'OWM')
+    weatherObj = getWeather()
     weatherObj.interpolate_df()
     weather = weatherObj.full_df
 
     #Predict wind
-    predict_wind_energy(weather)
+    weather['totalSolarEnergy'] = predict_wind_energy(weather)
     #Change to 1 if you want to see the plots.
 #    if(debugPlot):
 #        plt.plot(weather.index, weather['speed'], 'o', weather.index, weather['windenergy'], '-')
@@ -341,7 +340,7 @@ def get_energy_gen(debugPlot = False):
 #        plt.show()
 
     #Predict solar
-    predict_solar_energy(weather)
+    weather['windenergy'] = predict_solar_energy(weather)
     #Change to 1 if you want to see the plots.
 #    if(debugPlot):
 #        plt.plot(weather.index, weather['rawEnergy'], 'o', weather.index, weather['totalSolarEnergy'], '-')
@@ -349,4 +348,4 @@ def get_energy_gen(debugPlot = False):
 #        plt.xticks(rotation=90)
 #        plt.show()
 
-    return df[['windenergy', 'totalSolarEnergy']]
+    return weather[['windenergy', 'totalSolarEnergy', 'time']]
