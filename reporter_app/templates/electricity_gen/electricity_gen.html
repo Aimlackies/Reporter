@@ -44,15 +44,26 @@
 			const data = {
 			labels: labels,
 			datasets: [{
-				label: 'Site Electricity Generation (kW)',
+				label: 'Site Wind Electricity Generation (kW)',
 				backgroundColor: 'rgb(80, 64, 227)',
 				borderColor: 'rgb(80, 64, 227)',
 				data: [
 				{% for row in e_gen_entries %}
-					{{row.elec_gen}},
+					{{row.wind_gen}},
 				{% endfor %}
 				],
-			}]
+			},
+{
+                                label: 'Site Solar Electricity Generation (kW)',
+                                backgroundColor: 'rgb(48, 173, 42)',
+                                borderColor: 'rgb(48, 173, 42)',
+                                data: [
+                                {% for row in e_gen_entries %}
+                                        {{row.solar_gen}},
+                                {% endfor %}
+                                ],
+                        }
+			]
 			};
 
 			const config = {
@@ -74,14 +85,16 @@
 				<thead>
 					<tr>
 					<th>Date and Time</th>
-					<th>Electriity generation (kW)</th>
+					<th>Wind generation (kW)</th>
+					<th>Solar generation (kW)</th>
 					</tr>
 				</thead>
 				<tbody>
 					{% for row in e_gen_entries %}
 					<tr>
 					<td>{{row.date_time}}</td>
-					<td>{{row.elec_gen}}</td>
+					<td>{{row.wind_gen}}</td>
+					<td>{{row.solar_gen}}</td>
 					</tr>
 					{% endfor %}
 				</tbody>
