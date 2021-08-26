@@ -18,6 +18,10 @@ engine = db.create_engine(os.environ.get('AIMLACKIES_REPORTER_DATABASE_URL'))
 connection = engine.connect()
 metadata = db.MetaData()
 trading_table=db.Table('trading', metadata, autoload=True, autoload_with=engine)
+predicted_load=db.Table('predicted_load', metadata, autoload=True, autoload_with=engine)
+actual_load=db.Table('actual_load', metadata, autoload=True, autoload_with=engine)
+
+
 
         
 def post_bids(surplus,posted_price,host):
@@ -58,7 +62,8 @@ def post_bids(surplus,posted_price,host):
             print("POST JSON reply:", d)
             assert d["accepted"] == 1
             assert d["message"] == ''
-            
+            query=db.insert(trading_table).values(date_time=applying_date , bid_units=-1*surplus[i],bid_price=posted_price[i])
+            connection.execute(query)
             
         elif value>0:
                # So that the bid is accepted
@@ -81,13 +86,13 @@ def post_bids(surplus,posted_price,host):
             print("POST JSON reply:", d)
             assert d["accepted"] == 1
             assert d["message"] == ''
-        
+            query=db.insert(trading_table).values(date_time=applying_date , bid_units=surplus[i],bid_price=posted_price[i])
+            connection.execute(query)
         
     
         else:
             print("No bids posted"  ) 
-    query=db.insert(trading_table).values(bid_units=surplus,bid_price=posted_price)
-    connection.execute(query)
+    
     
         
    
@@ -111,8 +116,22 @@ def get_surplus(predictedGeneration, predictedDemand,predictedPrice):
                       
     return surplus,posted_price
             
+           
+            
+          
+def get_untraded(host):
+    applying_date = date.today() + timedelta(days=2)
+    predictedDemand=ElecUse.query.filter(ElecUse.date_time==applying_date).all()
+    predictedGeneration=ElecUse.query.filter(ElecUse.date_time==applying_date).all()
+    
+    surplus=get_surplus(predictedGeneration, predictedDemand,predictedPrice)[0]
+    agg_volume=get_bids(host)[0]
+    untraded=surplus - agg_volume
+    return untraded
+    
 def get_bids(host):
-    '''Collect accepted bids'''
+    '''Needs to run some time after 12 pm after buy and sell orders matched
+    '''
     # Needs to run some time after 12 pm after buy and sell orders matched
     applying_date = date.today() + timedelta(days=2)
     datestring=applying_date.isoformat()
@@ -122,41 +141,7 @@ def get_bids(host):
                      "key":"AIMLACkies275001901",
                      "applying_date":datestring,
                  })
-
-    # if we run the same test twice we will have more
-    assert len(g.json()) >= 1
-
-    print("Getting bids (JSON reply):")
-    for order in g.json():
-        print (order)
-
-    
-    bids=pd.DataFrame(g.json())
-    print(bids.head(5))
   
-    # need to filter out the time
-    agg_volume=bids.groupby(2).sum()
-    agg_prices=bids.groupby(5).mean() #this should be fine assuming closing price for all bids is same every hour
-    
-    return agg_volume,agg_prices
-            
-            
-            
-def get_untraded(surplus,host):
-    agg_volume=get_bids(host)[0]
-    untraded=surplus- agg_volume
-    return untraded
-    
-def get_imbalance_prices(host):
-    '''Needs to run some time after 12 pm after buy and sell orders matched
-    '''
-    # Report sold/bought
-    g = requests.get(url=host + "/live/prices/get",
-                 params=dict(
-                     key="AIMLACkies275001901",
-                     applying_date=date.today().isoformat(),
-                 ))
-
     # if we run the same test twice we will have more
     assert len(g.json()) >= 1
 
@@ -164,6 +149,7 @@ def get_imbalance_prices(host):
     
     #lets assume returned order is exactly in same format as post
     #create a dictionary with volume and price
+    bid_date= np.zeros(len(g.json()))
     bid_prices= np.zeros(len(g.json()))
     bid_volume= np.zeros(len(g.json()))
     bid_hour= np.zeros(len(g.json()))
@@ -172,15 +158,71 @@ def get_imbalance_prices(host):
     for i, order in enumerate(g.json()):
         print(order)
         data=json.loads(order)
+        bid_date[i]=data['date']
         bid_prices[i] = data["price"]
-        bid_hour[i] = data["hour_ID"]
+        bid_hour[i] = data["period"]
         bid_volume[i] = data["volume"] 
         bid_type.append(data["type"])
+
     
-    bids= pd.DataFrame(zip(bid_hour,bid_volume))
-    all_prices=pd.DataFrame(zip(bid_hour,bid_prices))
-    agg_volume=bids.groupby(0).sum()
-    agg_prices=bids.groupby(0).mean()
+    listy=pd.DataFrame([bid_hour,bid_date,bid_volume], columns=["period","date","volume"])
+    type_list=pd.DataFrame([bid_hour,bid_type], columns=["period","type"])
+    
+    #hopefully this won't break because the types should all be the same
+    type_df=type_list.groupby("hour").sample()
+    sum_vol= listy.groupby("hour").sum()
+    #Assuming only a single date returned, only either of buy or sell performed for each slot
+    bid_date=bid_date[:48]
+    sum_vol["date"]=bid_date
+    
+    cout=see_get_market_data("clearout-prices")
+    
+  
+    bid_date1= np.zeros(len(cout.json()))
+    bid_prices1= np.zeros(len(cout.json()))
+
+    bid_type=[]
+    
+    #Assuming it happens in order.
+    for i, order in enumerate(cout.json()):
+        print(order)
+        data1=json.loads(order)
+        bid_date1[i]=data1['date']
+        bid_prices1[i] = data1["price"]
+        bid_hour1[i] = data1["period"]
+        
+    untraded=get_untraded(host)
+    #create a pandas DF with all table elements to ensure everything can go into the same table
+    
+    for i range(48):
+        query=db.insert(trading_table).values(date_time=bid_date[i] , period=sum_vol["period"][i],
+        bid_outcome_vol=sum_vol["volume"][i], bid_outcome_price=bid_prices1[i], bid_type=type_df["type"][i],
+        volume_untraded=untraded[i])
+        connection.execute(query)
+    
+    return sum_vol
+    
+    
+    
+    
+    
+    
+def get_imbalance():
+    g = see_get_market_data("imbalance")
+    
+    bid_date= np.zeros(len(g.json()))
+    bid_hour= np.zeros(len(g.json()))
+    imbalance_prices= np.zeros(len(g.json()))
+    
+    for i,order in enumerate(g.json()):
+        data=json.loads(order)
+        bid_date[i]=data['date']
+        bid_hour[i] = data["period"]
+        imbalance_prices[i]=data["price"]
+    d_list=[bid_date,bid_hour,imbalance_prices]
+    df=pd.DataFrame(d_list]).T
+    df.columns=["date", "period", "Imbalance price"]
+    return df
 
     
 def see_get_market_data(kind_of_data):
@@ -200,6 +242,7 @@ def see_get_market_data(kind_of_data):
     print("GET JSON reply:")
     for entry in g.json():
         print(entry)
+    return g
  
  
 def get_predicted_load_next_day():
