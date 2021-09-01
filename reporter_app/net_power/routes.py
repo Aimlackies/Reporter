@@ -9,14 +9,14 @@ from datetime import datetime, timedelta
 
 
 @bp.route('/net_power')
-#@auth_required("token", "session")
-#@roles_required('verified')
+@auth_required("token", "session")
+@roles_required('verified')
 def net_power():
     start_date = datetime.now() - timedelta(hours=24)
     e_use_entries = ElecUse.query.filter(ElecUse.date_time>start_date).all()
     e_gen_entries = ElecGen.query.filter(ElecGen.date_time>start_date).all()
     return render_template('net_power/net_power.html',
-                           net_power_entries=net_power_entries)
+                           e_use_entries=e_use_entries, e_gen_entries=e_gen_entries)
 
 
 @bp.route('/net_power/48_hours')
@@ -47,4 +47,3 @@ def np_28d():
     e_use_entries = ElecUse.query.filter(ElecUse.date_time>start_date).all()
     return render_template('net_power/net_power.html',
                            e_use_entries=e_use_entries)
-
