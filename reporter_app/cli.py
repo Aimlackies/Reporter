@@ -1,8 +1,9 @@
 from flask_security import hash_password
 from sqlalchemy.sql import func
 from reporter_app import db
-from reporter_app.models import ElecUse, Co2
+from reporter_app.models import ElecUse, Co2, ElecGen
 from reporter_app.electricity_use.utils import call_leccyfunc
+from reporter_app.electricity_gen.utils import get_energy_gen
 
 from datetime import datetime, timedelta
 import json
@@ -55,6 +56,25 @@ def register(app, user_datastore):
 			)
 			db.session.add(newElecUse)
 		db.session.commit()
+
+	@app.cli.command("elec_gen")
+	def elecGen():
+
+		# grab elctricity elec gen data
+		e_gen_df = get_energy_gen()
+
+		# write elctricity gen data to database
+		numOfTurbunes = 4  #2 Originals plus 2 extra Ed mentioned...?
+		panel_area = 43.75
+		for idx, row in e_gen_df.iterrows():
+			newElecGen = ElecGen(
+				date_time=row['time'],
+				wind_gen=row['windenergy'] * numOfTurbunes,
+				solar_gen=row['totalSolarEnergy'] * panel_area
+			)
+			db.session.add(newElecGen)
+		db.session.commit()
+
 
 	@app.cli.command("co2_for_time")
 	def co2ForTime():
