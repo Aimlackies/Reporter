@@ -1,7 +1,8 @@
-from reporter_app.electricity_use.utils import electricity, call_OWM_API, getWeather
+from reporter_app.electricity_use.utils import electricity, call_OWM_API, getWeather, call_leccyfunc
 import flask
 import pandas as pd
 import pytest
+import numpy as np
 
 
 def test_call_OWM_API_type():
@@ -38,13 +39,13 @@ def test_electricity(param, expect):
     assert output == expect
 
 
-#def test_call_leccyfunc_type():
-#    '''
-#    GIVEN: none (super simple test)
-#    WHEN: call_leccyfunc is called
-#    THEN: function returns dataframe
-#    '''
-#    l = call_leccyfunc()
-#    assert type(l.Time) is str
-#    assert type(l['Electricity Usage (kW)']) is float
+def test_call_leccyfunc_type():
+    '''
+    GIVEN: none (super simple test)
+    WHEN: call_leccyfunc is called
+    THEN: function returns dataframe
+    '''
+    l = call_leccyfunc()
+    assert type(l.Time[0]) is str
+    assert type(l['Electricity Usage (kW)'][0]) is np.float64
 

@@ -1,8 +1,13 @@
 from flask_security import hash_password
 from sqlalchemy.sql import func
 from reporter_app import db
-from reporter_app.models import ElecUse
+from reporter_app.models import ElecUse, Co2, ElecGen
 from reporter_app.electricity_use.utils import call_leccyfunc
+from reporter_app.electricity_gen.utils import get_energy_gen
+
+from datetime import datetime, timedelta
+import json
+import requests
 
 
 def register(app, user_datastore):
@@ -32,10 +37,12 @@ def register(app, user_datastore):
 		userAdmin.roles.append(roleVerified)
 		db.session.commit()
 
-	@app.cli.command("seed_dummy_data")
-	def seed_dummy_data():
+		print("Created seed user data")
+
+	@app.cli.command("generate_elec_use_data")
+	def generate_elec_use_data():
 		"""
-		Seed database with dummy data for testing. This should not be run on production
+		Grab electricity usage data and add it to electricity use DB table
 		"""
 
 		# grab elctricity usage data
@@ -50,4 +57,54 @@ def register(app, user_datastore):
 			db.session.add(newElecUse)
 		db.session.commit()
 
-		print("Seeded database with dummy data")
+	@app.cli.command("elec_gen")
+	def elecGen():
+
+		# grab elctricity elec gen data
+		e_gen_df = get_energy_gen()
+
+		# write elctricity gen data to database
+		numOfTurbunes = 4  #2 Originals plus 2 extra Ed mentioned...?
+		panel_area = 43.75
+		for idx, row in e_gen_df.iterrows():
+			newElecGen = ElecGen(
+				date_time=row['time'],
+				wind_gen=row['windenergy'] * numOfTurbunes,
+				solar_gen=row['totalSolarEnergy'] * panel_area
+			)
+			db.session.add(newElecGen)
+		db.session.commit()
+
+
+	@app.cli.command("co2_for_time")
+	def co2ForTime():
+		'''
+		Looks up CO2 intensity from api.carbonintensity.org and writes to the database
+		'''
+		#rounds the current time down to nearest 30 minutes (to allow for database relationship with electricity usage
+		now = datetime.now()
+		start = now - (now - datetime.min) % timedelta(minutes=30)
+
+		print("start:", start)
+
+		#Get date and format it for url
+		end = start + timedelta(minutes=30) #api requires an end time as well, so add 30 minutes to the start time
+		url=("https://api.carbonintensity.org.uk/regional/intensity/" + str(start.strftime("%Y-%m-%dT%H:%MZ")) + "/" + str(end.strftime("%Y-%m-%dT%H:%MZ")) + "/regionid/7")
+		#print(url)
+
+		#Fetch data from from API
+		response = requests.get(url)
+
+		#select co2 forecast from within json data
+		data = response.json()
+		co2Forecast = data["data"]["data"][0]["intensity"]["forecast"]
+
+		newCo2Value = Co2(
+			date_time=start,
+			co2=co2Forecast
+		)
+
+		db.session.add(newCo2Value)
+		db.session.commit()
+
+		print ("For the 30-min time period starting:", start, "the grid CO2 intensity (gCO2/kWh) was:", co2Forecast)
