@@ -41,7 +41,7 @@
 				</a>
 			</li>
 			<li class="nav-item">
-				<a class="nav-link" aria-current="page" href="#">
+				<a class="nav-link {{ 'active' if request.endpoint == 'electricity_gen.electricity_gen'}}" aria-current="page" href="{{ url_for('electricity_gen.electricity_gen') }}">
 					<span data-feather="home"></span>
 					<i class="bi-lightning-charge"></i> Power generation
 				</a>
@@ -49,13 +49,19 @@
 			<li class="nav-item">
 				<a class="nav-link {{ 'active' if request.endpoint == 'electricity_use.electricity_use'}}" aria-current="page" href="{{ url_for('electricity_use.electricity_use') }}">
                     <span data-feather="home"></span>
-                    <i class="bi-lightning-charge"></i> Electricity usage
+                    <i class="bi-lightning-charge"></i> Power usage
                 </a>
-			</li>
+		</li>
+		        <li class="nav-item">
+                                <a class="nav-link {{ 'active' if request.endpoint == 'net_power.net_power'}}" aria-current="page" href="{{ url_for('net_power.net_power') }}">
+                    <span data-feather="home"></span>
+                    <i class="bi-lightning-charge"></i> Net Power Generation
+                </a>
+		</li>
 			<li class="nav-item">
 				<a class="nav-link {{ 'active' if request.endpoint == 'co2.co2'}}" aria-current="page" href="{{ url_for('co2.co2') }}">
 					<span data-feather="home"></span>
-					<i class="bi-thermometer-half"></i> CO2 Savings
+					<i class="bi-thermometer-half"></i> CO2 savings
 				</a>
 			</li>
 		</ul>

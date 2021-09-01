@@ -10,6 +10,9 @@ import json
 import urllib.request
 import http.client
 from urllib.parse import urlsplit
+import argparse
+from scipy.interpolate import interp1d
+#import matplotlib.pyplot as plt
 
 def call_MET_API(parameter, run='00'):
     '''
@@ -206,11 +209,11 @@ class getWeather:
 def electricity(time, weather):
     '''
     Function to calculate electricity use for a given time and temperature
-    
+
     Inputs: time (str)   - time to calculate electricity use for,
                            in year-month-day hour:minute_second format
             weather (df) - dataframe of weather values from getWeather class
-    
+
     Outputs: electricity (float) - value of electricity used at time (in kW)
     '''
     temp = weather[weather.time == time]
@@ -245,7 +248,7 @@ def call_leccyfunc():
 
     Inputs: none
 
-    Outputs: leccy_df (df) - Dataframe of electricity use in half hour 
+    Outputs: leccy_df (df) - Dataframe of electricity use in half hour
                              intervals for next 5 days
     '''
     weather = getWeather('OWM').full_df
@@ -256,3 +259,93 @@ def call_leccyfunc():
     return leccy_df
 
 
+
+def predict_wind_energy(df, debugPlot = False):
+    #Numbers given by the wind turbine manufacturers.
+    x = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25]
+    y = [0.0, 0.0, 0.0, 0.0, 1.8, 7.7, 15.1, 24.8, 34.1, 43.9, 50.3, 54.8, 58.9, 63.5, 65.6, 66.8, 66.8, 67.2, 66.4, 66.4, 66.4, 66.4, 66.4, 66.4, 66.4, 66.4]
+    #Interpolate these two arrays to get a power curve.
+    #f = interp1d(x, y) #Not the best interp.
+    f2 = interp1d(x, y, kind='cubic')
+    xnew = np.linspace(0, 25, num=100, endpoint=True)
+
+    #Will plot the power curve if turned on in input.
+    #if(debugPlot):
+    #    plt.plot(x, y, 'o', xnew, f(xnew), '-', xnew, f2(xnew), '--')
+    #    plt.legend(['data', 'linear', 'cubic'], loc='best')
+    #    plt.show()
+
+    #Calculates the wind energy using the power curve and the interpolation.
+    df['windenergy'] = f2(df['wind_speed'])
+    #If speed is above 25 we turn the turbine off to save damage, returning 0 energy.
+    for i in range(df.shape[0]):
+        if(df.iloc[i]['wind_speed']>25):
+            df.iloc[i]['windenergy'] = 0
+    return df['windenergy']
+
+
+
+def predict_solar_energy(df, debugPlot = False):
+    #These are the factors required for the sin curves. We have 7 different ones and a lookup table to show where each month maps to on the year.
+    outmultfactor = np.linspace(100, 200, 7)
+    inmultfactor = np.linspace(3.2, 4.5, 7)
+    additionfactor = np.linspace(21, 20, 7)
+    additionfactor2 = np.linspace(2, 2, 7)
+    lut = [0,0,1,2,3,4,5,6,5,4,3,2,1]
+
+    #Sin curve for the solar output.
+    def sinCurve(x, oF, iF, add, add2):
+        returnVal = (oF * np.sin((x-add2) / iF - add))
+        if returnVal>0:
+            return returnVal
+        else:
+            return 0
+
+    #If debugPlot is on in the input it will plot all the sin curves. Use for debugging.
+    #if(debugPlot):
+    #    x = np.linspace(0, 24, 360)
+    #    i = 0
+    #    for fact in outmultfactor:
+    #        y = [sinCurve(xs, outmultfactor[i], inmultfactor[i], additionfactor[i], additionfactor2[i]) for xs in x]
+    #        plt.plot(x, y)
+    #        plt.xticks(rotation=90)
+    #        i = i + 1
+    #    plt.show()
+
+    #This calculates the raw solar energy according to the sin curve, and then multiplies by the cover factor to account for clouds.
+    df['coverfactor'] = (100 - df['cloud_percent']*0.25)/100
+    #df['timestamp'] = df.index
+    df['ts'] = [datetime.datetime.strptime(t, '%Y-%m-%d  %H:%M:%S') for t in df['time']]
+    df['month'] = [df.iloc[i]['ts'].month for i in range(df.shape[0])]
+    df['hour'] = [df.iloc[i]['ts'].hour + (df.iloc[i]['ts'].minute/60.0) for i in range(df.shape[0])]
+    df['rawEnergy'] = [ sinCurve(df.iloc[i]['hour'], outmultfactor[lut[df.iloc[i]['month']]], inmultfactor[lut[df.iloc[i]['month']]],
+                                 additionfactor[lut[df.iloc[i]['month']]], additionfactor2[lut[df.iloc[i]['month']]])
+                        for i in range(df.shape[0]) ]
+    df['totalSolarEnergy'] = df['rawEnergy'] * df['coverfactor']
+    return df['totalSolarEnergy']
+
+
+def get_energy_gen(debugPlot = False):
+    weatherObj = getWeather()
+    weatherObj.interpolate_df()
+    weather = weatherObj.full_df
+
+    #Predict wind
+    weather['totalSolarEnergy'] = predict_wind_energy(weather)
+    #Change to 1 if you want to see the plots.
+#    if(debugPlot):
+#        plt.plot(weather.index, weather['speed'], 'o', weather.index, weather['windenergy'], '-')
+#        plt.legend(['wind speed m/s', 'energy produced kW'], loc='best')
+#        plt.xticks(rotation=90)
+#        plt.show()
+
+    #Predict solar
+    weather['windenergy'] = predict_solar_energy(weather)
+    #Change to 1 if you want to see the plots.
+#    if(debugPlot):
+#        plt.plot(weather.index, weather['rawEnergy'], 'o', weather.index, weather['totalSolarEnergy'], '-')
+#        plt.legend(['maximum possible', 'total energy produced kW'], loc='best')
+#        plt.xticks(rotation=90)
+#        plt.show()
+
+    return weather[['windenergy', 'totalSolarEnergy', 'time']]
