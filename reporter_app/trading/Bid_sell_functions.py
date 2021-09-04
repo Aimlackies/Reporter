@@ -165,8 +165,10 @@ def get_bids(host):
         bid_type.append(data["type"])
 
     
-    listy=pd.DataFrame([bid_hour,bid_date,bid_volume], columns=["period","date","volume"])
-    type_list=pd.DataFrame([bid_hour,bid_type], columns=["period","type"])
+    listy=pd.DataFrame([bid_hour,bid_date,bid_volume]).T
+    listy.columns=["period","date","volume"]
+    type_list=pd.DataFrame([bid_hour,bid_type]).T
+    type_list.columns=["period","type"]
     
     #hopefully this won't break because the types should all be the same
     type_df=type_list.groupby("hour").sample()
@@ -194,7 +196,7 @@ def get_bids(host):
     untraded=get_untraded(host)
     #create a pandas DF with all table elements to ensure everything can go into the same table
     
-    for i range(48):
+    for i in range(48):
         query=db.insert(trading_table).values(date_time=bid_date[i] , period=sum_vol["period"][i],
         bid_outcome_vol=sum_vol["volume"][i], bid_outcome_price=bid_prices1[i], bid_type=type_df["type"][i],
         volume_untraded=untraded[i])
@@ -220,7 +222,7 @@ def get_imbalance():
         bid_hour[i] = data["period"]
         imbalance_prices[i]=data["price"]
     d_list=[bid_date,bid_hour,imbalance_prices]
-    df=pd.DataFrame(d_list]).T
+    df=pd.DataFrame(d_list).T
     df.columns=["date", "period", "Imbalance price"]
     return df
 
