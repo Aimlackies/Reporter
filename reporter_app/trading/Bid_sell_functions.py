@@ -17,6 +17,8 @@ host = f"http://{AIMLAC_CC_MACHINE}"
 engine = db.create_engine(os.environ.get('AIMLACKIES_REPORTER_DATABASE_URL'))
 connection = engine.connect()
 metadata = db.MetaData()
+
+# finds the table NAME defined inside models.py
 trading_table=db.Table('trading', metadata, autoload=True, autoload_with=engine)
 predicted_load=db.Table('predicted_load', metadata, autoload=True, autoload_with=engine)
 actual_load=db.Table('actual_load', metadata, autoload=True, autoload_with=engine)
@@ -24,12 +26,15 @@ actual_load=db.Table('actual_load', metadata, autoload=True, autoload_with=engin
 
 
         
-def post_bids(surplus,posted_price,host):
+def post_bids(host):
     ''' 
     Post bids and report to the database table once bids posted
     Surplus and posted price supplied as numpy arrays in descending
     order(to match predicted load)
     '''
+    surplus=get_surplus()[0]
+    posted_price=get_surplus()[1]
+    
     applying_date = date.today() + timedelta(days=2)
     for i, value in enumerate(surplus): 
         
@@ -92,14 +97,41 @@ def post_bids(surplus,posted_price,host):
     
         else:
             print("No bids posted"  ) 
+
+def get_wday_wk_doy(x):
+    x=datetime.date.fromisoformat(x)
+    year=x.isocalendar()[0]
+    week=x.isocalendar()[1]
+    wday=x.isocalendar()[2]    
+    doy=x.timetuple().tm_yday
+    return year,week,wday,doy
     
+def process(filtered_tab):
+    # Ceiling division to get hour from period
+    filtered_tab["Hour"]=[-(-x/2) for x in filtered_tab["Settlement Date"]]
+    filtered_tab["Year"],filtered_tab["week"],filtered_tab["wday"],filtered_tab["doy"]=zip(*filtered_tab["Settlement Date"].map(get_wday_wk_doy))
+    processed_tab['Year', 'Week', 'Day', 'Day of Year', 'hours', 'Units(MWh)']=filtered_tab
+    ["Year","week","wday","doy","Hour","Quantity"]
+    return processed_tab
     
-        
+def get_predicted_price():
+    filtered_tab=get_predicted_load_next_day()
+    
+    processed_tab=process(filtered_tab)
+    #What is the best way to normalise the data before prediction?
+    predictedPrice=model.predict(processed_tab)
+    
+    return predictedPrice
    
      
             
-def get_surplus(predictedGeneration, predictedDemand,predictedPrice):
+def get_surplus(predictedPrice):
     '''Calculate the surplus or deficit in available energy and define price to post'''
+    
+    applying_date = date.today() + timedelta(days=2)
+    
+    predictedDemand=ElecUse.query.filter(ElecUse.date_time==applying_date).all()
+    predictedGeneration=ElecGen.query.filter(ElecUse.date_time==applying_date).all()
     
     surplus=predictedGeneration-predictedDemand
     posted_price=np.zeros(len(predictedPrice))
@@ -120,12 +152,11 @@ def get_surplus(predictedGeneration, predictedDemand,predictedPrice):
             
           
 def get_untraded(host):
-    applying_date = date.today() + timedelta(days=2)
-    predictedDemand=ElecUse.query.filter(ElecUse.date_time==applying_date).all()
-    predictedGeneration=ElecUse.query.filter(ElecUse.date_time==applying_date).all()
+        
+    surplus=get_surplus(predictedPrice)[0]
     
-    surplus=get_surplus(predictedGeneration, predictedDemand,predictedPrice)[0]
     agg_volume=get_bids(host)[0]
+    
     untraded=surplus - agg_volume
     return untraded
     
@@ -205,10 +236,6 @@ def get_bids(host):
     return sum_vol
     
     
-    
-    
-    
-    
 def get_imbalance():
     g = see_get_market_data("imbalance")
     
@@ -224,6 +251,7 @@ def get_imbalance():
     d_list=[bid_date,bid_hour,imbalance_prices]
     df=pd.DataFrame(d_list).T
     df.columns=["date", "period", "Imbalance price"]
+    
     return df
 
     
@@ -255,12 +283,16 @@ def get_predicted_load_next_day():
     settlementdate=(dt.date.today()+tdelta).isoformat()
     tab=pd.read_csv(f"{base_url}/BMRS/B0620/V1?ServiceType=CSV&Period=*&APIKey={api_key}&SettlementDate={settlementdate}",skiprows=4)
     filtered_tab=tab[["Settlement Date", "Settlement Period", "Quantity"]]
+    filtered_tab=filtered_tab.dropna(subset=["Settlement Date"])
+
     
+    return filtered_tab
+
+def dbwrite_load_next_day():
+
+    filtered_tab=get_predicted_load_next_day()
+        
     #write to database
     query=db.insert(trading_table).values(date_time=filtered_tab["Settlement Date"]
     ,period=filtered_tab["Settlement Period"],predicted_load=filtered_tab["Quantity"])
-    ResultProxy = connection.execute(query)
-    
-    return filtered_tab
-    
-    
+    ResultProxy = connection.execute(query)    
