@@ -288,6 +288,7 @@ def get_predicted_load_next_day():
     
     return filtered_tab
 
+# This ain't necessary?
 def dbwrite_load_next_day():
 
     filtered_tab=get_predicted_load_next_day()
