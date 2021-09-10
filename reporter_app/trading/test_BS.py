@@ -31,7 +31,12 @@ def test_surplus(predictedGeneration,predictedDemand,predictedPrice, expect):
 #                          predictedPrice=np.random.randint(30,80,24)
 
 # Playing around with Git to get a  better feel for it
-
+@pytest.mark.parametrize("kind_of_data", ["imbalance",
+                                           "clearout-prices"])
+def test_get_market_data_wrapper(kind_of_data):
+    see_get_market_data(kind_of_data)
+    
+    
 def test_set_and_get_bids():
 
     # So that the bid is accepted

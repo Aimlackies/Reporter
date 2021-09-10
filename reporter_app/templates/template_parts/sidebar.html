@@ -35,7 +35,7 @@
 				</a>
 			</li>
 			<li class="nav-item">
-				<a class="nav-link" aria-current="page" href="#">
+				<a class="nav-link {{ 'active' if request.endpoint == 'trading.trading'}}" aria-current="page" href="{{ url_for('trading.trading') }}">
 					<span data-feather="home"></span>
 					<i class="bi-graph-up"></i> Energy bids
 				</a>

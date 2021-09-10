@@ -14,16 +14,16 @@ from datetime import datetime, timedelta
 @auth_required("token", "session")
 @roles_required('verified')
 def co2():
-    start_date = datetime.now() - timedelta(hours=24)
-    co2_entries = Co2.query.filter(Co2.date_time>start_date).all()
-    return render_template('co2/co2.html', co2_entries=co2_entries)
+    start_date = datetime.now() - timedelta(hours=24) #Get the start date
+    co2_entries = Co2.query.filter(Co2.date_time>start_date).all() #filter when the date_time is greater than start
+    return render_template('co2/co2.html', co2_entries=co2_entries) # render template according to the entries
 
 @bp.route('/co2/48_hours')
 @auth_required("token", "session")
 @roles_required('verified')
-def co2_48hours():
-    start_date = datetime.now() - timedelta(hours=48)
-    co2_entries = Co2.query.filter(Co2.date_time>start_date).all()
+def co2_48hours(): #if someone clicks 48 hour view do this
+    start_date = datetime.now() - timedelta(hours=48) 
+    co2_entries = Co2.query.filter(Co2.date_time>start_date).all() # the co2 database has everything you just need to filter
     return render_template('co2/co2.html', co2_entries=co2_entries)
 
 @bp.route('/co2/7_days')
@@ -46,5 +46,5 @@ def co2_28days():
 @auth_required("token", "session")
 @roles_required('verified')
 def co2_all():
-    co2_entries = Co2.query.all()
+    co2_entries = Co2.query.all() # The real question is where has this CO2 been defined
     return render_template('co2/co2.html', co2_entries=co2_entries)

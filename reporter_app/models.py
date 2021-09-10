@@ -78,8 +78,8 @@ class ElecUse(db.Model):
     
 class Trading(db.Model):
     __tablename__='trading'
-    date_time=Column("Date, time" , DateTime(),unique=True, primary_key=True)
-    period=Column("Period",Integer(),nullable=False)   
+    date_time=Column("Date, time" , DateTime(), primary_key=True)
+    period=Column("Period",Integer(), primary_key=True,nullable=False)   
     bid_units=Column("Bid Units Volume(kWh)",db.Float)
     bid_type=Column("Bid type",String(255))
     bid_price=Column("Bid Price",db.Float,nullable=False)
