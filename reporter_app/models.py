@@ -76,6 +76,17 @@ class ElecUse(db.Model):
 	date_time = Column(DateTime(), primary_key=True)
 	electricity_use = Column(db.Float)
 
+class power_gen(db.Model):
+	__tablename__ = 'power_generation'
+	__table_args__ = (UniqueConstraint('date_time', 'device'),)
+	date_time = Column(DateTime(), primary_key=True)
+	device = Column(String(255), nullable=False, primary_key=True)
+	power= Column(db.Float)
+	temperature = Column(db.Float)
+	
+
+	
+
 class ElecGen(db.Model):
 	_tablename__ = 'electricity_gen'
 	date_time = Column(DateTime(), primary_key=True)

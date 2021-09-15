@@ -1,0 +1,44 @@
+{% extends "template_parts/base.html" %}
+
+
+{% block content %}
+<main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+  <div class="bg-white p-3 mt-4">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3">
+      <h1 class="h2">Live system</h1>
+    </div>
+		<hr/>
+
+		<div class="row">
+			<div class="col-xs-10 col-sm-6 col-md-6">
+				<div class="card card-style mb-2">
+					<div class="card-body">
+						<div class="chart-container" style="position: relative;">
+							<canvas id="income_vs_expense"></canvas>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-xs-10 col-sm-6 col-md-6">
+				<div class="card card-style mb-2">
+					<div class="card-body">
+						<div class="chart-container" style="position: relative;">
+							<canvas id="income_vs_category"></canvas>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-xs-10 col-sm-6 col-md-6">
+				<div class="card card-style mb-2">
+					<div class="card-body">
+						<div class="chart-container" style="position: relative;">
+							<canvas id="overtime_expenditure"></canvas>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+  </div>
+</main>
+
+{% endblock %}

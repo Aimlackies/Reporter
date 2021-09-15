@@ -1,8 +1,8 @@
-#!/usr/bin/env python3
-#wybierz prawidlowe srodowisko aimlacReporter:conda w pythonie 
+#!/usr/bin/env python3 
 import requests
+
 from datetime import date, timedelta, datetime
-import pytest
+#import pytest
 import os
 import json
 
