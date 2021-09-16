@@ -68,8 +68,8 @@ def create_app(config_class=Config):
     from reporter_app.co2 import bp as co2_bp
     app.register_blueprint(co2_bp)
 
-    from reporter_app.api_info import bp as api_info
-    app.register_blueprint(api_info)
+    from reporter_app.rse_api import bp as rse_api
+    app.register_blueprint(rse_api)
 
     # Normal app startup
     if not app.debug and not app.testing:

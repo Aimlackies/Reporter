@@ -1,9 +1,10 @@
 from flask_security import hash_password
 from sqlalchemy.sql import func
 from reporter_app import db
-from reporter_app.models import ElecUse, Co2, ElecGen
+from reporter_app.models import ElecUse, Co2, ElecGen, RealPowerReadings, RealSiteReadings
 from reporter_app.electricity_use.utils import call_leccyfunc
 from reporter_app.electricity_gen.utils import get_energy_gen
+from reporter_app.rse_api.utils import get_device_power, get_site_info
 
 from datetime import datetime, timedelta
 import json
@@ -108,3 +109,41 @@ def register(app, user_datastore):
 		db.session.commit()
 
 		print ("For the 30-min time period starting:", start, "the grid CO2 intensity (gCO2/kWh) was:", co2Forecast)
+
+	@app.cli.command("get_real_power")
+	def elecGen():
+
+		# [device name, true if generates power; false if consumes it]
+		devices = [
+			["Llanwrtyd Wells - Computing Centre", False],
+			["Llanwrtyd Wells - Solar Generator", True],
+			["Llanwrtyd Wells - Wind Generator 1", True],
+			["Llanwrtyd Wells - Wind Generator 2", True],
+			["Llanwrtyd Wells - Wind Generator 3", True],
+			["Llanwrtyd Wells - Wind Generator 4", True],
+			["Llanwrtyd Wells - Wind Generator A", True],
+			["Llanwrtyd Wells - Wind Generator B", True],
+		]
+
+		for device in devices:
+			stats = get_device_power(device[0])
+			newPowerReading = RealPowerReadings(
+				date_time=stats['datetime'],
+				power=stats['power'],
+				device_name=device[0],
+				power_generator=device[1]
+			)
+			db.session.add(newPowerReading)
+		db.session.commit()
+
+	@app.cli.command("get_real_site_info")
+	def elecGen():
+
+		stats = get_site_info()
+		newSiteInfo = RealSiteReadings(
+			date_time=stats['datetime'],
+			power=stats['power'],
+			temperature=stats['temperature']
+		)
+		db.session.add(newSiteInfo)
+		db.session.commit()

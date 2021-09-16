@@ -12,3 +12,7 @@ SHELL=/bin/bash
 */30 * * * * (source ~/.bashrc && source ~/.bash_profile && conda activate aimlacReporter && flask co2_for_time && conda deactivate) > /tmp/cronjob.log 2>&1
 
 59 * * * * (source ~/.bashrc && source ~/.bash_profile && conda activate aimlacReporter && flask generate_elec_use_data && conda deactivate) > /tmp/cronjob.log 2>&1
+
+*/5 * * * * (source ~/.bashrc && source ~/.bash_profile && conda activate aimlacReporter && flask get_real_power && conda deactivate) > /tmp/cronjob.log 2>&1
+
+*/5 * * * * (source ~/.bashrc && source ~/.bash_profile && conda activate aimlacReporter && flask get_real_site_info && conda deactivate) > /tmp/cronjob.log 2>&1
