@@ -18,14 +18,14 @@ assert AIMLAC_CC_MACHINE is not None
 host = f"http://{AIMLAC_CC_MACHINE}"
 
 
-engine = db.create_engine(os.environ.get('AIMLACKIES_REPORTER_DATABASE_URL'))
-connection = engine.connect()
-metadata = db.MetaData()
+# engine = db.create_engine(os.environ.get('AIMLACKIES_REPORTER_DATABASE_URL'))
+# connection = engine.connect()
+# metadata = db.MetaData()
 
 # finds the table NAME defined inside models.py
-trading_table=db.Table('trading', metadata, autoload=True, autoload_with=engine)
-predicted_load=db.Table('predicted_load', metadata, autoload=True, autoload_with=engine)
-actual_load=db.Table('actual_load', metadata, autoload=True, autoload_with=engine)
+# trading_table=db.Table('trading', metadata, autoload=True, autoload_with=engine)
+# predicted_load=db.Table('predicted_load', metadata, autoload=True, autoload_with=engine)
+# actual_load=db.Table('actual_load', metadata, autoload=True, autoload_with=engine)
 
 # Functions placed in execution order. Whichever function completes its task first comes first in the script
 
