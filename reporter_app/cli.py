@@ -1,11 +1,12 @@
 from flask_security import hash_password
 from sqlalchemy.sql import func
 from reporter_app import db
-from reporter_app.models import ElecUse, Co2, ElecGen
+from reporter_app.models import ElecUse, Co2, ElecGen, Trading,PredictedLoad
 from reporter_app.electricity_use.utils import call_leccyfunc
 from reporter_app.electricity_gen.utils import get_energy_gen
+from reporter_app.trading.utils import post_bids, get_predicted_price
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date, time
 import json
 import requests
 
@@ -108,3 +109,25 @@ def register(app, user_datastore):
 		db.session.commit()
 
 		print ("For the 30-min time period starting:", start, "the grid CO2 intensity (gCO2/kWh) was:", co2Forecast)
+        
+	@app.cli.command("predict_price")
+	def predict_price():
+		'''
+		Looks up predicted load and predicts price
+		'''        
+		reported_date=datetime.combine(datetime.today(),time())
+		price=get_predicted_price()
+		for idx, row in price.iterrows():
+			new_predicted_price=PredictedLoad(
+				date_time=reported_date,
+				period=idx+1,
+				predicted_load=row["Units(MWh)"],
+				predicted_price=row["Price"]
+			)
+			reported_date=reported_date+timedelta(minutes=30)
+			db.session.add(new_predicted_price)
+		db.session.commit()            
+            
+                   
+            
+        
