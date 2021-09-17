@@ -44,7 +44,6 @@ posted_price=np.array([103.5,  28.5,  39. ,  38. ,  21.5,  73.5,  19.5,  57. ,  
 @pytest.mark.parametrize("predictedGeneration predictedDemand predictedPrice surplus posted_price", [predictedGeneration,predictedDemand,predictedPrice, surplus, posted_price])
 def test_surplus(predictedGeneration,predictedDemand,predictedPrice, expect):
     '''Check if the surplus testing and posting price calculation is correct'''
-    
     output=get_surplus_test(predictedGeneration,predictedDemand,predictedPrice)
     assert output[0].sum()==surplus.sum()
     assert output[1].sum()==posted_price.sum()
@@ -72,7 +71,7 @@ def test_get_bids():
   
 # def test_get_bids_grouping():
 
-    So that the bid is accepted
+    # So that the bid is accepted
     # applying_date = date.today() + timedelta(days=2)
 
     # p = requests.post(url=host + "/auction/bidding/set",
@@ -101,7 +100,7 @@ def test_get_bids():
                          # applying_date=applying_date.isoformat(),
                      # ))
 
-    if we run the same test twice we will have more
+    #if we run the same test twice we will have more
     # assert len(g.json()) >= 1
 
     # print("Getting bids (JSON reply):")
