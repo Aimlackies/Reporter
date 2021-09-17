@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 import pandas as pd
-from utils import *
+from reporter_app.trading.utils import *
 
 
 
