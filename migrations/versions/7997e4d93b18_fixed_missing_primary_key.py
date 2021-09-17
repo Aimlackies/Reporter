@@ -37,8 +37,8 @@ def upgrade():
     sa.PrimaryKeyConstraint('date_time')
     )
     #op.drop_index('date_time', table_name='real_power_generation')
-    #op.drop_table('real_power_generation')
-    #op.drop_table('real_site_reading')
+    op.drop_table('real_power_generation')
+    op.drop_table('real_site_reading')
     # ### end Alembic commands ###
 
 
@@ -68,6 +68,6 @@ def downgrade():
     mysql_engine='InnoDB'
     )
     #op.create_index('date_time', 'real_power_generation', ['date_time', 'device_name'], unique=False)
-    #op.drop_table('real_site_readings')
-    #op.drop_table('real_power_readings')
+    op.drop_table('real_site_readings')
+    op.drop_table('real_power_readings')
     # ### end Alembic commands ###
