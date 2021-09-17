@@ -71,10 +71,42 @@ class Co2(db.Model):
 	co2 = Column(db.Float)
 	usage = relationship('ElecUse', backref=backref('co2', lazy='dynamic'))
 
+
 class ElecUse(db.Model):
 	_tablename__ = 'electricity_use'
 	date_time = Column(DateTime(), primary_key=True)
 	electricity_use = Column(db.Float)
+
+
+class RealPowerReadings(db.Model):
+	__tablename__ = 'real_power_readings'
+	__table_args__ = (UniqueConstraint('date_time', 'device_name'),)
+	date_time = Column(DateTime(), primary_key=True)
+	device_name = Column(String(255), primary_key=True)
+	power = Column(db.Float)
+	power_generator = Column(Boolean())
+	create_datetime = Column(DateTime(), nullable=False, server_default=func.now())
+	update_datetime = Column(
+		DateTime(),
+		nullable=False,
+		server_default=func.now(),
+		onupdate=datetime.datetime.utcnow,
+	)
+
+
+class RealSiteReadings(db.Model):
+	__tablename__ = 'real_site_readings'
+	date_time = Column(DateTime(), primary_key=True)
+	temperature = Column(db.Float)
+	power = Column(db.Float)
+	create_datetime = Column(DateTime(), nullable=False, server_default=func.now())
+	update_datetime = Column(
+		DateTime(),
+		nullable=False,
+		server_default=func.now(),
+		onupdate=datetime.datetime.utcnow,
+	)
+
 
 class ElecGen(db.Model):
 	_tablename__ = 'electricity_gen'

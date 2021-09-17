@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.3.2/chart.min.js"        
+        integrity="sha512-VCHVc5miKoln972iJPvkQrUYYq7XpxXzvqNfiul1H4aZDwGBGC0lq373KNleaB2LpnC2a/iNfE5zoRYmB4TRDQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <title>Document</title>
+</head>
+<body>
+    <canvas id="myChart" width="100" height="50"></canvas>
+    <script>
+    var ctx = document.getElementById('myChart').getContext('2d');
+    var myChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['AIMLAC HQ Llanwrtyd Wells', 'Llanwrtyd Wells - Aryaman', 'Llanwrtyd Wells - Buran', 'Llanwrtyd Wells - Gibli', 'Llanwrtyd Wells - Turing'],
+            datasets: [{
+                label: 'Energy produced',
+                data: [-30000.0, 26594.176892476153, 14846.153846153846, 14846.153846153846,  -200000],
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(153, 102, 255, 0.2)',
+                    'rgba(255, 159, 64, 0.2)'
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: [{
+                y: {
+                    beginAtZero: true
+                }
+            }],
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Energy produced: Mon, 21 Jun 2021 16:01:10 GMT, temperature: 22.14 Celius degrees'
+                    }
+            
+            
+          
+            }
+        }
+    });
+    </script>
+</body>
+
+</html> 
