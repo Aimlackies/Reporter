@@ -1,3 +1,5 @@
+import sys
+sys.path.append("../..")
 import requests
 from datetime import date, timedelta
 from datetime import datetime as dt
@@ -8,6 +10,8 @@ import json
 import pandas as pd
 import numpy as np
 import sqlalchemy as db
+import pickle
+from reporter_app.models import ElecUse, Co2, ElecGen, Trading
 
 AIMLAC_CC_MACHINE = os.getenv("AIMLAC_CC_MACHINE")
 assert AIMLAC_CC_MACHINE is not None
@@ -23,10 +27,119 @@ trading_table=db.Table('trading', metadata, autoload=True, autoload_with=engine)
 predicted_load=db.Table('predicted_load', metadata, autoload=True, autoload_with=engine)
 actual_load=db.Table('actual_load', metadata, autoload=True, autoload_with=engine)
 
+# Functions placed in execution order. Whichever function completes its task first comes first in the script
+
+def get_predicted_load_next_day():
+    api_key= "cncw84m146gcswv"
+    
+    base_url="https://api.bmreports.com"
+    tdelta=timedelta(days=1)
+    settlementdate=(date.today()+tdelta).isoformat()
+    tab=pd.read_csv(f"{base_url}/BMRS/B0620/V1?ServiceType=CSV&Period=*&APIKey={api_key}&SettlementDate={settlementdate}",skiprows=4)
+    filtered_tab=tab[["Settlement Date", "Settlement Period", "Quantity"]]
+    filtered_tab=filtered_tab.dropna(subset=["Settlement Date"])
+
+    
+    return filtered_tab
+
+def get_wday_wk_doy(x):
+    x=date.fromisoformat(x)
+    year=x.isocalendar()[0]
+    week=x.isocalendar()[1]
+    wday=x.isocalendar()[2]    
+    doy=x.timetuple().tm_yday
+    return year,week,wday,doy
+    
+    
+def process(filtered_tab):
+    # Ceiling division to get hour from period
+    filtered_tab["Hour"]=[-(-x//2) for x in filtered_tab["Settlement Period"]]
+    
+    filtered_tab["Year"],filtered_tab["week"],filtered_tab["wday"],filtered_tab["doy"]=zip(*filtered_tab["Settlement Date"].map(get_wday_wk_doy))
+    print(filtered_tab.columns)
+    processed_tab=pd.DataFrame()
+    processed_tab=filtered_tab.get(["Year","week","wday","doy","Hour","Quantity"])
+    processed_tab.columns=['Year', 'Week', 'Day', 'Day of Year', 'hours', 'Units(MWh)']
+    return processed_tab
+    
+def prediction_model(x):
+    print(os.path.abspath(os.getcwd()))
+    pkl_filename= "./reporter_app/trading/model/pickle_model.pkl"
+    
+    with open(pkl_filename, 'rb') as file:
+        model = pickle.load(file)
+
+    predictedPrice=model.predict(x)
+    return predictedPrice
+    
+def get_predicted_price():
+    filtered_tab=get_predicted_load_next_day()
+    
+    processed_tab=process(filtered_tab)
+    #What is the best way to normalise the data before prediction?
+    # will need to create model, then load weights to the model then do the predict. Before that the model needs to be moved to a script or does it even? Probably not.
+    predicted_price=prediction_model(processed_tab)
+    processed_tab["Price"]=predicted_price
+    
+    return processed_tab
+
+def get_gen_use(applying_date):
+    # applying_date = date.today() + timedelta(days=1)
+    
+    predictedGeneration=ElecGen.query.filter(ElecUse.date_time==applying_date).all()
+    predictedDemand=ElecUse.query.filter(ElecUse.date_time==applying_date).all()
+    
+    
+    return predictedGeneration,predictedDemand
 
 
+    
+def get_surplus():
+    '''Calculate the surplus or deficit in available energy and define price to post'''
+
+    predictedPrice=get_predicted_price()    
+    predictedGeneration=get_gen_use()[0]
+    predictedDemand= get_gen_use()[1]
+    
+    surplus=predictedGeneration-predictedDemand
+    posted_price=np.zeros(len(predictedPrice))
+    
+    for i,difference in enumerate(surplus):    
+        if difference >0:
+            # Minimum price willing to accept
+            posted_price[i]=predictedPrice[i]*0.5
+            
+        else:
+            # Maximum price willing to pay
+            posted_price[i]= predictedPrice[i]*1.5
+            
+                      
+    return surplus,posted_price
+            
+def get_surplus_test(predictedGeneration, predictedDemand, predictedPrice):
+    '''
+    To test calculation of the surplus or deficit in available energy and define price to post
+    
+    '''    
+    #needs to be identical to get_surplus other than the input params
+    surplus=predictedGeneration-predictedDemand
+    posted_price=np.zeros(len(predictedPrice))
+    
+    for i,difference in enumerate(surplus):    
+        if difference >0:
+            # Minimum price willing to accept
+            posted_price[i]=predictedPrice[i]*0.5
+            
+        else:
+            # Maximum price willing to pay
+            posted_price[i]= predictedPrice[i]*1.5
+            
+                      
+    return surplus,posted_price
+            
+    
         
-def post_bids(host):
+def post_bids():
     ''' 
     Post bids and report to the database table once bids posted
     Surplus and posted price supplied as numpy arrays in descending
@@ -35,18 +148,15 @@ def post_bids(host):
     surplus=get_surplus()[0]
     posted_price=get_surplus()[1]
     
-    applying_date = date.today() + timedelta(days=2)
+    applying_date = date.today() + timedelta(days=1)
     for i, value in enumerate(surplus): 
         
         print("Surplus: ", surplus[i],"\n"
               ,"Price:", posted_price[i])
         print("Accessing ", host)
         print("hour", i+1)
-        if value<0:
-            # So that the bid is accepted
-            
-            
-    
+        
+        if value<0:         
             p = requests.post(url=host + "/auction/bidding/set",
                               json={
                                   "key":
@@ -65,10 +175,9 @@ def post_bids(host):
             d = p.json()
             print("Posting bids:")
             print("POST JSON reply:", d)
-            assert d["accepted"] == 1
-            assert d["message"] == ''
-            query=db.insert(trading_table).values(date_time=applying_date , bid_units=-1*surplus[i],bid_price=posted_price[i])
-            connection.execute(query)
+            
+            # query=db.insert(trading_table).values(date_time=applying_date , bid_units=-1*surplus[i],bid_price=posted_price[i])
+            # connection.execute(query)
             
         elif value>0:
                # So that the bid is accepted
@@ -89,79 +198,20 @@ def post_bids(host):
             d = p.json()
             print("Posting bids:")
             print("POST JSON reply:", d)
-            assert d["accepted"] == 1
-            assert d["message"] == ''
-            query=db.insert(trading_table).values(date_time=applying_date , bid_units=surplus[i],bid_price=posted_price[i])
-            connection.execute(query)
+
+            # query=db.insert(trading_table).values(date_time=applying_date , bid_units=surplus[i],bid_price=posted_price[i])
+            # connection.execute(query)
         
     
         else:
             print("No bids posted"  ) 
+            
+    return d
 
-def get_wday_wk_doy(x):
-    x=datetime.date.fromisoformat(x)
-    year=x.isocalendar()[0]
-    week=x.isocalendar()[1]
-    wday=x.isocalendar()[2]    
-    doy=x.timetuple().tm_yday
-    return year,week,wday,doy
-    
-def process(filtered_tab):
-    # Ceiling division to get hour from period
-    filtered_tab["Hour"]=[-(-x/2) for x in filtered_tab["Settlement Date"]]
-    filtered_tab["Year"],filtered_tab["week"],filtered_tab["wday"],filtered_tab["doy"]=zip(*filtered_tab["Settlement Date"].map(get_wday_wk_doy))
-    processed_tab['Year', 'Week', 'Day', 'Day of Year', 'hours', 'Units(MWh)']=filtered_tab
-    ["Year","week","wday","doy","Hour","Quantity"]
-    return processed_tab
-    
-def get_predicted_price():
-    filtered_tab=get_predicted_load_next_day()
-    
-    processed_tab=process(filtered_tab)
-    #What is the best way to normalise the data before prediction?
-    predictedPrice=model.predict(processed_tab)
-    
-    return predictedPrice
-   
-     
-            
-def get_surplus(predictedPrice):
-    '''Calculate the surplus or deficit in available energy and define price to post'''
-    
-    applying_date = date.today() + timedelta(days=2)
-    
-    predictedDemand=ElecUse.query.filter(ElecUse.date_time==applying_date).all()
-    predictedGeneration=ElecGen.query.filter(ElecUse.date_time==applying_date).all()
-    
-    surplus=predictedGeneration-predictedDemand
-    posted_price=np.zeros(len(predictedPrice))
-    
-    for i,difference in enumerate(surplus):    
-        if difference >0:
-            # Minimum price willing to accept
-            posted_price[i]=predictedPrice[i]*0.5
-            
-        else:
-            # Maximum price willing to pay
-            posted_price[i]= predictedPrice[i]*1.5
-            
-                      
-    return surplus,posted_price
-            
            
-            
-          
-def get_untraded(host):
-        
-    surplus=get_surplus(predictedPrice)[0]
-    
-    agg_volume=get_bids(host)[0]
-    
-    untraded=surplus - agg_volume
-    return untraded
-    
 def get_bids(host):
-    '''Needs to run some time after 12 pm after buy and sell orders matched
+    '''
+    Queries and returns bids after buy and sell orders matched
     '''
     # Needs to run some time after 12 pm after buy and sell orders matched
     applying_date = date.today() + timedelta(days=2)
@@ -175,11 +225,25 @@ def get_bids(host):
   
     # if we run the same test twice we will have more
     assert len(g.json()) >= 1
-
+    
+    
     print("Getting bids (JSON reply):")
     
-    #lets assume returned order is exactly in same format as post
-    #create a dictionary with volume and price
+    outcome=pd.DataFrame(g.json())
+    
+    return g,outcome
+
+def get_untraded_volume(host):
+        
+    surplus=get_surplus()[0]
+    
+    agg_volume=get_bids(host)[0]
+    
+    untraded_volume=surplus - agg_volume
+    return untraded_volume
+    
+def get_stuff_from_bids():
+    #arrays to hold values from the response    
     bid_date= np.zeros(len(g.json()))
     bid_prices= np.zeros(len(g.json()))
     bid_volume= np.zeros(len(g.json()))
@@ -227,13 +291,18 @@ def get_bids(host):
     untraded=get_untraded(host)
     #create a pandas DF with all table elements to ensure everything can go into the same table
     
-    for i in range(48):
-        query=db.insert(trading_table).values(date_time=bid_date[i] , period=sum_vol["period"][i],
-        bid_outcome_vol=sum_vol["volume"][i], bid_outcome_price=bid_prices1[i], bid_type=type_df["type"][i],
-        volume_untraded=untraded[i])
-        connection.execute(query)
+    # for i in range(48):
+        # query=db.insert(trading_table).values(date_time=bid_date[i] , period=sum_vol["period"][i],
+        # bid_outcome_vol=sum_vol["volume"][i], bid_outcome_price=bid_prices1[i], bid_type=type_df["type"][i],
+        # volume_untraded=untraded[i])
+        # connection.execute(query)
     
     return sum_vol
+           
+            
+          
+
+
     
     
 def get_imbalance():
@@ -275,18 +344,7 @@ def see_get_market_data(kind_of_data):
     return g
  
  
-def get_predicted_load_next_day():
-    api_key= "cncw84m146gcswv"
-    
-    base_url="https://api.bmreports.com"
-    tdelta=dt.timedelta(days=1)
-    settlementdate=(dt.date.today()+tdelta).isoformat()
-    tab=pd.read_csv(f"{base_url}/BMRS/B0620/V1?ServiceType=CSV&Period=*&APIKey={api_key}&SettlementDate={settlementdate}",skiprows=4)
-    filtered_tab=tab[["Settlement Date", "Settlement Period", "Quantity"]]
-    filtered_tab=filtered_tab.dropna(subset=["Settlement Date"])
 
-    
-    return filtered_tab
 
 # This ain't necessary?
 def dbwrite_load_next_day():
