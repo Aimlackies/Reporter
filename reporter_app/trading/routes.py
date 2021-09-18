@@ -43,5 +43,5 @@ def trading_gen():
     start_date = datetime.now() + timedelta(hours=24)
     gen,dem=get_gen_use(start_date)
     print(gen)
-    return render_template('trading/trading.html',bid_entries=gen,title="test")
+    return render_template('trading/t.html',bid_entries=gen,title="test")
     

@@ -3,7 +3,9 @@ import pytest
 import pandas as pd
 from reporter_app.trading.utils import *
 
-
+AIMLAC_CC_MACHINE = os.getenv("AIMLAC_CC_MACHINE")
+assert AIMLAC_CC_MACHINE is not None
+host = f"http://{AIMLAC_CC_MACHINE}"
 
 def test_get_predicted_load_next_day():
     filtered_tab=get_predicted_load_next_day()
@@ -57,7 +59,7 @@ def test_post_bids():
         assert d["message"] == ''
 
 def test_get_bids():
-    g,_=get_bids()
+    g,_=get_bids(host)
     assert len(g.json()) >= 1
     
 # def test_get_untraded_volume():
