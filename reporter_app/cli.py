@@ -111,7 +111,7 @@ def register(app, user_datastore):
 		print ("For the 30-min time period starting:", start, "the grid CO2 intensity (gCO2/kWh) was:", co2Forecast)
 
 	@app.cli.command("get_real_power")
-	def elecGen():
+	def getRealPower():
 
 		# [device name, true if generates power; false if consumes it]
 		devices = [
@@ -137,7 +137,7 @@ def register(app, user_datastore):
 		db.session.commit()
 
 	@app.cli.command("get_real_site_info")
-	def elecGen():
+	def getRealSiteInfo():
 
 		stats = get_site_info()
 		newSiteInfo = RealSiteReadings(

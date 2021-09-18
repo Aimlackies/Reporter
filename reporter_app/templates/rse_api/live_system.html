@@ -6,29 +6,28 @@
   <div class="bg-white p-3 mt-4">
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3">
       <h1 class="h2">Live system</h1>
-    </div>
-		<hr/>
-
-		<div class="row">
-			<div class="col-xs-10 col-sm-6 col-md-6">
-				<div class="card card-style mb-2">
-					<div class="card-body">
-						<div class="chart-container" style="position: relative;">
-							<canvas id="income_vs_expense"></canvas>
-						</div>
-					</div>
-				</div>
-			</div>
-			<div class="col-xs-10 col-sm-6 col-md-6">
-				<div class="card card-style mb-2">
-					<div class="card-body">
-						<div class="chart-container" style="position: relative;">
-							<canvas id="income_vs_category"></canvas>
-						</div>
-					</div>
-				</div>
-			</div>
-			<div class="col-xs-10 col-sm-6 col-md-6">
+   		<div class="row">		
+							<div class="btn-toolbar mb-2 mb-md-0">
+								<div class="btn-group me-2">
+								  <button type="button" class="btn btn-sm btn-outline-secondary">Share</button>
+								  <button type="button" class="btn btn-sm btn-outline-secondary">Export</button>
+								</div>
+					  
+								<div class="dropdown">
+								  <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+									Time Period
+								  </a>
+								
+								  <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+									<li><a class="dropdown-item" href="/live_system">1 hour</a></li>
+									<li><a class="dropdown-item" href="/live_system">6 hours</a></li>
+									<li><a class="dropdown-item" href="/live_system">12 hours</a></li>
+									<li><a class="dropdown-item" href="/live_system">24 hours</a></li>
+									<li><a class="dropdown-item" href="/live_system">All time</a></li>
+								  </ul>
+								</div>
+											
+			<div class="col-xs-10 col-sm-6 col-md-12">
 				<div class="card card-style mb-2">
 					<div class="card-body">
 						<div class="chart-container" style="position: relative;">
@@ -37,6 +36,80 @@
 					</div>
 				</div>
 			</div>
+		</div>
+	
+		<!--Chart-->
+		<div>
+			<canvas id="overtime_expenditure"></canvas>
+		</div>
+		<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+		<script>
+			const labels = [
+			{% for row in powers %}
+				'{{row.date_time}}',
+			{% endfor %}
+			];
+
+			const data = {
+			labels: labels,
+			datasets: [
+				{
+					label: 'Power produced',
+					backgroundColor: 'rgb(12, 128, 128)',
+					borderColor: 'rgb(12, 128, 128)',
+					data: [
+					{% for row in powers %}
+						{{row.powers}},
+					{% endfor %}
+					]
+				},
+				{
+				label: 'Power overall',
+				backgroundColor: 'rgb(255, 99, 132)',
+				borderColor: 'rgb(255, 99, 132)',
+				data: [
+				{% for row in powers %}
+					{{row.co2_saved}},
+				{% endfor %}
+				]
+				}
+			]
+			};
+
+			const config = {
+				type: 'line',
+				data,
+				options: {}
+			};
+			
+			var myChart = new Chart(
+				document.getElementById('overtime_expenditure'),
+				config
+			);
+		</script>
+		<br/>
+		
+		<!--Data table-->
+		<div class="table-responsive">
+			<table class="table table-striped table-sm">
+				<thead>
+					<tr>
+					<th>Date and Time</th>
+					<th>Power produced</th>
+					<th>Temperature</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for row in powers %}
+					<tr>
+					<td>{{row.date_time}}</td>
+					<td>{{row.power}}</td>
+					<td>{{row.temperature}}</td>
+					</td>
+					</tr>
+					{% endfor %}
+				</tbody>
+			</table>
 		</div>
   </div>
 </main>
