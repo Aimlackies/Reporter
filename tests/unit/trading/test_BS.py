@@ -45,7 +45,7 @@ posted_price=np.array([103.5,  28.5,  39. ,  38. ,  21.5,  73.5,  19.5,  57. ,  
 def test_surplus(predictedGeneration,predictedDemand,predictedPrice, expect):
     '''Check if the surplus testing and posting price calculation is correct'''
     output=get_surplus_test(predictedGeneration,predictedDemand,predictedPrice)
-    assert output[0].sum()==surplus.sum()
+    assert surplus.sum()==output[0].sum()
     assert output[1].sum()==posted_price.sum()
     print("Surplus tested OK")
 
