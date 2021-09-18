@@ -42,7 +42,7 @@ posted_price=np.array([103.5,  28.5,  39. ,  38. ,  21.5,  73.5,  19.5,  57. ,  
   
      
 @pytest.mark.parametrize("predictedGeneration, predictedDemand, predictedPrice, surplus, posted_price", [(predictedGeneration,predictedDemand,predictedPrice, surplus, posted_price)])
-def test_surplus(predictedGeneration,predictedDemand,predictedPrice, expect):
+def test_surplus(predictedGeneration,predictedDemand,predictedPrice, surplus,posted_price):
     '''Check if the surplus testing and posting price calculation is correct'''
     output=get_surplus_test(predictedGeneration,predictedDemand,predictedPrice)
     assert surplus.sum()==output[0].sum()
