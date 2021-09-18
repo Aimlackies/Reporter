@@ -59,6 +59,21 @@ def test_post_bids():
         assert d["message"] == ''
 
 def test_get_bids():
+       # So that the bid is accepted
+    applying_date = date.today() + timedelta(days=2)
+
+    p = requests.post(url=host + "/auction/bidding/set",
+                      json={
+                          "key":
+                          "AIMLACkies275001901",
+                          "orders": [{
+                              "applying_date": applying_date.isoformat(),
+                              "hour_ID":13,
+                              "type": "BUY",
+                              "volume": "0.60",
+                              "price": "30"
+                          }]
+                      })
     g,_=get_bids(host)
     assert len(g.json()) >= 1
     
