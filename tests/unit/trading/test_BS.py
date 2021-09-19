@@ -18,7 +18,7 @@ def test_get_wday_wk_doy(datestring,expected):
     
 filtered_tab=pd.DataFrame({"Settlement Date":["2021-01-04","2021-09-12"], "Settlement Period":[3,36],"Quantity":[23345,34456]})
 
-processed_tab=pd.DataFrame({"Year":[2021,2021], "Week":[1,36],"Day":[5,7],"Day of Year":[4,255],"hours":[2,18],"Units(MWh)":[23345,34456]})
+processed_tab=pd.DataFrame({"Year":[2021,2021], "Week":[1,36],"Day":[1,7],"Day of Year":[4,255],"hours":[2,18],"Units(MWh)":[23345,34456]})
 
 @pytest.mark.parametrize("filtered_tab,expected",[(filtered_tab,processed_tab)])
 def test_process(filtered_tab,expected):
