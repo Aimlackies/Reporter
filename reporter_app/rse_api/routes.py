@@ -3,44 +3,71 @@ from flask import render_template, url_for, redirect
 from reporter_app.rse_api import bp
 from reporter_app.models import User, Role, RealPowerReadings, RealSiteReadings
 from reporter_app import db
+from reporter_app.rse_api.utils import get_device_power, get_site_info
 from datetime import datetime, timedelta
 from flask_security import auth_required, current_user, roles_required
 
-
-class Live_entry:
-	date_time=""
-	temperature=""
-	power=""
-	create_datetime=""
-
-def current_situation(query):
-	'''
-  compare with Paul's stuff
-  utils, models, cli.py
-    '''
-	current_entries=[]
-	for row in query:
-		entry = Live_entry()
-		entry.date_time=row.date_time
-		entry.power=row.power
-		entry.temperature=row.temperature 
-		#not all co2 records have corrisponding elec usege records.  The try/except statement prevents errors when this happens
-		current_entries.append(entry)
-	return current_entries
-
+"to do: add the remaining wells, remove the graph"
+# class Live_entry:
+# 	datetime=""
+# 	temperature=""
+# 	power=""
 	
 
-@bp.route('/live_system')
+# def current_situation(query):
+# 	'''
+# doesble check whether this works,
+# perhpas assigning is wrong???
+# function get_device_power contains 
+# return {'datetime': date_time, 'power': power}
+# get_site_info - return {'datetime': date_time, 'power': power, 'temperature': temperature}
+#     '''
+# 	current_entries=[]
+# 	for row in query:
+# 		entry = Live_entry()
+# 		entry.datetime=row["date_time"]
+# 		entry.power=row["power"]
+# 		entry.temperature=row["temperature"]
+# 		current_entries.append(entry)
+# 	return current_entries
+
+
+
+@bp.route('/live_system/Llanwrtyd Wells - Wind Generator 1')
 @auth_required("token", "session")
 @roles_required('verified')
 
 def live_system():
 	powers=[]
-	start_date = datetime.now() - timedelta(hours=24)
-	power = RealSiteReadings.query.filter(RealSiteReadings.date_time>start_date).all()
-	entries = current_situation(power)  
-	powers.append(entries)
+	# start_date = datetime.now() - timedelta(hours=24)
+	# power = RealSiteReadings.query.filter(RealSiteReadings.date_time>start_date).all()
+	"try adding power for each well"
+	power=get_device_power("Llanwrtyd Wells - Wind Generator 1")
+	#entries = current_situation(power)  
+	powers.append(power)
 	return render_template('rse_api/live_system.html',  powers=powers)
+
+# @bp.route('/live_system')
+# @auth_required("token", "session")
+# @roles_required('verified')
+# def all_dat():
+# 	data=[]
+# 	dat=get_site_info()
+# 	print(dat)
+# 	print("zrobione")
+# 	data.append(dat)
+# 	return render_template('rse_api/live_system.html',  data=data)
+
+
+
+
+# def live_system():
+# 	powers=[]
+# 	# this gives you a dictionary
+# 	power = get_site_info() 
+# 	powers.append(power)
+# 	return render_template('rse_api/live_system.html',  powers=powers)
+
 
 # @bp.route('/co2')
 # @auth_required("token", "session")
