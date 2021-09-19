@@ -1,8 +1,8 @@
 import sys
 sys.path.append("../..")
 import requests
-from datetime import date, timedelta
-from datetime import datetime as dt
+from datetime import date, timedelta, time
+from datetime import datetime
 import pytest
 import os
 # from api_call_examples import *
@@ -12,6 +12,8 @@ import numpy as np
 import sqlalchemy as db
 import pickle
 from reporter_app.models import ElecUse, Co2, ElecGen, Trading
+from reporter_app.electricity_gen.utils import get_energy_gen
+from reporter_app.electricity_use.utils import call_leccyfunc
 
 AIMLAC_CC_MACHINE = os.getenv("AIMLAC_CC_MACHINE")
 assert AIMLAC_CC_MACHINE is not None
@@ -82,19 +84,40 @@ def get_predicted_price(settlementdate):
     processed_tab["Price"]=predicted_price
     
     return processed_tab
+    
+def next_day_filter(x):
+    
+    tdelta=timedelta(days=1)
+    applying_date=datetime.today()+tdelta
+    start_dt=datetime.combine(applying_date,time())
+    if "Time" in x.columns:
+        start_index=x[x["Time"]==start_dt.strftime("%Y-%m-%d %H:%M:%S")].index.tolist()[0]
+    elif "time" in x.columns:
+        start_index=x[x["time"]==start_dt.strftime("%Y-%m-%d %H:%M:%S")].index.tolist()[0]
+    else:
+        print("can't read time from energy use or generation")
+        
+    end_index=start_index+48
+    return x.iloc[start_index:end_index,:]
+    
 
-def get_gen_use(applying_date):
-    # applying_date = date.today() + timedelta(days=1)
+def get_gen_use():
     
-    predictedGeneration=ElecGen.query.filter(ElecUse.date_time==applying_date).all()
-    predictedDemand=ElecUse.query.filter(ElecUse.date_time==applying_date).all()
+    ###predicts for today and 4 more days until 8:30 in the morning of the last day.
+    e_use_df = call_leccyfunc()
+    e_gen_df = get_energy_gen()
+    ### gives the predicted gen and demand for the next 24 hours starting next 00:00
+    gen=next_day_filter(e_gen_df)
+    dem=next_day_filter(e_use_df)
     
-    
+    predictedGeneration=gen["windenergy"]+ gen["totalSolarEnergy"]
+    predictedDemand=dem["Electricity Usage (kW)"]
+        
     return predictedGeneration,predictedDemand
 
 
     
-def get_surplus(date):
+def get_surplus(settlementdate):
     '''Calculate the surplus or deficit in available energy and define price to post'''
 
     predictedPrice=get_predicted_price(date)    
