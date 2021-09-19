@@ -30,7 +30,7 @@ def test_process(filtered_tab,expected):
    
 @pytest.mark.parametrize("processed_tab",[(processed_tab)])
 def test_prediction_model(processed_tab):
-    price=prediction_model.predict(processed_tab)
+    price=prediction_model(processed_tab)
     assert len(price)==2
     
 predictedGeneration=np.array([ 61, 182, 147, 192, 131,  32,  58,  44, 130, 140, 191, 112,  57,
