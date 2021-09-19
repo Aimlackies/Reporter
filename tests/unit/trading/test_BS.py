@@ -7,8 +7,8 @@ AIMLAC_CC_MACHINE = os.getenv("AIMLAC_CC_MACHINE")
 assert AIMLAC_CC_MACHINE is not None
 host = f"http://{AIMLAC_CC_MACHINE}"
 
-settlementdate=(date.today()).isoformat(settlementdate)
-def test_get_predicted_load_next_day():
+settlementdate=(date.today()).isoformat()
+def test_get_predicted_load_next_day(settlementdate):
     
     filtered_tab=get_predicted_load_next_day(settlementdate)
     assert filtered_tab.shape==(48,3)
