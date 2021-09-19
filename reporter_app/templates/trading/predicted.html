@@ -6,19 +6,21 @@
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3">
       <h1 class="h2">Buy and Sell Trades</h1>
 		<div class="btn-toolbar mb-2 mb-md-0">
+	      <div class="btn-group me-2">
+	        <button type="button" class="btn btn-sm btn-outline-secondary">Share</button>
+	        <button type="button" class="btn btn-sm btn-outline-secondary">Export</button>
+	      </div>
 
 		  <div class="dropdown">
 			<a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
 			  More...
 			</a>
-
+		  
 			<ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-			<!--These are referencing links defined in bp.route-->
-			  <li><a class="dropdown-item" href="/trading">Bids</a></li>
+			  <li><a class="dropdown-item" href="/trading">Bids</a></li>	
+				<!-- the href bit is linked to the bp.route -->
 			  <li><a class="dropdown-item" href="/trading/predicted_load">Predicted</a></li>
 			  <li><a class="dropdown-item" href="/trading/actual_load">Actual</a></li>
-			  <li><a class="dropdown-item" href="/trading/gen">G/D</a></li>
-
 
 			</ul>
 		  </div>
@@ -34,7 +36,7 @@
 		<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 		<script>
 			const labels = [
-			{% for row in bid_entries %}
+			{% for row in predicted_load %}
 				'{{row.date_time}}',
 			{% endfor %}
 			];
@@ -42,12 +44,12 @@
 			const data = {
 			labels: labels,
 			datasets: [{
-				label: 'Bid volume(kWh)',
+				label: 'Load volume(MWh)',
 				backgroundColor: 'rgb(255, 99, 132)',
 				borderColor: 'rgb(255, 99, 132)',
 				data: [
-				{% for row in bid_entries %}
-					{{row.bid_entries}},
+				{% for row in predicted_load %}
+					{{row.predicted_load}},
 				{% endfor %}
 				],
 			}]
@@ -58,7 +60,7 @@
 				data,
 				options: {}
 			};
-
+			
 			var myChart = new Chart(
 				document.getElementById('myChart'),
 				config
@@ -73,19 +75,17 @@
 					<tr>
 					<th>Date and Time</th>
 					<th>Period(1-48)</th>
-					<th>Bid units(kWh)</th>
-					<th>Bid outcome volume(kWh)</th>
-					<th>Bid outcome price(GBP)</th>
+					<th>Load(MWh)</th>
+					<th>Price(GBP)</th>					
 					</tr>
 				</thead>
 				<tbody>
-					{% for row in bid_entries %}
+					{% for row in predicted_load %}
 					<tr>
 					<td>{{row.date_time}}</td>
 					<td>{{row.period}}</td>
-					<td>{{row.bid_units}}</td>
-					<td>{{row.bid_outcome_vol}}</td>
-					<td>{{row.bid_outcome_price}}</td>
+					<td>{{row.predicted_load}}</td>
+					<td>{{row.predicted_price}}</td>					
 					</tr>
 					{% endfor %}
 				</tbody>
