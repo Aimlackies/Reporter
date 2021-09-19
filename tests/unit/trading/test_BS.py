@@ -8,7 +8,8 @@ assert AIMLAC_CC_MACHINE is not None
 host = f"http://{AIMLAC_CC_MACHINE}"
 
 def test_get_predicted_load_next_day():
-    filtered_tab=get_predicted_load_next_day()
+    settlementdate=(date.today()).isoformat()
+    filtered_tab=get_predicted_load_next_day(settlementdate)
     assert filtered_tab.shape==(48,3)
 
 @pytest.mark.parametrize("datestring,expected", [("2021-01-04",(2021,1,1,4)),("2021-09-12",(2021,36,7,255))])

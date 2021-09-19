@@ -116,7 +116,8 @@ def register(app, user_datastore):
 		Looks up predicted load and predicts price
 		'''        
 		reported_date=datetime.combine(datetime.today(),time())
-		price=get_predicted_price()
+        date=reported_date.isoformat()[:10]
+		price=get_predicted_price(date)
 		for idx, row in price.iterrows():
 			new_predicted_price=PredictedLoad(
 				date_time=reported_date,

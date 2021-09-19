@@ -28,8 +28,8 @@ host = f"http://{AIMLAC_CC_MACHINE}"
 # actual_load=db.Table('actual_load', metadata, autoload=True, autoload_with=engine)
 
 # Functions placed in execution order. Whichever function completes its task first comes first in the script
-
-def get_predicted_load_next_day():
+settlementdate=(date.today()+tdelta).isoformat()
+def get_predicted_load_next_day(settlementdate):
     api_key= "cncw84m146gcswv"
     
     base_url="https://api.bmreports.com"
