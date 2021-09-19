@@ -1,12 +1,13 @@
 from flask_security import hash_password
 from sqlalchemy.sql import func
 from reporter_app import db
-from reporter_app.models import ElecUse, Co2, ElecGen, RealPowerReadings, RealSiteReadings
+from reporter_app.models import ElecUse, Co2, ElecGen, RealPowerReadings, RealSiteReadings, Trading,PredictedLoad
 from reporter_app.electricity_use.utils import call_leccyfunc
 from reporter_app.electricity_gen.utils import get_energy_gen
 from reporter_app.rse_api.utils import get_device_power, get_site_info
+from reporter_app.trading.utils import post_bids, get_predicted_price
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date, time
 import json
 import requests
 
@@ -146,4 +147,23 @@ def register(app, user_datastore):
 			temperature=stats['temperature']
 		)
 		db.session.add(newSiteInfo)
+		db.session.commit()
+
+	@app.cli.command("predict_price")
+	def predict_price():
+		'''
+		Looks up predicted load and predicts price
+		'''
+		reported_date=datetime.combine(datetime.today(),time())
+		date=reported_date.isoformat()[:10]
+		price=get_predicted_price(date)
+		for idx, row in price.iterrows():
+			new_predicted_price=PredictedLoad(
+				date_time=reported_date,
+				period=idx+1,
+				predicted_load=row["Units(MWh)"],
+				predicted_price=row["Price"]
+			)
+			reported_date=reported_date+timedelta(minutes=30)
+			db.session.add(new_predicted_price)
 		db.session.commit()
