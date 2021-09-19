@@ -59,20 +59,11 @@
 					borderColor: 'rgb(12, 128, 128)',
 					data: [
 					{% for row in powers %}
-						{{row.powers}},
+						{{row.live_system}},
 					{% endfor %}
 					]
 				},
-				{
-				label: 'Power overall',
-				backgroundColor: 'rgb(255, 99, 132)',
-				borderColor: 'rgb(255, 99, 132)',
-				data: [
-				{% for row in powers %}
-					{{row.co2_saved}},
-				{% endfor %}
-				]
-				}
+				
 			]
 			};
 
@@ -96,7 +87,6 @@
 					<tr>
 					<th>Date and Time</th>
 					<th>Power produced</th>
-					<th>Temperature</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -104,7 +94,6 @@
 					<tr>
 					<td>{{row.date_time}}</td>
 					<td>{{row.power}}</td>
-					<td>{{row.temperature}}</td>
 					</td>
 					</tr>
 					{% endfor %}

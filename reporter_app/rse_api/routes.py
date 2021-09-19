@@ -28,10 +28,12 @@ def current_situation(query):
 		current_entries.append(entry)
 	return current_entries
 
+	
 
 @bp.route('/live_system')
 @auth_required("token", "session")
 @roles_required('verified')
+
 def live_system():
 	powers=[]
 	start_date = datetime.now() - timedelta(hours=24)
@@ -61,10 +63,4 @@ def live_system():
 # 		server_default=func.now(),
 # 		onupdate=datetime.datetime.utcnow,
 # 	)
-class Live_entry:
-	date_time=""
-	temperature=""
-	power=""
-	create_datetime=""
 
-	
