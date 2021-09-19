@@ -72,8 +72,8 @@ def prediction_model(x):
     predictedPrice=model.predict(x)
     return predictedPrice
     
-def get_predicted_price():
-    filtered_tab=get_predicted_load_next_day()
+def get_predicted_price(settlementdate):
+    filtered_tab=get_predicted_load_next_day(settlementdate)
     
     processed_tab=process(filtered_tab)
     #What is the best way to normalise the data before prediction?
@@ -94,10 +94,10 @@ def get_gen_use(applying_date):
 
 
     
-def get_surplus():
+def get_surplus(date):
     '''Calculate the surplus or deficit in available energy and define price to post'''
 
-    predictedPrice=get_predicted_price()    
+    predictedPrice=get_predicted_price(date)    
     predictedGeneration=get_gen_use()[0]
     predictedDemand= get_gen_use()[1]
     
@@ -139,14 +139,14 @@ def get_surplus_test(predictedGeneration, predictedDemand, predictedPrice):
             
     
         
-def post_bids():
+def post_bids(settlementdate):
     ''' 
     Post bids and report to the database table once bids posted
     Surplus and posted price supplied as numpy arrays in descending
     order(to match predicted load)
     '''
-    surplus=get_surplus()[0]
-    posted_price=get_surplus()[1]
+    surplus=get_surplus(settlementdate)[0]
+    posted_price=get_surplus(settlementdate)[1]
     
     applying_date = date.today() + timedelta(days=1)
     for i, value in enumerate(surplus): 
@@ -235,7 +235,7 @@ def get_bids(host):
 
 def get_untraded_volume(host):
         
-    surplus=get_surplus()[0]
+    surplus=get_surplus(settlementdate)[0]
     
     agg_volume=get_bids(host)[0]
     
@@ -346,12 +346,12 @@ def see_get_market_data(kind_of_data):
  
 
 
-# This ain't necessary?
-def dbwrite_load_next_day():
+#This ain't necessary?
+# def dbwrite_load_next_day():
 
-    filtered_tab=get_predicted_load_next_day()
+    # filtered_tab=get_predicted_load_next_day(settlementdate)
         
-    #write to database
-    query=db.insert(trading_table).values(date_time=filtered_tab["Settlement Date"]
-    ,period=filtered_tab["Settlement Period"],predicted_load=filtered_tab["Quantity"])
-    ResultProxy = connection.execute(query)    
+    # write to database
+    # query=db.insert(trading_table).values(date_time=filtered_tab["Settlement Date"]
+    # ,period=filtered_tab["Settlement Period"],predicted_load=filtered_tab["Quantity"])
+    # ResultProxy = connection.execute(query)    

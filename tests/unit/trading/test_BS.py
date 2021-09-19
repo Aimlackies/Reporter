@@ -7,8 +7,9 @@ AIMLAC_CC_MACHINE = os.getenv("AIMLAC_CC_MACHINE")
 assert AIMLAC_CC_MACHINE is not None
 host = f"http://{AIMLAC_CC_MACHINE}"
 
+settlementdate=(date.today()).isoformat(settlementdate)
 def test_get_predicted_load_next_day():
-    settlementdate=(date.today()).isoformat()
+    
     filtered_tab=get_predicted_load_next_day(settlementdate)
     assert filtered_tab.shape==(48,3)
 
@@ -54,8 +55,8 @@ def test_surplus(predictedGeneration,predictedDemand,predictedPrice, surplus,pos
 
 
        
-def test_post_bids():
-        d= post_bids()
+def test_post_bids(settlementdate):
+        d= post_bids(settlementdate)
         assert d["accepted"] == 1
         assert d["message"] == ''
 
