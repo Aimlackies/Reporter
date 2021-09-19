@@ -79,7 +79,7 @@ def test_get_bids():
                               "price": "30"
                           }]
                       })
-    g,_=get_bids(host)
+    g,_=get_bids()
     assert len(g.json()) >= 1
 
 # def test_get_untraded_volume():

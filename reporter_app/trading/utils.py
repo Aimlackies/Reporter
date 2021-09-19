@@ -12,15 +12,7 @@ import numpy as np
 import sqlalchemy as db
 import pickle
 from reporter_app.models import ElecUse, Co2, ElecGen, Trading
-
-AIMLAC_CC_MACHINE = os.getenv("AIMLAC_CC_MACHINE")
-assert AIMLAC_CC_MACHINE is not None
-host = f"http://{AIMLAC_CC_MACHINE}"
-
-
-# engine = db.create_engine(os.environ.get('AIMLACKIES_REPORTER_DATABASE_URL'))
-# connection = engine.connect()
-# metadata = db.MetaData()
+from reporter_app.rse_api.utils import get_bids, post_bids, see_get_market_data
 
 # finds the table NAME defined inside models.py
 # trading_table=db.Table('trading', metadata, autoload=True, autoload_with=engine)
@@ -28,8 +20,8 @@ host = f"http://{AIMLAC_CC_MACHINE}"
 # actual_load=db.Table('actual_load', metadata, autoload=True, autoload_with=engine)
 
 # Functions placed in execution order. Whichever function completes its task first comes first in the script
-tdelta=timedelta(days=1)
-settlementdate=(date.today()+tdelta).isoformat()
+tdelta = timedelta(days=1)
+settlementdate = (date.today()+tdelta).isoformat()
 def get_predicted_load_next_day(settlementdate):
     api_key= "cncw84m146gcswv"
 
@@ -142,106 +134,12 @@ def get_surplus_test(predictedGeneration, predictedDemand, predictedPrice):
 
 
 
-def post_bids(settlementdate):
-    '''
-    Post bids and report to the database table once bids posted
-    Surplus and posted price supplied as numpy arrays in descending
-    order(to match predicted load)
-    '''
-    surplus = get_surplus(settlementdate)[0]
-    posted_price = get_surplus(settlementdate)[1]
 
-    applying_date = date.today() + timedelta(days=1)
-    for i, value in enumerate(surplus):
-
-        print("Surplus: ", surplus[i],"\n"
-              ,"Price:", posted_price[i])
-        print("Accessing ", host)
-        print("hour", i+1)
-
-        if value<0:
-            p = requests.post(url=host + "/auction/bidding/set",
-                              json={
-                                  "key":
-                                  "AIMLACkies275001901",
-                                  "orders": [{
-                                      "applying_date": applying_date.isoformat(),
-                                      "hour_ID": i+1,
-                                      "type": "BUY",
-                                      "volume": str(-1 * surplus[i]),
-                                      "price": str( posted_price[i])
-                                      }]
-                                  })
-            # c="{}"
-            # loaded_sample_json=json.loads(c)
-            print(type(p))
-            d = p.json()
-            print("Posting bids:")
-            print("POST JSON reply:", d)
-
-            # query=db.insert(trading_table).values(date_time=applying_date , bid_units=-1*surplus[i],bid_price=posted_price[i])
-            # connection.execute(query)
-
-        elif value>0:
-               # So that the bid is accepted
-
-
-            p = requests.post(url=host + "/auction/bidding/set",
-                              json={
-                                  "key":
-                                  "AIMLACkies275001901",
-                                  "orders": [{
-                                      "applying_date": applying_date.isoformat(),
-                                      "hour_ID": i+1,
-                                      "type": "SELL",
-                                      "volume": str(surplus[i]),
-                                      "price": str(posted_price[i])
-                                      }]
-                                  })
-            d = p.json()
-            print("Posting bids:")
-            print("POST JSON reply:", d)
-
-            # query=db.insert(trading_table).values(date_time=applying_date , bid_units=surplus[i],bid_price=posted_price[i])
-            # connection.execute(query)
-
-
-        else:
-            print("No bids posted"  )
-            return None
-
-    return d
-
-
-def get_bids(host):
-    '''
-    Queries and returns bids after buy and sell orders matched
-    '''
-    # Needs to run some time after 12 pm after buy and sell orders matched
-    applying_date = date.today() + timedelta(days=2)
-    datestring=applying_date.isoformat()
-    # Report sold/bought
-    g = requests.get(url=host + "/auction/bidding/get",
-                 params={
-                     "key":"AIMLACkies275001901",
-                     "applying_date":datestring,
-                 })
-
-    # if we run the same test twice we will have more
-    assert len(g.json()) >= 1
-
-
-    print("Getting bids (JSON reply):")
-
-    outcome=pd.DataFrame(g.json())
-
-    return g,outcome
-
-def get_untraded_volume(host):
+def get_untraded_volume():
 
     surplus=get_surplus(settlementdate)[0]
 
-    agg_volume=get_bids(host)[0]
+    agg_volume=get_bids()[0]
 
     untraded_volume=surplus - agg_volume
     return untraded_volume
@@ -292,7 +190,7 @@ def get_stuff_from_bids():
         bid_prices1[i] = data1["price"]
         bid_hour1[i] = data1["period"]
 
-    untraded=get_untraded(host)
+    untraded=get_untraded_volume()
     #create a pandas DF with all table elements to ensure everything can go into the same table
 
     # for i in range(48):
@@ -302,11 +200,6 @@ def get_stuff_from_bids():
         # connection.execute(query)
 
     return sum_vol
-
-
-
-
-
 
 
 def get_imbalance():
@@ -326,28 +219,6 @@ def get_imbalance():
     df.columns=["date", "period", "Imbalance price"]
 
     return df
-
-
-def see_get_market_data(kind_of_data):
-    '''
-    kind_of_data in [ "imbalance","clearout-prices" ]
-    '''
-    start_date = date.today() - timedelta(days=1)
-    end_date = date.today() + timedelta(days=1)
-    g = requests.get(url=host + f"/auction/market/{kind_of_data}",
-                     params=dict(start_date=start_date.isoformat(),
-                                 end_date=end_date.isoformat()))
-
-    # Some data should be present!
-    assert len(g.json()) > 0
-
-    print(f"Getting data ({kind_of_data}):")
-    print("GET JSON reply:")
-    for entry in g.json():
-        print(entry)
-    return g
-
-
 
 
 #This ain't necessary?

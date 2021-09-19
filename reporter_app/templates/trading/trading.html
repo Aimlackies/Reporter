@@ -6,22 +6,18 @@
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3">
       <h1 class="h2">Buy and Sell Trades</h1>
 		<div class="btn-toolbar mb-2 mb-md-0">
-	      <div class="btn-group me-2">
-	        <button type="button" class="btn btn-sm btn-outline-secondary">Share</button>
-	        <button type="button" class="btn btn-sm btn-outline-secondary">Export</button>
-	      </div>
 
 		  <div class="dropdown">
 			<a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
 			  More...
 			</a>
-		  
+
 			<ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
 			  <li><a class="dropdown-item" href="/trading">Bids</a></li>
 			  <li><a class="dropdown-item" href="/trading/predicted_load">Predicted</a></li>
 			  <li><a class="dropdown-item" href="/trading/actual_load">Actual</a></li>
 			  <li><a class="dropdown-item" href="/trading/gen">G/D</a></li>
-			  
+
 
 			</ul>
 		  </div>
@@ -61,7 +57,7 @@
 				data,
 				options: {}
 			};
-			
+
 			var myChart = new Chart(
 				document.getElementById('myChart'),
 				config
