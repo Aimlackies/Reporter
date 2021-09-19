@@ -7,44 +7,69 @@ from reporter_app.rse_api.utils import get_device_power, get_site_info
 from datetime import datetime, timedelta
 from flask_security import auth_required, current_user, roles_required
 
-"to do: add the remaining wells, remove the graph"
-# class Live_entry:
-# 	datetime=""
-# 	temperature=""
-# 	power=""
+class Live_entry:
+	date_time=""
+	device_name=""
+	power=""
+	
 	
 
-# def current_situation(query):
-# 	'''
-# doesble check whether this works,
-# perhpas assigning is wrong???
-# function get_device_power contains 
-# return {'datetime': date_time, 'power': power}
-# get_site_info - return {'datetime': date_time, 'power': power, 'temperature': temperature}
-#     '''
-# 	current_entries=[]
-# 	for row in query:
-# 		entry = Live_entry()
-# 		entry.datetime=row["date_time"]
-# 		entry.power=row["power"]
-# 		entry.temperature=row["temperature"]
-# 		current_entries.append(entry)
-# 	return current_entries
+def current_situation(query):
+	'''
+doesble check whether this works,
+perhpas assigning is wrong???
+function get_device_power contains 
+return {'datetime': date_time, 'power': power}
+get_site_info - return {'datetime': date_time, 'power': power, 'temperature': temperature}
+    '''
+	current_entries=[]
+	for row in query:
+		entry = Live_entry()
+		entry.date_time=row.date_time
+		entry.power=row.power
+		entry.device_name=row.device_name
+		current_entries.append(entry)
+	return current_entries
 
 
 
-@bp.route('/live_system/Llanwrtyd Wells - Wind Generator 1')
+@bp.route('/live_system/6h')
 @auth_required("token", "session")
 @roles_required('verified')
-
-def live_system():
-	powers=[]
-	# start_date = datetime.now() - timedelta(hours=24)
-	# power = RealSiteReadings.query.filter(RealSiteReadings.date_time>start_date).all()
+def live_system_6h():
+	start_date = datetime.now() - timedelta(hours=6)
+	query = RealPowerReadings.query.filter(RealPowerReadings.create_datetime>start_date).all()
 	"try adding power for each well"
-	power=get_device_power("Llanwrtyd Wells - Wind Generator 1")
+	#power=get_device_power("Llanwrtyd Wells - Wind Generator 1")
 	#entries = current_situation(power)  
-	powers.append(power)
+	powers=current_situation(query)
+	#powers.append(power)
+	return render_template('rse_api/live_system.html',  powers=powers)
+
+@bp.route('/live_system/12h')
+@auth_required("token", "session")
+@roles_required('verified')
+def live_system_12h():
+	start_date = datetime.now() - timedelta(hours=12)
+	query = RealPowerReadings.query.filter(RealPowerReadings.create_datetime>start_date).all()
+	"try adding power for each well"
+	#power=get_device_power("Llanwrtyd Wells - Wind Generator 1")
+	#entries = current_situation(power)  
+	powers=current_situation(query)
+	#powers.append(power)
+	return render_template('rse_api/live_system.html',  powers=powers)
+
+@bp.route('/live_system/24h')
+@auth_required("token", "session")
+@roles_required('verified')
+def live_system_24h():
+	start_date = datetime.now() - timedelta(hours=24)
+	query = RealPowerReadings.query.filter(RealPowerReadings.create_datetime>start_date).all()
+	"try adding power for each well"
+	#power=get_device_power("Llanwrtyd Wells - Wind Generator 1")
+	#entries = current_situation(power)  
+	powers=current_situation(query)
+	#powers.append(power)
 	return render_template('rse_api/live_system.html',  powers=powers)
 
 # @bp.route('/live_system')

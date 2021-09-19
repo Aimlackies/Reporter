@@ -19,11 +19,10 @@
 								  </a>
 								
 								  <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-									<li><a class="dropdown-item" href="/live_system">1 hour</a></li>
-									<li><a class="dropdown-item" href="/live_system">6 hours</a></li>
-									<li><a class="dropdown-item" href="/live_system">12 hours</a></li>
-									<li><a class="dropdown-item" href="/live_system">24 hours</a></li>
-									<li><a class="dropdown-item" href="/live_system">All time</a></li>
+									<li><a class="dropdown-item" href="/live_system/6h">6 hours</a></li>
+									<li><a class="dropdown-item" href="/live_system/12h">12 hours</a></li>
+									<li><a class="dropdown-item" href="/live_system/24h">24 hours</a></li>
+									
 								  </ul>
 								</div>
 											
@@ -42,11 +41,11 @@
 		<div>
 			<canvas id="overtime_expenditure"></canvas>
 		</div>
-		<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.3.2/chart.min.js"></script>
 		<script>
 			const labels = [
 			{% for row in powers %}
-				'{{row.date_time}}',
+				'{{row.device_name}}',
 			{% endfor %}
 			];
 
@@ -55,11 +54,29 @@
 			datasets: [
 				{
 					label: 'Power produced',
-					backgroundColor: 'rgb(12, 128, 128)',
-					borderColor: 'rgb(12, 128, 128)',
+					backgroundColor: [
+						'rgba(255, 99, 132, 0.2)',
+						'rgba(54, 162, 235, 0.2)',
+						'rgba(255, 206, 86, 0.2)',
+						'rgba(75, 192, 192, 0.2)',
+						'rgba(153, 102, 255, 0.2)',
+						'rgba(255, 159, 64, 0.2)',
+						'rgba(15, 102, 255, 0.2)',
+						'rgba(25, 159, 64, 0.2)'
+					],
+					borderColor: [
+						'rgba(255, 99, 132, 1)',
+						'rgba(54, 162, 235, 1)',
+						'rgba(255, 206, 86, 1)',
+						'rgba(75, 192, 192, 1)',
+						'rgba(153, 102, 255, 1)',
+						'rgba(255, 159, 64, 1)',
+						'rgba(15, 102, 255, 0.2)',
+						'rgba(25, 159, 64, 0.2)'
+					],
 					data: [
 					{% for row in powers %}
-						{{row.live_system}},
+						{{row.power}},
 					{% endfor %}
 					]
 				},
@@ -68,13 +85,15 @@
 			};
 
 			const config = {
-				type: 'line',
+				type: 'bar',
 				data,
-				options: {}
+				options: {
+					scales: [{
+									}]
+				}
 			};
 			
-			var myChart = new Chart(
-				document.getElementById('overtime_expenditure'),
+			var myChart = new Chart(document.getElementById('overtime_expenditure'),
 				config
 			);
 		</script>
@@ -93,8 +112,8 @@
 				<tbody>
 					{% for row in powers %}
 					<tr>
-						<td>{{row.site}}</td>
-						<td>{{row.datetime}}</td>
+						<td>{{row.device_name}}</td>
+						<td>{{row.date_time}}</td>
 						<td>{{row.power}}</td>
 						</tr>
 					{% endfor %}
