@@ -31,7 +31,18 @@ get_site_info - return {'datetime': date_time, 'power': power, 'temperature': te
 		current_entries.append(entry)
 	return current_entries
 
-
+@bp.route('/live_system')
+@auth_required("token", "session")
+@roles_required('verified')
+def live_system():
+	start_date = datetime.now() - timedelta(hours=6)
+	query = RealPowerReadings.query.filter(RealPowerReadings.create_datetime>start_date).all()
+	"try adding power for each well"
+	#power=get_device_power("Llanwrtyd Wells - Wind Generator 1")
+	#entries = current_situation(power)  
+	powers=current_situation(query)
+	#powers.append(power)
+	return render_template('rse_api/live_system.html',  powers=powers)
 
 @bp.route('/live_system/6h')
 @auth_required("token", "session")
