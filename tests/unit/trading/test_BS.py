@@ -8,7 +8,7 @@ assert AIMLAC_CC_MACHINE is not None
 host = f"http://{AIMLAC_CC_MACHINE}"
 
 settlementdate=(date.today()).isoformat()
-@pytest.mark.parametrize(["settlementdate", (settlementdate)])
+@pytest.mark.parametrize("settlementdate", settlementdate)
 def test_get_predicted_load_next_day(settlementdate):
     
     filtered_tab=get_predicted_load_next_day(settlementdate)
@@ -55,7 +55,7 @@ def test_surplus(predictedGeneration,predictedDemand,predictedPrice, surplus,pos
     print("Surplus tested OK")
 
 
-@pytest.mark.parametrize(["settlementdate", (settlementdate)])       
+@pytest.mark.parametrize("settlementdate", settlementdate)      
 def test_post_bids(settlementdate):
         d= post_bids(settlementdate)
         assert d["accepted"] == 1
