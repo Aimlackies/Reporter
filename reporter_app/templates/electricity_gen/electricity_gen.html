@@ -65,9 +65,14 @@
 					borderColor: 'rgb(0, 191, 255)',
 					data: [
 					{% for row in real_wind_e_gen_data %}
-						{{row}},
+						{% if row == None %}
+							null,
+						{% else %}
+							{{row}},
+						{% endif %}
 					{% endfor %}
 					],
+					spanGaps: true,
 				},
 				{
 					label: 'Real Site Solar Electricity Generation (kW)',
@@ -75,9 +80,14 @@
 					borderColor: 'rgb(191, 255, 0)',
 					data: [
 					{% for row in real_solar_e_gen_data %}
-						{{row}},
+						{% if row == None %}
+							null,
+						{% else %}
+							{{row}},
+						{% endif %}
 					{% endfor %}
 					],
+					spanGaps: true,
 				}
 			]
 			};

@@ -14,6 +14,7 @@ import argparse
 from scipy.interpolate import interp1d
 from reporter_app.models import RealPowerReadings
 from reporter_app.rse_api.utils import DEVICES
+from datetime import timedelta
 #import matplotlib.pyplot as plt
 
 def call_MET_API(parameter, run='00'):
@@ -363,7 +364,7 @@ def get_real_power_readings_for_times(time_list):
     real_solar_e_gen = []
     for i in time_list:
         # get the most recent readings for all devices at site
-        data = RealPowerReadings.query.filter(RealPowerReadings.date_time>i).order_by(RealPowerReadings.date_time)[:len(DEVICES)]
+        data = RealPowerReadings.query.filter(RealPowerReadings.date_time>i, RealPowerReadings.date_time<i+timedelta(minutes=30)).order_by(RealPowerReadings.date_time)[:len(DEVICES)]
         # if readings exist sum all devices of same type (wind and solar)
         if len(data) > 0:
             sum_wind = 0
@@ -376,5 +377,8 @@ def get_real_power_readings_for_times(time_list):
             # Add total to list
             real_wind_e_gen.append(sum_wind/1000)  # Convert watt to Kilowatt
             real_solar_e_gen.append(sum_solar/1000)  # Convert watt to Kilowatt
+        else:
+            real_wind_e_gen.append(None)  # no value found, add None to skip data point in grahp
+            real_solar_e_gen.append(None)    # no value found, add None to skip data point in grahp
 
     return real_wind_e_gen, real_solar_e_gen
