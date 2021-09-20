@@ -36,7 +36,7 @@
 		<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 		<script>
 			const labels = [
-			{% for row in net_power_entries %}
+			{% for row in e_use_entries %}
 				'{{row.date_time}}',
 			{% endfor %}
 			];
@@ -45,18 +45,18 @@
 			labels: labels,
 			datasets: [{
 				label: 'Site Net Power Output (kW)',
-				backgroundColor: 'rgb(80, 64, 227)',
+				backgroundColor: 'rgb(80, 64, 227, 0.2)',
 				borderColor: 'rgb(80, 64, 227)',
 				data: [
-				{% for row in net_power_entries %}
-					{{row.net_power}},
+				{% for row in e_use_entries %}
+					{{row.power}},
 				{% endfor %}
 				],
 			}]
 			};
 
 			const config = {
-				type: 'line',
+				type: 'bar',
 				data,
 				options: {}
 			};
@@ -74,14 +74,14 @@
 				<thead>
 					<tr>
 					<th>Date and Time</th>
-					<th>Net power output (kW)</th>
+					<th>Net power output (W)</th>
 					</tr>
 				</thead>
 				<tbody>
-					{% for row in net_power_entries %}
+					{% for row in e_use_entries %}
 					<tr>
 					<td>{{row.date_time}}</td>
-					<td>{{row.net_power}}</td>
+					<td>{{row.power}}</td>
 					</tr>
 					{% endfor %}
 				</tbody>
