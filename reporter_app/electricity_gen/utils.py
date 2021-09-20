@@ -283,8 +283,7 @@ def predict_wind_energy(df, debugPlot = False):
     for i in range(df.shape[0]):
         if df.iloc[i]['wind_speed'] > 25:
             df.iloc[i]['windenergy'] = 0
-        if df.iloc[i]['windenergy'] < 0:
-            df.iloc[i]['windenergy'] = 0
+    df['windenergy'][df['windenergy'] < 0] = 0
     return df['windenergy']
 
 
