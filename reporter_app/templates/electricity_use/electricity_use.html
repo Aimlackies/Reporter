@@ -33,8 +33,8 @@
 		<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 		<script>
 			const labels = [
-			{% for row in e_use_entries %}
-				'{{row.date_time}}',
+			{% for row in data_labels %}
+				'{{row}}',
 			{% endfor %}
 			];
 
@@ -45,11 +45,27 @@
 				backgroundColor: 'rgb(80, 64, 227)',
 				borderColor: 'rgb(80, 64, 227)',
 				data: [
-				{% for row in e_use_entries %}
-					{{row.electricity_use}},
+				{% for row in power_e_use_data %}
+					{{row}},
 				{% endfor %}
 				],
-			}]
+			},
+			{
+				label: 'Real Site Electricity Usage (kW)',
+				backgroundColor: 'rgb(0, 191, 255)',
+				borderColor: 'rgb(0, 191, 255)',
+				data: [
+				{% for row in real_power_usage %}
+					{% if row == None %}
+						null,
+					{% else %}
+						{{row}},
+					{% endif %}
+				{% endfor %}
+				],
+				spanGaps: true,
+			},
+			]
 			};
 
 			const config = {
