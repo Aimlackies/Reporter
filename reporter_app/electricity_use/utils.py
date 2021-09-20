@@ -10,7 +10,7 @@ import json
 import urllib.request
 import http.client
 from urllib.parse import urlsplit
-from reporter_app.models import RealPowerReadings
+from reporter_app.models import RealPowerReadings, RealSiteReadings
 from reporter_app.rse_api.utils import DEVICES
 from datetime import timedelta
 
@@ -270,14 +270,19 @@ def get_real_power_usage_for_times(time_list):
     for i in time_list:
         # get the most recent readings in time window for devices in list
         data = RealPowerReadings.query.filter(RealPowerReadings.date_time>i, RealPowerReadings.date_time<i+timedelta(minutes=30), RealPowerReadings.device_name.in_(filter_devices)).all()
+        site_data = RealSiteReadings.query.filter(RealSiteReadings.date_time>i, RealSiteReadings.date_time<i+timedelta(minutes=30)).all()
         # if readings exist get average power
-        if len(data) > 0:
+        if (len(data) > 0) or (len(site_data) > 0):
             sum = 0
+            sum_site = 0
             for j in data:
-                sum += j.power
+                sum += abs(j.power)
+            for j in site_data:
+                sum_site += abs(j.power)
             sum = sum / len(data)
+            sum_site = sum_site / len(site_data)
             # Add total to list
-            real_power_usage.append(abs(sum/1000))  # Convert watt to Kilowatt
+            real_power_usage.append((sum + sum_site) / 1000)  # Convert watt to Kilowatt
         else:
             real_power_usage.append(None)  # no value found, add None to skip data point in graph
 
