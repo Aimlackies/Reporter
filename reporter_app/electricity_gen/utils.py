@@ -317,7 +317,7 @@ def predict_solar_energy(df, debugPlot = False):
     #    plt.show()
 
     #This calculates the raw solar energy according to the sin curve, and then multiplies by the cover factor to account for clouds.
-    df['coverfactor'] = (100 - df['cloud_percent']*0.25)/100
+    df['coverfactor'] = (100 - df['cloud_percent']*0.5)/100
     #df['timestamp'] = df.index
     df['ts'] = [datetime.datetime.strptime(t, '%Y-%m-%d  %H:%M:%S') for t in df['time']]
     df['month'] = [df.iloc[i]['ts'].month for i in range(df.shape[0])]
