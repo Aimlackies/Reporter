@@ -4,8 +4,9 @@
 {% block content %}
 <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
   <div class="bg-white p-3 mt-4">
+	  <h1 class="h2">Live system</h1>
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3">
-      <h1 class="h2">Live system</h1>
+      
    		<div class="row">		
 							<div class="btn-toolbar mb-2 mb-md-0">
 								<div class="btn-group me-2">
@@ -20,10 +21,7 @@
 								
 								  <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
 									<li><a class="dropdown-item" href="/live_system/1h">1 hour</a></li>
-									<li><a class="dropdown-item" href="/live_system/6h">6 hours</a></li>
-									<li><a class="dropdown-item" href="/live_system/12h">12 hours</a></li>
-									<li><a class="dropdown-item" href="/live_system/24h">24 hours</a></li>
-									
+									<li><a class="dropdown-item" href="/live_system/30m">30 minutes</a></li>
 								  </ul>
 								</div>
 											
@@ -46,7 +44,7 @@
 		<script>
 			const labels = [
 			{% for row in powers %}
-				'{{row.device_name}}',
+				'{{row.device_name}}, {{row.date_time}}',
 			{% endfor %}
 			];
 
@@ -82,6 +80,7 @@
 					]
 				},
 				
+				
 			]
 			};
 
@@ -89,8 +88,11 @@
 				type: 'bar',
 				data,
 				options: {
-					scales: [{
-									}]
+					scales: {
+      y: {
+        beginAtZero: true
+      }
+    }
 				}
 			};
 			
