@@ -14,8 +14,15 @@ from datetime import datetime, timedelta
 def electricity_use():
     start_date = datetime.now() - timedelta(hours=24)
     e_use_entries = ElecUse.query.filter(ElecUse.date_time>start_date).all()
+
+    labels = [row.date_time for row in e_use_entries]
+    power_e_use_data = [row.electricity_use for row in e_use_entries]
+
+    real_power_usage = get_real_power_usage_for_times(labels)
     return render_template('electricity_use/electricity_use.html',
-                           e_use_entries=e_use_entries)
+                           data_labels=labels,
+                           power_e_use_data=power_e_use_data,
+                           real_power_usage=real_power_usage)
 
 
 @bp.route('/electricity_use/48_hours')
@@ -24,8 +31,15 @@ def electricity_use():
 def e_use_48h():
     start_date = datetime.now() - timedelta(hours=48)
     e_use_entries = ElecUse.query.filter(ElecUse.date_time>start_date).all()
+
+    labels = [row.date_time for row in e_use_entries]
+    power_e_use_data = [row.electricity_use for row in e_use_entries]
+
+    real_power_usage = get_real_power_usage_for_times(labels)
     return render_template('electricity_use/electricity_use.html',
-                           e_use_entries=e_use_entries)
+                           data_labels=labels,
+                           power_e_use_data=power_e_use_data,
+                           real_power_usage=real_power_usage)
 
 
 @bp.route('/electricity_use/7_days')
@@ -34,8 +48,15 @@ def e_use_48h():
 def e_use_7d():
     start_date = datetime.now() - timedelta(days=7)
     e_use_entries = ElecUse.query.filter(ElecUse.date_time>start_date).all()
+
+    labels = [row.date_time for row in e_use_entries]
+    power_e_use_data = [row.electricity_use for row in e_use_entries]
+
+    real_power_usage = get_real_power_usage_for_times(labels)
     return render_template('electricity_use/electricity_use.html',
-                           e_use_entries=e_use_entries)
+                           data_labels=labels,
+                           power_e_use_data=power_e_use_data,
+                           real_power_usage=real_power_usage)
 
 
 @bp.route('/electricity_use/28_days')
@@ -44,8 +65,15 @@ def e_use_7d():
 def e_use_28d():
     start_date = datetime.now() - timedelta(days=28)
     e_use_entries = ElecUse.query.filter(ElecUse.date_time>start_date).all()
+
+    labels = [row.date_time for row in e_use_entries]
+    power_e_use_data = [row.electricity_use for row in e_use_entries]
+
+    real_power_usage = get_real_power_usage_for_times(labels)
     return render_template('electricity_use/electricity_use.html',
-                           e_use_entries=e_use_entries)
+                           data_labels=labels,
+                           power_e_use_data=power_e_use_data,
+                           real_power_usage=real_power_usage)
 
 
 @bp.route('/electricity_use/all')

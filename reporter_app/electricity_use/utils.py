@@ -265,7 +265,6 @@ def get_real_power_usage_for_times(time_list):
     This will grab all the reading in a half an hour window and average them.
     """
     filter_devices = [device[0] for device in DEVICES if device[1] == 2]
-    print(filter_devices)
 
     real_power_usage = []
     for i in time_list:
