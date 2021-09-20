@@ -109,14 +109,16 @@ class RealSiteReadings(db.Model):
 
 class Trading(db.Model):
     __tablename__='trading'
-    date_time=Column("Date, time" , DateTime(), primary_key=True)
+    __table_args__ = (UniqueConstraint('Datetime', 'Period'),)    
+    date_time=Column("Datetime" , DateTime(), primary_key=True)
     period=Column("Period",Integer(), primary_key=True,nullable=False)
     bid_units=Column("Bid Units Volume(kWh)",db.Float)
     bid_type=Column("Bid type",String(255))
-    bid_price=Column("Bid Price",db.Float,nullable=False)
-    bid_outcome_vol=Column("Bid outcome Volume",db.Float)
-    bid_outcome_price=Column("Bid closing price",db.Float,nullable=False)
+    bid_price=Column("Bid Price",db.Float)
+    bid_outcome=Column("Bid outcome",db.Float)
+    clearout_price=Column("Bid closing price",db.Float)
     volume_untraded=Column("Volume untraded", db.Float)
+    
 
 
 class PredictedLoad(db.Model):

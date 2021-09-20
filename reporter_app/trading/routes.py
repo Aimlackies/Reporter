@@ -1,7 +1,7 @@
 from flask import Flask, render_template, url_for, redirect
 from flask_security import auth_required, roles_required
 from reporter_app.trading import bp
-from reporter_app.trading.utils import post_bids, get_bids, get_surplus, get_untraded_volume, see_get_market_data, get_gen_use
+from reporter_app.trading.utils import get_surplus, get_gen_use
 from reporter_app import db
 from reporter_app import users
 from reporter_app.models import Trading,PredictedLoad,ActualLoad
