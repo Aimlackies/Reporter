@@ -279,7 +279,9 @@ def predict_wind_energy(df, debugPlot = False):
     df['windenergy'] = f2(df['wind_speed'])
     #If speed is above 25 we turn the turbine off to save damage, returning 0 energy.
     for i in range(df.shape[0]):
-        if(df.iloc[i]['wind_speed']>25):
+        if df.iloc[i]['wind_speed'] > 25:
+            df.iloc[i]['windenergy'] = 0
+        if df.iloc[i]['windenergy'] < 0:
             df.iloc[i]['windenergy'] = 0
     return df['windenergy']
 
@@ -321,7 +323,7 @@ def predict_solar_energy(df, debugPlot = False):
     df['rawEnergy'] = [ sinCurve(df.iloc[i]['hour'], outmultfactor[lut[df.iloc[i]['month']]], inmultfactor[lut[df.iloc[i]['month']]],
                                  additionfactor[lut[df.iloc[i]['month']]], additionfactor2[lut[df.iloc[i]['month']]])
                         for i in range(df.shape[0]) ]
-    df['totalSolarEnergy'] = df['rawEnergy'] * df['coverfactor']
+    df['totalSolarEnergy'] = df['rawEnergy'] * df['coverfactor'] * 0.001
     return df['totalSolarEnergy']
 
 
@@ -331,7 +333,7 @@ def get_energy_gen(debugPlot = False):
     weather = weatherObj.full_df
 
     #Predict wind
-    weather['totalSolarEnergy'] = predict_wind_energy(weather)
+    weather['totalSolarEnergy'] = predict_solar_energy(weather)
     #Change to 1 if you want to see the plots.
 #    if(debugPlot):
 #        plt.plot(weather.index, weather['speed'], 'o', weather.index, weather['windenergy'], '-')
@@ -340,7 +342,7 @@ def get_energy_gen(debugPlot = False):
 #        plt.show()
 
     #Predict solar
-    weather['windenergy'] = predict_solar_energy(weather)
+    weather['windenergy'] = predict_wind_energy(weather)
     #Change to 1 if you want to see the plots.
 #    if(debugPlot):
 #        plt.plot(weather.index, weather['rawEnergy'], 'o', weather.index, weather['totalSolarEnergy'], '-')
