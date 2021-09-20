@@ -18,10 +18,12 @@ def get_device_power(generator_name):
 	g = requests.get(url=HOST + "/sim/llanwrtyd-wells")
 	g = g.json()
 	date_time = datetime.strptime(g['timedate'], '%a, %d %b %Y %H:%M:%S %Z')
+	site=[generator_name]
 	power = g['elements'][generator_name]['power']
-	return {'datetime': date_time, 'power': power}
+	return {"site": site,'datetime': date_time, 'power': power}
 
-
+#print(get_device_power("Llanwrtyd Wells - Wind Generator 1"))
+#print("done")
 def get_site_info():
 	"""
 	return current power, temperature and request time at the HQ
