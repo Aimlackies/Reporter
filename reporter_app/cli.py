@@ -69,7 +69,7 @@ def register(app, user_datastore):
 
 		# write elctricity gen data to database
 		numOfTurbunes = 6  #2 Originals plus 2 extra Ed mentioned...?
-		panel_area = 43.75
+		panel_area = 877 # Not sure where Lukas gets this from
 		for idx, row in e_gen_df.iterrows():
 			# add entery to database if no prediction already made for timestamp
 			if (latest_elec_use_entery is None) or (datetime.strptime(row['time'], '%Y-%m-%d %H:%M:%S') > latest_elec_use_entery.date_time):
