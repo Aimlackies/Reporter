@@ -118,13 +118,13 @@
 					</tr>
 				</thead>
 				<tbody>
-					{% for row in wind_e_gen_data %}
+					{% for id in range(data_labels|length) %}
 					<tr>
-					<td>{{row.date_time}}</td>
-					<td>{{row.wind_e_gen_data}}</td>
-					<td>{{row.solar_e_gen_data}}</td>
-					<td>{{row.real_wind_e_gen_data}}</td>
-                                        <td>{{row.real_solar_e_gen_data}}</td>
+					<td>{{data_labels[id]}}</td>
+					<td>{{wind_e_gen_data[id]}}</td>
+					<td>{{solar_e_gen_data[id]}}</td>
+					<td>{{real_wind_e_gen_data[id]}}</td>
+					<td>{{real_solar_e_gen_data[id]}}</td>
 					</tr>
 					{% endfor %}
 				</tbody>
