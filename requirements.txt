@@ -58,3 +58,4 @@ bcrypt==3.2.0
 -e .
 gunicorn==20.1.0
 bleach==3.3.1
+scikit-learn==0.24.2
