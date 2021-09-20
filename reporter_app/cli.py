@@ -72,7 +72,7 @@ def register(app, user_datastore):
 		panel_area = 43.75
 		for idx, row in e_gen_df.iterrows():
 			# add entery to database if no prediction already made for timestamp
-			if datetime.strptime(row['time'], '%Y-%m-%d %H:%M:%S') > latest_elec_use_entery.date_time:
+			if (datetime.strptime(row['time'], '%Y-%m-%d %H:%M:%S') > latest_elec_use_entery.date_time) or (latest_elec_use_entery is None):
 				newElecGen = ElecGen(
 					date_time=row['time'],
 					wind_gen=row['windenergy'] * numOfTurbunes,
