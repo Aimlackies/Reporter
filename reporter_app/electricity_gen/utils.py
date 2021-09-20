@@ -375,7 +375,7 @@ def get_real_power_readings_for_times(time_list):
                 elif "Solar" in j.device_name:
                     sum_solar += j.power
             # Add total to list
-            real_wind_e_gen.append(sum_wind)
-            real_solar_e_gen.append(sum_solar)
+            real_wind_e_gen.append(sum_wind/1000)  # Convert watt to Kilowatt
+            real_solar_e_gen.append(sum_solar/1000)  # Convert watt to Kilowatt
 
     return real_wind_e_gen, real_solar_e_gen
