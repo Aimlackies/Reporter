@@ -15,8 +15,15 @@ def net_power():
     start_date = datetime.now() - timedelta(hours=24)
     e_use_entries = ElecUse.query.filter(ElecUse.date_time>start_date).all()
     e_gen_entries = ElecGen.query.filter(ElecGen.date_time>start_date).all()
+
+    wind_e_gen_data = [row.wind_gen for row in e_gen_entries]
+    solar_e_gen_data = [row.solar_gen for row in e_gen_entries]
+    e_use_data = [row.electricity_use for row in e_use_entries]
+    net_e_gen = [a + b - c for a, b, c in zip(wind_e_gen_data, solar_e_gen_data, e_use_data)]
+    date_time = [row.date_time for row in e_gen_entries]
+
     return render_template('net_power/net_power.html',
-                           e_use_entries=e_use_entries, e_gen_entries=e_gen_entries)
+            new_power = net_e_gen, time_data = date_time, zip=zip)
 
 
 @bp.route('/net_power/48_hours')
