@@ -66,7 +66,7 @@ def register(app, user_datastore):
 		e_gen_df = get_energy_gen()
 
 		# write elctricity gen data to database
-		numOfTurbunes = 4  #2 Originals plus 2 extra Ed mentioned...?
+		numOfTurbunes = 6  #2 Originals plus 2 extra Ed mentioned...?
 		panel_area = 43.75
 		for idx, row in e_gen_df.iterrows():
 			newElecGen = ElecGen(
