@@ -10,7 +10,6 @@ AIMLAC_API_KEY = os.getenv("AIMLAC_API_KEY")
 assert AIMLAC_CC_MACHINE is not None
 HOST = f"http://{AIMLAC_CC_MACHINE}"
 
-
 def get_device_power(generator_name):
 	"""
 	Given a generator name return the power currently being generated and a timestap of request
