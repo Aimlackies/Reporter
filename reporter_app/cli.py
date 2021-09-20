@@ -65,16 +65,20 @@ def register(app, user_datastore):
 		# grab elctricity elec gen data
 		e_gen_df = get_energy_gen()
 
+		latest_elec_use_entery = ElecGen.query.order_by(ElecGen.date_time.desc()).first()
+
 		# write elctricity gen data to database
 		numOfTurbunes = 6  #2 Originals plus 2 extra Ed mentioned...?
 		panel_area = 43.75
 		for idx, row in e_gen_df.iterrows():
-			newElecGen = ElecGen(
-				date_time=row['time'],
-				wind_gen=row['windenergy'] * numOfTurbunes,
-				solar_gen=row['totalSolarEnergy'] * panel_area
-			)
-			db.session.add(newElecGen)
+			# add entery to database if no prediction already made for timestamp
+			if datetime.strptime(row['time'], '%Y-%m-%d %H:%M:%S') > latest_elec_use_entery.date_time:
+				newElecGen = ElecGen(
+					date_time=row['time'],
+					wind_gen=row['windenergy'] * numOfTurbunes,
+					solar_gen=row['totalSolarEnergy'] * panel_area
+				)
+				db.session.add(newElecGen)
 		db.session.commit()
 
 
