@@ -2,25 +2,25 @@
 
 {% block content %}
 <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-  <div class="bg-white p-3 mt-4">
-    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3">
-      <h1 class="h2">Electricity Generation</h1>
+	<div class="bg-white p-3 mt-4">
+		<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3">
+			<h1 class="h2">Electricity Generation</h1>
 		<div class="btn-toolbar mb-2 mb-md-0">
 
-		  <div class="dropdown">
-			<a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
-			  Time Period
-			</a>
+			<div class="dropdown">
+				<a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+					Time Period
+				</a>
 
-			<ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-			  <li><a class="dropdown-item" href="/electricity_gen">24 hours</a></li>
-			  <li><a class="dropdown-item" href="/electricity_gen/48_hours">48 hours</a></li>
-			  <li><a class="dropdown-item" href="/electricity_gen/7_days">7 days</a></li>
-			  <li><a class="dropdown-item" href="/electricity_gen/28_days">28 days</a></li>
-			  <li><a class="dropdown-item" href="/electricity_gen/all">All time</a></li>
-			</ul>
-		  </div>
-		  </div>
+				<ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+					<li><a class="dropdown-item" href="/electricity_gen">24 hours</a></li>
+					<li><a class="dropdown-item" href="/electricity_gen/48_hours">48 hours</a></li>
+					<li><a class="dropdown-item" href="/electricity_gen/7_days">7 days</a></li>
+					<li><a class="dropdown-item" href="/electricity_gen/28_days">28 days</a></li>
+					<li><a class="dropdown-item" href="/electricity_gen/all">All time</a></li>
+				</ul>
+			</div>
+		</div>
 
 		</div>
 		<hr/>
@@ -32,33 +32,53 @@
 		<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 		<script>
 			const labels = [
-			{% for row in e_gen_entries %}
-				'{{row.date_time}}',
+			{% for row in data_labels %}
+				'{{row}}',
 			{% endfor %}
 			];
 
 			const data = {
 			labels: labels,
 			datasets: [{
-				label: 'Site Wind Electricity Generation (kW)',
+				label: 'Predicted Site Wind Electricity Generation (kW)',
 				backgroundColor: 'rgb(80, 64, 227)',
 				borderColor: 'rgb(80, 64, 227)',
 				data: [
-				{% for row in e_gen_entries %}
-					{{row.wind_gen}},
+				{% for row in wind_e_gen_data %}
+					{{row}},
 				{% endfor %}
 				],
 			},
-{
-                                label: 'Site Solar Electricity Generation (kW)',
-                                backgroundColor: 'rgb(48, 173, 42)',
-                                borderColor: 'rgb(48, 173, 42)',
-                                data: [
-                                {% for row in e_gen_entries %}
-                                        {{row.solar_gen}},
-                                {% endfor %}
-                                ],
-                        }
+			{
+					label: 'Predicted Site Solar Electricity Generation (kW)',
+					backgroundColor: 'rgb(48, 173, 42)',
+					borderColor: 'rgb(48, 173, 42)',
+					data: [
+					{% for row in solar_e_gen_data %}
+						{{row}},
+					{% endfor %}
+					],
+				},
+				{
+					label: 'Real Site Wind Electricity Generation (kW)',
+					backgroundColor: 'rgb(0, 191, 255)',
+					borderColor: 'rgb(0, 191, 255)',
+					data: [
+					{% for row in real_wind_e_gen_data %}
+						{{row}},
+					{% endfor %}
+					],
+				},
+				{
+					label: 'Real Site Solar Electricity Generation (kW)',
+					backgroundColor: 'rgb(191, 255, 0)',
+					borderColor: 'rgb(191, 255, 0)',
+					data: [
+					{% for row in real_solar_e_gen_data %}
+						{{row}},
+					{% endfor %}
+					],
+				}
 			]
 			};
 
@@ -96,6 +116,6 @@
 				</tbody>
 			</table>
 		</div>
-  </div>
+	</div>
 </main>
 {% endblock %}

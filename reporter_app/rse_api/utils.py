@@ -10,6 +10,18 @@ AIMLAC_API_KEY = os.getenv("AIMLAC_API_KEY")
 assert AIMLAC_CC_MACHINE is not None
 HOST = f"http://{AIMLAC_CC_MACHINE}"
 
+# list of site power devices [name, 2 if power user else 1 if solar else 0 if wind]
+DEVICES = [
+	["Llanwrtyd Wells - Computing Centre", 2],
+	["Llanwrtyd Wells - Solar Generator", 1],
+	["Llanwrtyd Wells - Wind Generator 1", 0],
+	["Llanwrtyd Wells - Wind Generator 2", 0],
+	["Llanwrtyd Wells - Wind Generator 3", 0],
+	["Llanwrtyd Wells - Wind Generator 4", 0],
+	["Llanwrtyd Wells - Wind Generator A", 0],
+	["Llanwrtyd Wells - Wind Generator B", 0]
+]
+
 
 def get_device_power(generator_name):
 	"""

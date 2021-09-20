@@ -12,6 +12,8 @@ import http.client
 from urllib.parse import urlsplit
 import argparse
 from scipy.interpolate import interp1d
+from reporter_app.models import RealPowerReadings
+from reporter_app.rse_api.utils import DEVICES
 #import matplotlib.pyplot as plt
 
 def call_MET_API(parameter, run='00'):
@@ -349,3 +351,29 @@ def get_energy_gen(debugPlot = False):
 #        plt.show()
 
     return weather[['windenergy', 'totalSolarEnergy', 'time']]
+
+
+def get_real_power_readings_for_times(time_list):
+    """
+    given a list of time stamps return a list of real power generated for wind and solar for thoes times.
+    This will grab the most recent readings after each time stamp given.
+    """
+    real_wind_e_gen = []
+    real_solar_e_gen = []
+    for i in time_list:
+        # get the most recent readings for all devices at site
+        data = RealPowerReadings.query.filter(RealPowerReadings.date_time>i).order_by(RealPowerReadings.date_time)[:len(DEVICES)]
+        # if readings exist sum all devices of same type (wind and solar)
+        if len(data) > 0:
+            sum_wind = 0
+            sum_solar = 0
+            for j in data:
+                if "Wind" in j.device_name:
+                    sum_wind += j.power
+                elif "Solar" in j.device_name:
+                    sum_solar += j.power
+            # Add total to list
+            real_wind_e_gen.append(sum_wind)
+            real_solar_e_gen.append(sum_solar)
+
+    return real_wind_e_gen, real_solar_e_gen
