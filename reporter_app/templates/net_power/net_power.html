@@ -41,7 +41,7 @@
 			labels: labels,
 			datasets: [{
 				label: 'Site Net Power Output (kW)',
-				backgroundColor: 'rgb(80, 64, 227)',
+				backgroundColor: 'rgb(80, 64, 227, 0.2)',
 				borderColor: 'rgb(80, 64, 227)',
 				data: [
 				{% for row in net_power %}
@@ -52,7 +52,7 @@
 			};
 
 			const config = {
-				type: 'line',
+				type: 'bar',
 				data,
 				options: {}
 			};
@@ -70,7 +70,7 @@
 				<thead>
 					<tr>
 					<th>Date and Time</th>
-					<th>Net power output (kW)</th>
+					<th>Net power output (W)</th>
 					</tr>
 				</thead>
 				<tbody>

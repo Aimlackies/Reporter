@@ -45,6 +45,19 @@ def live_system():
 	#powers.append(power)
 	return render_template('rse_api/live_system.html',  powers=powers)
 
+@bp.route('/live_system/30m')
+@auth_required("token", "session")
+@roles_required('verified')
+def live_system_30():
+	start_date = datetime.now() - timedelta(minutes=30)
+	query = RealPowerReadings.query.filter(RealPowerReadings.create_datetime>start_date).all()
+	"try adding power for each well"
+	#power=get_device_power("Llanwrtyd Wells - Wind Generator 1")
+	#entries = current_situation(power)  
+	powers=current_situation(query)
+	#powers.append(power)
+	return render_template('rse_api/live_system.html',  powers=powers)
+
 
 @bp.route('/live_system/1h')
 @auth_required("token", "session")
@@ -78,7 +91,7 @@ def live_system_6h():
 @roles_required('verified')
 def live_system_12h():
 	start_date = datetime.now() - timedelta(hours=12)
-	query = RealPowerReadings.query.filter(RealPowerReadings.create_datetime>start_date).all()
+	query = RealPowerReadings.query.filter(RealPowerReadings.create_datetime>start_date, RealPowerReadings.device_name=="Llanwrtyd Wells - Wind Generator 1").all()
 	"try adding power for each well"
 	#power=get_device_power("Llanwrtyd Wells - Wind Generator 1")
 	#entries = current_situation(power)  
@@ -91,7 +104,7 @@ def live_system_12h():
 @roles_required('verified')
 def live_system_24h():
 	start_date = datetime.now() - timedelta(hours=24)
-	query = RealPowerReadings.query.filter(RealPowerReadings.create_datetime>start_date).all()
+	query = RealPowerReadings.query.filter(RealPowerReadings.create_datetime>start_date, RealPowerReadings.device_name=="Llanwrtyd Wells - Wind Generator 1").all()
 	"try adding power for each well"
 	#power=get_device_power("Llanwrtyd Wells - Wind Generator 1")
 	#entries = current_situation(power)  
