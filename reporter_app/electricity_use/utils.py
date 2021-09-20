@@ -10,6 +10,9 @@ import json
 import urllib.request
 import http.client
 from urllib.parse import urlsplit
+from reporter_app.models import RealPowerReadings
+from reporter_app.rse_api.utils import DEVICES
+from datetime import timedelta
 
 def call_MET_API(parameter, run='00'):
     '''
@@ -206,11 +209,11 @@ class getWeather:
 def electricity(time, weather):
     '''
     Function to calculate electricity use for a given time and temperature
-    
+
     Inputs: time (str)   - time to calculate electricity use for,
                            in year-month-day hour:minute_second format
             weather (df) - dataframe of weather values from getWeather class
-    
+
     Outputs: electricity (float) - value of electricity used at time (in kW)
     '''
     temp = weather[weather.time == time]
@@ -245,7 +248,7 @@ def call_leccyfunc():
 
     Inputs: none
 
-    Outputs: leccy_df (df) - Dataframe of electricity use in half hour 
+    Outputs: leccy_df (df) - Dataframe of electricity use in half hour
                              intervals for next 5 days
     '''
     weather = getWeather('OWM').full_df
@@ -256,3 +259,27 @@ def call_leccyfunc():
     return leccy_df
 
 
+def get_real_power_usage_for_times(time_list):
+    """
+    given a list of time stamps return a list of real power usage for the site.
+    This will grab all the reading in a half an hour window and average them.
+    """
+    filter_devices = [device[0] for device in DEVICES if device[1] == 2]
+    print(filter_devices)
+
+    real_power_usage = []
+    for i in time_list:
+        # get the most recent readings in time window for devices in list
+        data = RealPowerReadings.query.filter(RealPowerReadings.date_time>i, RealPowerReadings.date_time<i+timedelta(minutes=30), RealPowerReadings.device_name.in_(filter_devices)).all()
+        # if readings exist get average power
+        if len(data) > 0:
+            sum = 0
+            for j in data:
+                sum += j.power
+            sum = sum / len(data)
+            # Add total to list
+            real_power_usage.append(abs(sum/1000))  # Convert watt to Kilowatt
+        else:
+            real_power_usage.append(None)  # no value found, add None to skip data point in graph
+
+    return real_power_usage
