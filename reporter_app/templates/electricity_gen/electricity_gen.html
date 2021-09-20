@@ -111,16 +111,20 @@
 				<thead>
 					<tr>
 					<th>Date and Time</th>
-					<th>Wind generation (kW)</th>
-					<th>Solar generation (kW)</th>
+					<th>Predicted wind generation (kW)</th>
+					<th>Predicted solar generation (kW)</th>
+					<th>Actual wind generation (kW)</th>
+					<th>Actual solar generation (kW)</th>
 					</tr>
 				</thead>
 				<tbody>
-					{% for row in e_gen_entries %}
+					{% for row in wind_e_gen_data %}
 					<tr>
 					<td>{{row.date_time}}</td>
-					<td>{{row.wind_gen}}</td>
-					<td>{{row.solar_gen}}</td>
+					<td>{{row.wind_e_gen_data}}</td>
+					<td>{{row.solar_e_gen_data}}</td>
+					<td>{{row.real_wind_e_gen_data}}</td>
+                                        <td>{{row.real_solar_e_gen_data}}</td>
 					</tr>
 					{% endfor %}
 				</tbody>
