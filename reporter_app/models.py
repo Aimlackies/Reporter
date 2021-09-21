@@ -116,7 +116,7 @@ class Trading(db.Model):
     bid_type=Column("Bid type",String(255))
     bid_price=Column("Bid Price",db.Float)
     bid_outcome=Column("Bid outcome",db.Float)
-    clearout_price=Column("Bid closing price",db.Float)
+    closing_price=Column("Bid closing price",db.Float)
     volume_untraded=Column("Volume untraded", db.Float)
     
 
