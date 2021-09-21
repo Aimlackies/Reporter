@@ -4,8 +4,8 @@ from reporter_app import db
 from reporter_app.models import ElecUse, Co2, ElecGen, RealPowerReadings, RealSiteReadings, Trading,PredictedLoad
 from reporter_app.electricity_use.utils import call_leccyfunc
 from reporter_app.electricity_gen.utils import get_energy_gen
-from reporter_app.rse_api.utils import get_device_power, get_site_info
-from reporter_app.trading.utils import post_bids, get_predicted_price
+from reporter_app.rse_api.utils import get_device_power, get_site_info, get_bids,get_clearout
+from reporter_app.trading.utils import get_predicted_price
 
 from datetime import datetime, timedelta, date, time
 import json
@@ -154,11 +154,11 @@ def register(app, user_datastore):
 		db.session.commit()
 
 	@app.cli.command("predict_price")
-	def predict_price():
+	def predictPrice():
 		'''
 		Looks up predicted load and predicts price
 		'''
-		reported_date=datetime.combine(datetime.today(),time())
+		reported_date=datetime.combine(datetime.today()+timedelta(days=1),time())
 		date=reported_date.isoformat()[:10]
 		price=get_predicted_price(date)
 		for idx, row in price.iterrows():
@@ -170,4 +170,42 @@ def register(app, user_datastore):
 			)
 			reported_date=reported_date+timedelta(minutes=30)
 			db.session.add(new_predicted_price)
+		db.session.commit()
+        
+	@app.cli.command("store_bids")
+	def storeBids():
+		'''
+		Looks up bids submitted and populates db
+		'''
+		reported_date=datetime.combine(datetime.today()+timedelta(days=2),time())
+		date=reported_date.isoformat()[:10]
+		outcome=get_bids(date)
+		for idx, row in outcome.iterrows():
+			new_bids=Trading(
+				date_time=row["applying_date"],
+				period=row["hour_ID"],
+				bid_units=row["volume"],
+				bid_price=row["price"],
+                bid_type=row["type"],
+                bid_outcome=row["accepted"]
+                
+			)			
+			db.session.add(new_bids)
+		for idx, row in outcome.iterrows():
+			new_bids=Trading(
+				date_time=row["applying_date"],
+				period=row["hour_ID"],
+				bid_units=row["volume"],
+
+                
+			)			
+			db.session.add(new_bids)            
+		clear_out=get_clearout()        
+		for idx,row in clear_out.iterrows():            
+			co_prices=Trading(
+				date_time=row["date"],
+				period=row["period"],
+				clearout_price=row["price"]
+            )
+			db.session.add(co_prices)
 		db.session.commit()
