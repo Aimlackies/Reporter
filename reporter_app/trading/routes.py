@@ -4,7 +4,7 @@ from reporter_app.trading import bp
 from reporter_app.trading.utils import get_surplus, get_gen_use
 from reporter_app import db
 from reporter_app import users
-from reporter_app.models import Trading,PredictedLoad,ActualLoad
+from reporter_app.models import Trading,PredictedPrice,ActualLoad
 from datetime import datetime, timedelta
 
 
@@ -21,14 +21,14 @@ def trading():
     return render_template('trading/trading.html', bid_entries=bid_entries, title="Trading")
 
 # when the text pointing to this ref is clicked render the template from the path defined below
-@bp.route('/trading/predicted_load')
+@bp.route('/trading/predicted_price')
 @auth_required("token", "session")
 @roles_required('verified')
-def trading_predicted_load():
+def trading_predicted_price():
     start_date = datetime.now() - timedelta(hours=24)
-    predicted_load_entry=PredictedLoad.query.filter(PredictedLoad.date_time>start_date).all()
+    predicted_price_entry=PredictedPrice.query.filter(PredictedPrice.date_time>start_date).all()
     # predicted_load is what's called from the template, the template to be rendered is defined here
-    return render_template('trading/predicted.html', predicted_load=predicted_load_entry, title= "Predicted Load")
+    return render_template('trading/predicted.html', predicted_price=predicted_load_entry, title= "Predicted Price")
 
 @bp.route('/trading/actual_load')
 @auth_required("token", "session")

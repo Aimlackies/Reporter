@@ -119,7 +119,7 @@ class Trading(db.Model):
 
     
 class ClearoutPrice(db.Model):
-    __tablename__='clearoutprice'        
+    __tablename__='clearout_price'        
     date_time=Column("date_time" , DateTime(), primary_key=True)
     period=Column("Period",Integer(), primary_key=True,nullable=False)    
     closing_price=Column("Bid closing price",db.Float)
@@ -127,8 +127,8 @@ class ClearoutPrice(db.Model):
     
 
 
-class PredictedLoad(db.Model):
-    __tablename__='predicted_load'
+class PredictedPrice(db.Model):
+    __tablename__='predicted_price'
     date_time=Column("Date, time" , DateTime(),unique=True, primary_key=True)
     period=Column("Period",Integer(),nullable=False)
     predicted_load=Column("Predicted grid load(MWh)",db.Float,nullable=False)

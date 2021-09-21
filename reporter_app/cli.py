@@ -1,7 +1,7 @@
 from flask_security import hash_password
 from sqlalchemy.sql import func
 from reporter_app import db
-from reporter_app.models import ElecUse, Co2, ElecGen, RealPowerReadings, RealSiteReadings, Trading,PredictedLoad
+from reporter_app.models import ElecUse, Co2, ElecGen, RealPowerReadings, RealSiteReadings, Trading,PredictedPrice
 from reporter_app.electricity_use.utils import call_leccyfunc
 from reporter_app.electricity_gen.utils import get_energy_gen
 from reporter_app.rse_api.utils import get_device_power, get_site_info, get_bids,get_clearout , post_bids
@@ -190,8 +190,8 @@ def register(app, user_datastore):
 
 		db.session.commit()
         
-	@app.cli.command("post_bids")
-	def predictPrice():
+	@app.cli.command("make_bids")
+	def makeBids():
 		'''
 		Post bids, this needs to run before 9 AM
 		'''

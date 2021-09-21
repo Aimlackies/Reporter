@@ -25,22 +25,33 @@ from sklearn.preprocessing import StandardScaler
 tdelta = timedelta(days=1)
 in_date = (date.today()+tdelta).isoformat()
 
-def get_predicted_load_next_day(in_date):
-    csv_name= f"{in_date}.csv"
-    if csv_name in os.listdir("./"): 
-        print("CSV already there")
-        filtered_tab=pd.read_csv(f"./{csv_name}")
-    else:
-        api_key= "cncw84m146gcswv"
-    
-        base_url="https://api.bmreports.com"
-    
-        tab=pd.read_csv(f"{base_url}/BMRS/B0620/V1?ServiceType=CSV&Period=*&APIKey={api_key}&SettlementDate={in_date}",skiprows=4)
-        filtered_tab=tab[["Settlement Date", "Settlement Period", "Quantity"]]
-        filtered_tab=filtered_tab.dropna(subset=["Settlement Date"])
-        
-        filtered_tab.to_csv(f"./{csv_name}")
 
+load_date=(date.today()+tdelta-timedelta(days=7))
+load_date=load_date.isoformat()
+
+def get_predicted_load_next_day(in_date):
+    # csv_name= f"{in_date}.csv"
+    # if csv_name in os.listdir("./"): 
+                
+    #     filtered_tab=pd.read_csv(f"./{csv_name}")
+        
+    #     if filtered_tab.shape[0]==48:
+    #         print("CSV already there")
+        
+    #     else:
+    in_date=datetime.strptime(in_date,"%Y-%m-%d")
+    load_date=in_date-timedelta(days=7)
+    date1=load_date.strftime("%Y-%m-%d") 
+    api_key= "cncw84m146gcswv"
+    
+    base_url="https://api.bmreports.com"
+    
+    tab=pd.read_csv(f"{base_url}/BMRS/B0620/V1?ServiceType=CSV&Period=*&APIKey={api_key}&SettlementDate={date1}",skiprows=4)
+    filtered_tab=tab[["Settlement Date", "Settlement Period", "Quantity"]]
+    filtered_tab=filtered_tab.dropna(subset=["Settlement Date"])
+    
+    # filtered_tab.to_csv(f"./{csv_name}")
+            
     return filtered_tab
 
 def get_wday_wk_doy(x):

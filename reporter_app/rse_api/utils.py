@@ -40,7 +40,7 @@ def get_site_info():
 	date_time = datetime.strptime(g['timedate'], '%a, %d %b %Y %H:%M:%S %Z')
 	return {'datetime': date_time, 'power': power, 'temperature': temperature}
 
-tdelta = timedelta(days=2)
+tdelta = timedelta(days=1)
 in_date = (date.today()+tdelta).isoformat()
 
 def post_bids(in_date):
@@ -49,6 +49,7 @@ def post_bids(in_date):
 	Surplus and posted price supplied as numpy arrays in descending
 	order(to match predicted load)
 	'''
+       
 	surplus = get_surplus(in_date)[0]
 	posted_price = get_surplus(in_date)[1]
    
@@ -62,7 +63,7 @@ def post_bids(in_date):
 					"key": AIMLAC_API_KEY,
 					"orders": [{
 						"applying_date": in_date,
-						"hour_ID": i+1,
+						"hour_ID": -(-(i+1)//2),
 						"type": "BUY",
 						"volume": str(-1 * surplus[i]),
 						"price": str( posted_price[i])
@@ -72,7 +73,7 @@ def post_bids(in_date):
 			d = p.json()
 			print("Posting bids:")
 			print("POST JSON reply:", d)
-		elif value>0:
+		elif value>=0:
 			# So that the bid is accepted
 			p = requests.post(
 				url=HOST + "/auction/bidding/set",
@@ -80,7 +81,7 @@ def post_bids(in_date):
 					"key": AIMLAC_API_KEY,
 					"orders": [{
 						"applying_date": in_date,
-						"hour_ID": i + 1,
+						"hour_ID": -(-(i + 1)//2),
 						"type": "SELL",
 						"volume": str(surplus[i]),
 						"price": str(posted_price[i])
@@ -90,7 +91,7 @@ def post_bids(in_date):
 			d = p.json()
 		# No bids posted
 		else:
-			return None
+			pass
 
 	return d
 
