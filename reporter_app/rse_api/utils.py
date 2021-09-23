@@ -56,6 +56,7 @@ def get_site_info():
 tdelta = timedelta(days=2)
 in_date = (date.today()+tdelta).isoformat()
 
+
 def post_bids(in_date):
 	'''
 	Post bids and report to the database table once bids posted
@@ -64,9 +65,9 @@ def post_bids(in_date):
 	'''
 	surplus = get_surplus(in_date)[0]
 	posted_price = get_surplus(in_date)[1]
-   
-    
-	
+
+
+
 	for i, value in enumerate(surplus):
 		if value < 0:
 			p = requests.post(
@@ -113,7 +114,7 @@ def get_bids(in_date):
 	Queries and returns bids after buy and sell orders matched
 	'''
 	# Needs to run some time after 12 pm after buy and sell orders matched
-	
+
 	#Report sold/bought
 	g = requests.get(
 		url=HOST + "/auction/bidding/get",
@@ -126,13 +127,13 @@ def get_bids(in_date):
 	assert g.headers["content-type"].strip().startswith("application/json")==True
 	assert len(g.json()) >= 1
 
-	outcome = pd.DataFrame(g.json()) 
+	outcome = pd.DataFrame(g.json())
 	outcome.iloc[:,1]=outcome["applying_date"].map(map_date_format)
-    
-	return outcome    
+
+	return outcome
 
 def split_outcome(in_date):
-	outcome=get_bids(in_date)    
+	outcome=get_bids(in_date)
 	bids_accepted=outcome[outcome["accepted"].notnull()]
 	bids_ignored=outcome[outcome["accepted"].isnull()]
    # returns a series object with hour ID as index in ascending order
@@ -144,8 +145,8 @@ def map_date_format(x):
     x=datetime.strptime(x, "%a, %d %b %Y %H:%M:%S %Z")
     x=datetime.strftime(x, "%Y-%m-%d %H:%M:%S")
     return x
-    
-    
+
+
 
 def see_get_market_data(kind_of_data):
 	'''
@@ -167,41 +168,43 @@ def see_get_market_data(kind_of_data):
 	return g
 
 def get_clearout():
-    clearout=pd.DataFrame(see_get_market_data("clearout-prices").json()) # returns clearout prices for the day in hours 
-    clearout.iloc[:,0]=clearout["date"].map(map_date_format) 
-    clear=clearout.append(clearout).reset_index(drop=True)
-    clear.iloc[:,1]=np.array(clear["period"].index.tolist())+1
-    
-    return clear
+	clearout = pd.DataFrame(see_get_market_data("clearout-prices").json())  # returns clearout prices for the day in hours
+	clearout.iloc[:, 0] = clearout["date"].map(map_date_format)
+	clear = clearout.append(clearout).reset_index(drop=True)
+	clear.iloc[:, 1] = np.array(clear["period"].index.tolist()) + 1
+
+	return clear
+
 
 def get_untraded_volume(in_date):
 
-    surplus=get_surplus(in_date)[0]
+	surplus=get_surplus(in_date)[0]
 
-    agg_volume=get_bids(in_date)[3]
-    
-    if len(agg_volume)<len(surplus):
-        agg_volume=agg_volume[:len(surplus)]
-    
-    #hour_IDs will be in ascending order
-    untraded_volume=surplus - agg_volume
-    
-    return untraded_volume
+	agg_volume=get_bids(in_date)[3]
+
+	if len(agg_volume)<len(surplus):
+		agg_volume=agg_volume[:len(surplus)]
+
+	#hour_IDs will be in ascending order
+	untraded_volume=surplus - agg_volume
+
+	return untraded_volume
+
 
 def get_imbalance():
-    g = see_get_market_data("imbalance")
+	g = see_get_market_data("imbalance")
 
-    bid_date= np.zeros(len(g.json()))
-    bid_hour= np.zeros(len(g.json()))
-    imbalance_prices= np.zeros(len(g.json()))
+	bid_date= np.zeros(len(g.json()))
+	bid_hour= np.zeros(len(g.json()))
+	imbalance_prices= np.zeros(len(g.json()))
 
-    for i,order in enumerate(g.json()):
-        data=json.loads(order)
-        bid_date[i]=data['date']
-        bid_hour[i] = data["period"]
-        imbalance_prices[i]=data["price"]
-    d_list=[bid_date,bid_hour,imbalance_prices]
-    df=pd.DataFrame(d_list).T
-    df.columns=["date", "period", "Imbalance price"]
+	for i,order in enumerate(g.json()):
+		data=json.loads(order)
+		bid_date[i]=data['date']
+		bid_hour[i] = data["period"]
+		imbalance_prices[i]=data["price"]
+	d_list=[bid_date,bid_hour,imbalance_prices]
+	df=pd.DataFrame(d_list).T
+	df.columns=["date", "period", "Imbalance price"]
 
-    return df
+	return df

@@ -27,18 +27,18 @@ in_date = (date.today()+tdelta).isoformat()
 
 def get_predicted_load_next_day(in_date):
     csv_name= f"{in_date}.csv"
-    if csv_name in os.listdir("./"): 
+    if csv_name in os.listdir("./"):
         print("CSV already there")
         filtered_tab=pd.read_csv(f"./{csv_name}")
     else:
         api_key= "cncw84m146gcswv"
-    
+
         base_url="https://api.bmreports.com"
-    
+
         tab=pd.read_csv(f"{base_url}/BMRS/B0620/V1?ServiceType=CSV&Period=*&APIKey={api_key}&SettlementDate={in_date}",skiprows=4)
         filtered_tab=tab[["Settlement Date", "Settlement Period", "Quantity"]]
         filtered_tab=filtered_tab.dropna(subset=["Settlement Date"])
-        
+
         filtered_tab.to_csv(f"./{csv_name}")
 
     return filtered_tab
@@ -61,11 +61,11 @@ def process(filtered_tab):
     processed_tab=pd.DataFrame()
     processed_tab=filtered_tab.get(["Year","week","wday","doy","Hour","Quantity"])
     processed_tab.columns=['Year', 'Week', 'Day', 'Day of Year', 'hours', 'Units(MWh)']
-    
+
     tab=processed_tab.copy()
     # Scaling BMRS data to match relative traffic through nordpool
     processed_tab.iloc[:,5]=processed_tab.iloc[:,5]/4.7
-    
+
     print(">>>>>>>>>>>>PATH<<<<<<<<<<<<<<<", os.path.abspath(os.getcwd()))
     syspath=os.path.abspath(os.getcwd())
     if syspath.endswith("reporter"):
@@ -73,12 +73,12 @@ def process(filtered_tab):
     else:
         pkl_filename= "../trading/model/pickle_scaler.pkl"
     sc = pickle.load(open(pkl_filename,'rb'))
-    
+
     processed=sc.transform(processed_tab)
-    
-    
+
+
     processed_tab.iloc[:,:]=processed
-    
+
     return processed_tab,tab
 
 def prediction_model(x):
@@ -87,7 +87,7 @@ def prediction_model(x):
     '''
     syspath=os.path.abspath(os.getcwd())
     print(os.path.abspath(os.getcwd()))
-    
+
     if syspath.endswith("reporter"):
         pkl_filename= "./reporter_app/trading/model/pickle_model.pkl"
     else:
@@ -118,7 +118,7 @@ def next_day_filter(x,in_date):
     '''
     Filter to apply to get the right data for 24 hours
     '''
-    
+
     # tdelta=timedelta(days=1)
     # applying_date=datetime.today()+tdelta
     # start_dt=datetime.combine(applying_date,time())
@@ -143,7 +143,7 @@ def next_day_filter(x,in_date):
 
 def get_gen_use(in_date):
     '''
-    Get informtion about the predicted generation and usage. Predicts for 4 subsequent days until 
+    Get informtion about the predicted generation and usage. Predicts for 4 subsequent days until
     8:30 AM last day from present to future.
     '''
     ###predicts for today and 4 more days until 8:30 in the morning of the last day.
@@ -168,18 +168,18 @@ def get_surplus(in_date):
     predictedPrice = get_predicted_price(in_date)["Price"]
     predictedGeneration = get_gen_use(in_date)[0]
     predictedDemand = get_gen_use(in_date)[1]
-    
+
     if len(predictedPrice)<len(predictedGeneration):
         predictedGeneration=predictedGeneration[:len(predictedPrice)]
         predictedDemand=predictedDemand[:len(predictedPrice)]
-    
+
     print("predicted price shape",predictedPrice.shape)
-    
+
     if len(predictedGeneration) == 0 and len(predictedDemand) == 0 :
         surplus = []
     else:
         surplus=predictedGeneration-predictedDemand
-        
+
     posted_price=np.zeros(len(predictedPrice))
 
     for i,difference in enumerate(surplus):

@@ -11,8 +11,21 @@ import urllib.request
 import http.client
 from urllib.parse import urlsplit
 from reporter_app.models import RealPowerReadings, RealSiteReadings
-from reporter_app.rse_api.utils import DEVICES
 from datetime import timedelta
+
+
+# list of site power devices [name, 2 if power user else 1 if solar else 0 if wind]
+DEVICES = [
+	["Llanwrtyd Wells - Computing Centre", 2],
+	["Llanwrtyd Wells - Solar Generator", 1],
+	["Llanwrtyd Wells - Wind Generator 1", 0],
+	["Llanwrtyd Wells - Wind Generator 2", 0],
+	["Llanwrtyd Wells - Wind Generator 3", 0],
+	["Llanwrtyd Wells - Wind Generator 4", 0],
+	["Llanwrtyd Wells - Wind Generator A", 0],
+	["Llanwrtyd Wells - Wind Generator B", 0]
+]
+
 
 def call_MET_API(parameter, run='00'):
     '''

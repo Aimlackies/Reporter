@@ -13,9 +13,21 @@ from urllib.parse import urlsplit
 import argparse
 from scipy.interpolate import interp1d
 from reporter_app.models import RealPowerReadings
-from reporter_app.rse_api.utils import DEVICES
 from datetime import timedelta
-#import matplotlib.pyplot as plt
+
+
+# list of site power devices
+DEVICES = [
+    "Llanwrtyd Wells - Computing Centre",
+    "Llanwrtyd Wells - Solar Generator",
+    "Llanwrtyd Wells - Wind Generator 1",
+    "Llanwrtyd Wells - Wind Generator 2",
+    "Llanwrtyd Wells - Wind Generator 3",
+    "Llanwrtyd Wells - Wind Generator 4",
+    "Llanwrtyd Wells - Wind Generator A",
+    "Llanwrtyd Wells - Wind Generator B"
+]
+
 
 def call_MET_API(parameter, run='00'):
     '''
@@ -208,6 +220,7 @@ class getWeather:
             interpolated_df = interpolated_df.append(this_row, ignore_index=True)
         out_df = interpolated_df.rename(columns={'all':'cloud_percent', 'speed':'wind_speed', 'index':'time'})
         return(out_df.iloc[1:, :])
+
 
 def electricity(time, weather):
     '''
