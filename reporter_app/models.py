@@ -109,20 +109,26 @@ class RealSiteReadings(db.Model):
 
 class Trading(db.Model):
     __tablename__='trading'
-    __table_args__ = (UniqueConstraint('Datetime', 'Period'),)    
-    date_time=Column("Datetime" , DateTime(), primary_key=True)
+    __table_args__ = (UniqueConstraint('date_time', 'Period'),)    
+    date_time=Column("date_time" , DateTime(), primary_key=True)
     period=Column("Period",Integer(), primary_key=True,nullable=False)
     bid_units=Column("Bid Units Volume(kWh)",db.Float)
     bid_type=Column("Bid type",String(255))
     bid_price=Column("Bid Price",db.Float)
     bid_outcome=Column("Bid outcome",db.Float)
-    clearout_price=Column("Bid closing price",db.Float)
-    volume_untraded=Column("Volume untraded", db.Float)
+
+    
+class ClearoutPrice(db.Model):
+    __tablename__='clearout_price'        
+    date_time=Column("date_time" , DateTime(), primary_key=True)
+    period=Column("Period",Integer(), primary_key=True,nullable=False)    
+    closing_price=Column("Bid closing price",db.Float)
+    volume=Column("Volume", db.Float)
     
 
 
-class PredictedLoad(db.Model):
-    __tablename__='predicted_load'
+class PredictedPrice(db.Model):
+    __tablename__='predicted_price'
     date_time=Column("Date, time" , DateTime(),unique=True, primary_key=True)
     period=Column("Period",Integer(),nullable=False)
     predicted_load=Column("Predicted grid load(MWh)",db.Float,nullable=False)

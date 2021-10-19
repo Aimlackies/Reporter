@@ -15,7 +15,7 @@
 			<ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
 			  <li><a class="dropdown-item" href="/trading">Bids</a></li>
 				<!-- the href bit is linked to the bp.route -->
-			  <li><a class="dropdown-item" href="/trading/predicted_load">Predicted</a></li>
+			  <li><a class="dropdown-item" href="/trading/predicted_price">Predicted</a></li>
 			  <li><a class="dropdown-item" href="/trading/actual_load">Actual</a></li>
 
 			</ul>
@@ -44,7 +44,7 @@
 				backgroundColor: 'rgb(255, 99, 132)',
 				borderColor: 'rgb(255, 99, 132)',
 				data: [
-				{% for row in predicted_load %}
+				{% for row in predicted_price %}
 					{{row.predicted_load}},
 				{% endfor %}
 				],
@@ -76,7 +76,7 @@
 					</tr>
 				</thead>
 				<tbody>
-					{% for row in predicted_load %}
+					{% for row in predicted_price %}
 					<tr>
 					<td>{{row.date_time}}</td>
 					<td>{{row.period}}</td>
