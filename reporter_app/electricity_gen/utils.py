@@ -12,7 +12,22 @@ import http.client
 from urllib.parse import urlsplit
 import argparse
 from scipy.interpolate import interp1d
-#import matplotlib.pyplot as plt
+from reporter_app.models import RealPowerReadings
+from datetime import timedelta
+
+
+# list of site power devices
+DEVICES = [
+    "Llanwrtyd Wells - Computing Centre",
+    "Llanwrtyd Wells - Solar Generator",
+    "Llanwrtyd Wells - Wind Generator 1",
+    "Llanwrtyd Wells - Wind Generator 2",
+    "Llanwrtyd Wells - Wind Generator 3",
+    "Llanwrtyd Wells - Wind Generator 4",
+    "Llanwrtyd Wells - Wind Generator A",
+    "Llanwrtyd Wells - Wind Generator B"
+]
+
 
 def call_MET_API(parameter, run='00'):
     '''
@@ -206,6 +221,7 @@ class getWeather:
         out_df = interpolated_df.rename(columns={'all':'cloud_percent', 'speed':'wind_speed', 'index':'time'})
         return(out_df.iloc[1:, :])
 
+
 def electricity(time, weather):
     '''
     Function to calculate electricity use for a given time and temperature
@@ -279,8 +295,9 @@ def predict_wind_energy(df, debugPlot = False):
     df['windenergy'] = f2(df['wind_speed'])
     #If speed is above 25 we turn the turbine off to save damage, returning 0 energy.
     for i in range(df.shape[0]):
-        if(df.iloc[i]['wind_speed']>25):
+        if df.iloc[i]['wind_speed'] > 25:
             df.iloc[i]['windenergy'] = 0
+    df['windenergy'][df['windenergy'] < 0] = 0
     return df['windenergy']
 
 
@@ -313,7 +330,7 @@ def predict_solar_energy(df, debugPlot = False):
     #    plt.show()
 
     #This calculates the raw solar energy according to the sin curve, and then multiplies by the cover factor to account for clouds.
-    df['coverfactor'] = (100 - df['cloud_percent']*0.25)/100
+    df['coverfactor'] = (100 - df['cloud_percent']*0.5)/100
     #df['timestamp'] = df.index
     df['ts'] = [datetime.datetime.strptime(t, '%Y-%m-%d  %H:%M:%S') for t in df['time']]
     df['month'] = [df.iloc[i]['ts'].month for i in range(df.shape[0])]
@@ -321,7 +338,7 @@ def predict_solar_energy(df, debugPlot = False):
     df['rawEnergy'] = [ sinCurve(df.iloc[i]['hour'], outmultfactor[lut[df.iloc[i]['month']]], inmultfactor[lut[df.iloc[i]['month']]],
                                  additionfactor[lut[df.iloc[i]['month']]], additionfactor2[lut[df.iloc[i]['month']]])
                         for i in range(df.shape[0]) ]
-    df['totalSolarEnergy'] = df['rawEnergy'] * df['coverfactor']
+    df['totalSolarEnergy'] = df['rawEnergy'] * df['coverfactor'] * 0.001
     return df['totalSolarEnergy']
 
 
@@ -331,7 +348,7 @@ def get_energy_gen(debugPlot = False):
     weather = weatherObj.full_df
 
     #Predict wind
-    weather['totalSolarEnergy'] = predict_wind_energy(weather)
+    weather['totalSolarEnergy'] = predict_solar_energy(weather)
     #Change to 1 if you want to see the plots.
 #    if(debugPlot):
 #        plt.plot(weather.index, weather['speed'], 'o', weather.index, weather['windenergy'], '-')
@@ -340,7 +357,7 @@ def get_energy_gen(debugPlot = False):
 #        plt.show()
 
     #Predict solar
-    weather['windenergy'] = predict_solar_energy(weather)
+    weather['windenergy'] = predict_wind_energy(weather)
     #Change to 1 if you want to see the plots.
 #    if(debugPlot):
 #        plt.plot(weather.index, weather['rawEnergy'], 'o', weather.index, weather['totalSolarEnergy'], '-')
@@ -349,3 +366,32 @@ def get_energy_gen(debugPlot = False):
 #        plt.show()
 
     return weather[['windenergy', 'totalSolarEnergy', 'time']]
+
+
+def get_real_power_readings_for_times(time_list):
+    """
+    given a list of time stamps return a list of real power generated for wind and solar for thoes times.
+    This will grab the most recent readings after each time stamp given.
+    """
+    real_wind_e_gen = []
+    real_solar_e_gen = []
+    for i in time_list:
+        # get the most recent readings for all devices at site
+        data = RealPowerReadings.query.filter(RealPowerReadings.date_time>i, RealPowerReadings.date_time<i+timedelta(minutes=30)).order_by(RealPowerReadings.date_time)[:len(DEVICES)]
+        # if readings exist sum all devices of same type (wind and solar)
+        if len(data) > 0:
+            sum_wind = 0
+            sum_solar = 0
+            for j in data:
+                if "Wind" in j.device_name:
+                    sum_wind += j.power
+                elif "Solar" in j.device_name:
+                    sum_solar += j.power
+            # Add total to list
+            real_wind_e_gen.append(sum_wind/1000)  # Convert watt to Kilowatt
+            real_solar_e_gen.append(sum_solar/1000)  # Convert watt to Kilowatt
+        else:
+            real_wind_e_gen.append(None)  # no value found, add None to skip data point in grahp
+            real_solar_e_gen.append(None)    # no value found, add None to skip data point in grahp
+
+    return real_wind_e_gen, real_solar_e_gen

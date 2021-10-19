@@ -1,5 +1,6 @@
 {% extends "template_parts/base.html" %}
 
+
 {% block content %}
 <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
   <div class="bg-white p-3 mt-4">
@@ -9,17 +10,95 @@
 		<hr/>
 
 		<div class="row">
-			<div class="d-block col-12 col-lg-4">
-				<h3 class="">Energy generation</h3>
+			<div class="col-xs-10 col-sm-6 col-md-6">
+				<div class="card card-style mb-2">
+					<h1 class="h4">System safety status: 9/9 passed</h1>
+					<div class="card-body">
+						<div class="chart-container" style="position: relative;">
+							<canvas id="overtime_expenditure"></canvas>
+						</div>
+					</div>
+				</div>
 			</div>
-			<div class="d-block col-12 col-lg-4">
-				<h3 class="">Energy usage</h3>
+			<div class="col-xs-10 col-sm-6 col-md-6">
+				<div class="card card-style mb-2">
+					<div class="card-body">
+						<h1 class="h4">Wales weather warnings: no warnings </h1>
+						<p class="font-weight-light">Temperature: 19 Celcius Degrees </p>
+						
+						<p class="font-weight-light">Chance of precipitation: < 5%</p>
+						<p class="font-weight-light">Wind direction and speed: NNW 6 mph </p>
+						<p class="font-weight-light">Clouds: clear </p>
+				</div>
+			 </div>
 			</div>
-			<div class="d-block col-12 col-lg-4">
-				<h3 class="">Energy sold</h3>
+			<div class="col-xs-10 col-sm-6 col-md-6">
+				<div class="card card-style mb-2">
+					<h1 class="h4">Number of employees on the site</h1>
+					<div class="card-body">
+						<h1 class="display-1">27</h1>
+					</div>
+				</div>
 			</div>
 		</div>
+		
+		<!--Chart-->
+		<div>
+			<canvas id="overtime_expenditure"></canvas>
+		</div>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.3.2/chart.min.js"></script>
+		<script>
+			const labels = ['AIMLAC HQ Llanwrtyd Wells', 'Llanwrtyd Wells - Aryaman', 'Llanwrtyd Wells - Buran', 'Llanwrtyd Wells - Gibli', 'Llanwrtyd Wells - Turing'
+			];
+
+			const data = {
+			labels: ["AIMLAC HQ Llanwrtyd Wells","Llanwrtyd Wells - Computing Centre","Llanwrtyd Wells - Solar Generator","Llanwrtyd Wells - Wind Generator 1","Llanwrtyd Wells - Wind Generator 2","Llanwrtyd Wells - Wind Generator 3","Llanwrtyd Wells - Wind Generator 4","Llanwrtyd Wells - Wind Generator A","Llanwrtyd Wells - Wind Generator B"],
+			datasets: [
+				{
+					label: 'Power produced',
+					backgroundColor: [
+						'rgba(25, 159, 64, 0.3)',
+						'rgba(25, 159, 64, 0.1)',
+						'rgba(25, 159, 64, 0.2)',
+						'rgba(25, 159, 64, 0.5)',
+						'rgba(25, 159, 64, 0.4)',
+						'rgba(25, 159, 64, 0.2)',
+						'rgba(25, 159, 64, 0.1)',
+						'rgba(25, 159, 64, 0.2)'
+					],
+					borderColor: [
+						'rgba(25, 19, 64, 0.2)',
+						'rgba(25, 19, 64, 0.2)',
+						'rgba(25, 19, 64, 0.2)',
+						'rgba(75, 192, 192, 0.11)',
+						'rgba(25, 19, 64, 0.1)',
+						'rgba(25, 19, 64, 0.3)',
+						'rgba(15, 102, 255, 0.2)',
+						'rgba(25, 19, 64, 0.2)'
+					],
+					data: [5, 5, 5, 5, 5,5,5,5,5],
+					
+				},
+				
+			]
+			};
+
+			const config = {
+				type: 'doughnut',
+				data,
+				options: {
+					scales: [{
+									}]
+				}
+			};
+			
+			var myChart = new Chart(document.getElementById('overtime_expenditure'),
+				config
+			);
+		</script>
+		<br/>
   </div>
+  
 </main>
 
 {% endblock %}

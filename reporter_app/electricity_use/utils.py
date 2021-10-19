@@ -10,6 +10,22 @@ import json
 import urllib.request
 import http.client
 from urllib.parse import urlsplit
+from reporter_app.models import RealPowerReadings, RealSiteReadings
+from datetime import timedelta
+
+
+# list of site power devices [name, 2 if power user else 1 if solar else 0 if wind]
+DEVICES = [
+	["Llanwrtyd Wells - Computing Centre", 2],
+	["Llanwrtyd Wells - Solar Generator", 1],
+	["Llanwrtyd Wells - Wind Generator 1", 0],
+	["Llanwrtyd Wells - Wind Generator 2", 0],
+	["Llanwrtyd Wells - Wind Generator 3", 0],
+	["Llanwrtyd Wells - Wind Generator 4", 0],
+	["Llanwrtyd Wells - Wind Generator A", 0],
+	["Llanwrtyd Wells - Wind Generator B", 0]
+]
+
 
 def call_MET_API(parameter, run='00'):
     '''
@@ -206,11 +222,11 @@ class getWeather:
 def electricity(time, weather):
     '''
     Function to calculate electricity use for a given time and temperature
-    
+
     Inputs: time (str)   - time to calculate electricity use for,
                            in year-month-day hour:minute_second format
             weather (df) - dataframe of weather values from getWeather class
-    
+
     Outputs: electricity (float) - value of electricity used at time (in kW)
     '''
     temp = weather[weather.time == time]
@@ -245,7 +261,7 @@ def call_leccyfunc():
 
     Inputs: none
 
-    Outputs: leccy_df (df) - Dataframe of electricity use in half hour 
+    Outputs: leccy_df (df) - Dataframe of electricity use in half hour
                              intervals for next 5 days
     '''
     weather = getWeather('OWM').full_df
@@ -256,3 +272,31 @@ def call_leccyfunc():
     return leccy_df
 
 
+def get_real_power_usage_for_times(time_list):
+    """
+    given a list of time stamps return a list of real power usage for the site.
+    This will grab all the reading in a half an hour window and average them.
+    """
+    filter_devices = [device[0] for device in DEVICES if device[1] == 2]
+
+    real_power_usage = []
+    for i in time_list:
+        # get the most recent readings in time window for devices in list
+        data = RealPowerReadings.query.filter(RealPowerReadings.date_time>i, RealPowerReadings.date_time<i+timedelta(minutes=30), RealPowerReadings.device_name.in_(filter_devices)).all()
+        site_data = RealSiteReadings.query.filter(RealSiteReadings.date_time>i, RealSiteReadings.date_time<i+timedelta(minutes=30)).all()
+        # if readings exist get average power
+        if (len(data) > 0) or (len(site_data) > 0):
+            sum = 0
+            sum_site = 0
+            for j in data:
+                sum += abs(j.power)
+            for j in site_data:
+                sum_site += abs(j.power)
+            sum = sum / len(data)
+            sum_site = sum_site / len(site_data)
+            # Add total to list
+            real_power_usage.append((sum + sum_site) / 1000)  # Convert watt to Kilowatt
+        else:
+            real_power_usage.append(None)  # no value found, add None to skip data point in graph
+
+    return real_power_usage

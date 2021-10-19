@@ -1,11 +1,13 @@
 from flask_security import hash_password
 from sqlalchemy.sql import func
 from reporter_app import db
-from reporter_app.models import ElecUse, Co2, ElecGen
+from reporter_app.models import ElecUse, Co2, ElecGen, RealPowerReadings, RealSiteReadings, Trading,PredictedPrice
 from reporter_app.electricity_use.utils import call_leccyfunc
 from reporter_app.electricity_gen.utils import get_energy_gen
+from reporter_app.rse_api.utils import get_device_power, get_site_info, get_bids,get_clearout , post_bids
+from reporter_app.trading.utils import get_predicted_price
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date, time
 import json
 import requests
 
@@ -63,16 +65,20 @@ def register(app, user_datastore):
 		# grab elctricity elec gen data
 		e_gen_df = get_energy_gen()
 
+		latest_elec_use_entery = ElecGen.query.order_by(ElecGen.date_time.desc()).first()
+
 		# write elctricity gen data to database
-		numOfTurbunes = 4  #2 Originals plus 2 extra Ed mentioned...?
-		panel_area = 43.75
+		numOfTurbunes = 6  #2 Originals plus 2 extra Ed mentioned...?
+		panel_area = 877 # Not sure where Lukas gets this from
 		for idx, row in e_gen_df.iterrows():
-			newElecGen = ElecGen(
-				date_time=row['time'],
-				wind_gen=row['windenergy'] * numOfTurbunes,
-				solar_gen=row['totalSolarEnergy'] * panel_area
-			)
-			db.session.add(newElecGen)
+			# add entery to database if no prediction already made for timestamp
+			if (latest_elec_use_entery is None) or (datetime.strptime(row['time'], '%Y-%m-%d %H:%M:%S') > latest_elec_use_entery.date_time):
+				newElecGen = ElecGen(
+					date_time=row['time'],
+					wind_gen=row['windenergy'] * numOfTurbunes,
+					solar_gen=row['totalSolarEnergy'] * panel_area
+				)
+				db.session.add(newElecGen)
 		db.session.commit()
 
 
@@ -108,3 +114,108 @@ def register(app, user_datastore):
 		db.session.commit()
 
 		print ("For the 30-min time period starting:", start, "the grid CO2 intensity (gCO2/kWh) was:", co2Forecast)
+
+	@app.cli.command("get_real_power")
+	def getRealPower():
+
+		# [device name, true if generates power; false if consumes it]
+		devices = [
+			["Llanwrtyd Wells - Computing Centre", False],
+			["Llanwrtyd Wells - Solar Generator", True],
+			["Llanwrtyd Wells - Wind Generator 1", True],
+			["Llanwrtyd Wells - Wind Generator 2", True],
+			["Llanwrtyd Wells - Wind Generator 3", True],
+			["Llanwrtyd Wells - Wind Generator 4", True],
+			["Llanwrtyd Wells - Wind Generator A", True],
+			["Llanwrtyd Wells - Wind Generator B", True],
+		]
+
+		for device in devices:
+			stats = get_device_power(device[0])
+			newPowerReading = RealPowerReadings(
+				date_time=stats['datetime'],
+				power=stats['power'],
+				device_name=device[0],
+				power_generator=device[1]
+			)
+			db.session.add(newPowerReading)
+		db.session.commit()
+
+	@app.cli.command("get_real_site_info")
+	def getRealSiteInfo():
+
+		stats = get_site_info()
+		newSiteInfo = RealSiteReadings(
+			date_time=stats['datetime'],
+			power=stats['power'],
+			temperature=stats['temperature']
+		)
+		db.session.add(newSiteInfo)
+		db.session.commit()
+
+	@app.cli.command("predict_price")
+	def predictPrice():
+		'''
+		Looks up predicted load and predicts price
+		'''
+		reported_date=datetime.combine(datetime.today()+timedelta(days=1),time())
+		date=reported_date.isoformat()[:10]
+		price=get_predicted_price(date)
+		for idx, row in price.iterrows():
+			new_predicted_price=PredictedLoad(
+				date_time=reported_date,
+				period=idx+1,
+				predicted_load=row["Units(MWh)"],
+				predicted_price=row["Price"]
+			)
+			reported_date=reported_date+timedelta(minutes=30)
+			db.session.add(new_predicted_price)
+		db.session.commit()
+        
+	@app.cli.command("store_bids")
+	def storeBids():
+		'''
+		Looks up bids submitted and populates db
+		'''
+		reported_date=datetime.combine(datetime.today()+timedelta(days=1),time())
+		date=reported_date.isoformat()[:10]
+		outcome=get_bids(date)
+		for idx, row in outcome.iterrows():
+			new_bids=Trading(
+				date_time=row["applying_date"],
+				period=row["hour_ID"],
+				bid_units=row["volume"],
+				bid_price=row["price"],
+                bid_type=row["type"],
+                bid_outcome=row["accepted"]                
+                
+			)			
+			db.session.add(new_bids)
+
+		db.session.commit()
+        
+	@app.cli.command("make_bids")
+	def makeBids():
+		'''
+		Post bids, this needs to run before 9 AM
+		'''
+		reported_date=datetime.combine(datetime.today()+timedelta(days=1),time())
+		date=reported_date.isoformat()[:10]
+		post_bids(date)
+        
+        
+	@app.cli.command("clearout_prices")
+	def clearoutPrice():
+		'''
+		Looks up clearout price
+		'''
+	
+		clear_out=get_clearout()        
+		for idx,row in clear_out.iterrows():            
+			co_prices=Trading(
+				date_time=row["date"],
+				period=row["period"],
+				clearout_price=row["price"]
+            )
+			db.session.add(co_prices)
+		db.session.commit()

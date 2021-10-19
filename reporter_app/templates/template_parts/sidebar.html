@@ -8,7 +8,7 @@
 				</a>
 			</li>
 			<li class="nav-item">
-				<a class="nav-link" aria-current="page" href="#">
+				<a class="nav-link {{ 'active' if request.endpoint == 'rse_api.live_system'}}" aria-current="page" href="{{ url_for('rse_api.live_system') }}">
 					<span data-feather="home"></span>
 					<i class="bi-speedometer"></i> Live system
 				</a>
@@ -29,13 +29,7 @@
 		</h6>
 		<ul class="nav flex-column mb-2">
 			<li class="nav-item">
-				<a class="nav-link" aria-current="page" href="#">
-					<span data-feather="home"></span>
-					<i class="bi-clipboard-data"></i> Reports
-				</a>
-			</li>
-			<li class="nav-item">
-				<a class="nav-link" aria-current="page" href="#">
+				<a class="nav-link {{ 'active' if request.endpoint == 'trading.trading'}}" aria-current="page" href="{{ url_for('trading.trading') }}">
 					<span data-feather="home"></span>
 					<i class="bi-graph-up"></i> Energy bids
 				</a>

@@ -49,14 +49,16 @@ def calc_savings(query):
 @auth_required("token", "session")
 @roles_required('verified')
 def co2():
-    start_date = datetime.now() - timedelta(hours=24) 			#calc the start and end times for the database query
-    query = Co2.query.filter(Co2.date_time>start_date).all() 	#query the database for records within the above period
+    start_date = datetime.now() - timedelta(hours=24) 		
+    query = Co2.query.filter(Co2.date_time>start_date).all()
     co2_entries = calc_savings(query)    						#calculate the co2 savings
     return render_template('co2/co2.html', co2_entries=co2_entries)
+
 
 @bp.route('/co2/48_hours')
 @auth_required("token", "session")
 @roles_required('verified')
+
 def co2_48hours():
     start_date = datetime.now() - timedelta(hours=48)
     query = Co2.query.filter(Co2.date_time>start_date).all()

@@ -1,0 +1,96 @@
+{% extends "template_parts/base.html" %}
+
+{% block content %}
+<main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+  <div class="bg-white p-3 mt-4">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3">
+      <h1 class="h2">Buy and Sell Trades</h1>
+		<div class="btn-toolbar mb-2 mb-md-0">
+
+		  <div class="dropdown">
+			<a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+			  More...
+			</a>
+
+			<ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+			<!--These are referencing links defined in bp.route-->
+			  <li><a class="dropdown-item" href="/trading">Bids</a></li>
+			  <li><a class="dropdown-item" href="/trading/predicted_price">Predicted</a></li>
+			  <li><a class="dropdown-item" href="/trading/actual_load">Actual</a></li>
+			  <li><a class="dropdown-item" href="/trading/gen">G/D</a></li>
+
+
+			</ul>
+		  </div>
+		  </div>
+
+		</div>
+		<hr/>
+
+		<!--Chart-->
+		<div>
+			<canvas id="myChart"></canvas>
+		</div>
+		<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+		<script>
+			const labels = [
+			{% for row in bid_entries %}
+				'{{row.date_time}}',
+			{% endfor %}
+			];
+
+			const data = {
+			labels: labels,
+			datasets: [{
+				label: 'Bid volume(kWh)',
+				backgroundColor: 'rgb(255, 99, 132)',
+				borderColor: 'rgb(255, 99, 132)',
+				data: [
+				{% for row in bid_entries %}
+					{{row.bid_entries}},
+				{% endfor %}
+				],
+			}]
+			};
+
+			const config = {
+				type: 'line',
+				data,
+				options: {}
+			};
+
+			var myChart = new Chart(
+				document.getElementById('myChart'),
+				config
+			);
+		</script>
+		<br/>
+
+		<!--Data table-->
+		<div class="table-responsive">
+			<table class="table table-striped table-sm">
+				<thead>
+					<tr>
+					<th>Date and Time</th>
+					<th>Period(1-48)</th>
+					<th>Bid units(kWh)</th>
+					<th>Bid outcome volume(kWh)</th>
+					<th>Bid outcome price(GBP)</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for row in bid_entries %}
+					<tr>
+					<td>{{row.date_time}}</td>
+					<td>{{row.period}}</td>
+					<td>{{row.bid_units}}</td>
+					<td>{{row.bid_outcome_vol}}</td>
+					<td>{{row.bid_outcome_price}}</td>
+					</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+		</div>
+  </div>
+</main>
+{% endblock %}

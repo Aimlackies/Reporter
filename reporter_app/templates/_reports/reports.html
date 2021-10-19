@@ -1,0 +1,93 @@
+{% block content %}
+<main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+  <div class="bg-white p-3 mt-4">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3">
+      <h1 class="h2">Managment reports</h1>
+		<div class="btn-toolbar mb-2 mb-md-0">
+	      <div class="btn-group me-2">
+	        <button type="button" class="btn btn-sm btn-outline-secondary">Share</button>
+	        <button type="button" class="btn btn-sm btn-outline-secondary">Export</button>
+	      </div>
+
+		  <div class="dropdown">
+			<a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+			  Time Period
+			</a>
+		  
+			<ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+			  <li><a class="dropdown-item" href="/reports">24 hours</a></li>
+			  <li><a class="dropdown-item" href="/reports/48_hours">48 hours</a></li>
+			  <li><a class="dropdown-item" href="/reports/7_days">7 days</a></li>
+			  <li><a class="dropdown-item" href="/reports/28_days">28 days</a></li>
+			  <li><a class="dropdown-item" href="/reports/all">All time</a></li>
+			</ul>
+		  </div>
+		  </div>
+
+		</div>
+		<hr/>
+
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.3.2/chart.min.js"        
+        integrity="sha512-VCHVc5miKoln972iJPvkQrUYYq7XpxXzvqNfiul1H4aZDwGBGC0lq373KNleaB2LpnC2a/iNfE5zoRYmB4TRDQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <title>Document</title>
+</head>
+<body>
+		<!--Chart-->
+	 </div>
+		<canvas id="myChart" width="100" height="50"></canvas>
+     <script>
+     var ctx = document.getElementById('myChart').getContext('2d');
+     var myChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['AIMLAC HQ Llanwrtyd Wells', 'Llanwrtyd Wells - Aryaman', 'Llanwrtyd Wells - Buran', 'Llanwrtyd Wells - Gibli', 'Llanwrtyd Wells - Turing'],
+            datasets: [{
+                label: 'Energy produced',
+                data: [-30000.0, 26594.176892476153, 14846.153846153846, 14846.153846153846,  -200000],
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(153, 102, 255, 0.2)',
+                    'rgba(255, 159, 64, 0.2)'
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: [{
+                y: {
+                    beginAtZero: true
+                }
+            }],
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Energy produced: Mon, 21 Jun 2021 16:01:10 GMT, temperature: 22.14 Celius degrees'
+                    }
+            
+            
+          
+            }
+        }
+  	  });
+    	</script>
+		<br/>
+	</div>
+</main>
+{% endblock %}

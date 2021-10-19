@@ -6,16 +6,12 @@
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3">
       <h1 class="h2">Net Power Output</h1>
 		<div class="btn-toolbar mb-2 mb-md-0">
-	      <div class="btn-group me-2">
-	        <button type="button" class="btn btn-sm btn-outline-secondary">Share</button>
-	        <button type="button" class="btn btn-sm btn-outline-secondary">Export</button>
-	      </div>
 
 		  <div class="dropdown">
 			<a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
 			  Time Period
 			</a>
-		  
+
 			<ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
 			  <li><a class="dropdown-item" href="/net_power">24 hours</a></li>
 			  <li><a class="dropdown-item" href="/net_power/48_hours">48 hours</a></li>
@@ -36,8 +32,8 @@
 		<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 		<script>
 			const labels = [
-			{% for row in net_power_entries %}
-				'{{row.date_time}}',
+			{% for row in time_data %}
+				'{{row}}',
 			{% endfor %}
 			];
 
@@ -45,22 +41,22 @@
 			labels: labels,
 			datasets: [{
 				label: 'Site Net Power Output (kW)',
-				backgroundColor: 'rgb(80, 64, 227)',
+				backgroundColor: 'rgb(80, 64, 227, 0.2)',
 				borderColor: 'rgb(80, 64, 227)',
 				data: [
-				{% for row in net_power_entries %}
-					{{row.net_power}},
+				{% for row in net_power %}
+					{{row}},
 				{% endfor %}
 				],
 			}]
 			};
 
 			const config = {
-				type: 'line',
+				type: 'bar',
 				data,
 				options: {}
 			};
-			
+
 			var myChart = new Chart(
 				document.getElementById('myChart'),
 				config
@@ -74,14 +70,14 @@
 				<thead>
 					<tr>
 					<th>Date and Time</th>
-					<th>Net power output (kW)</th>
+					<th>Net power output (W)</th>
 					</tr>
 				</thead>
 				<tbody>
-					{% for row in net_power_entries %}
+					{% for row1, row2 in zip(net_power,time_data) %}
 					<tr>
-					<td>{{row.date_time}}</td>
-					<td>{{row.net_power}}</td>
+					<td>{{row2}}</td>
+					<td>{{row1}}</td>
 					</tr>
 					{% endfor %}
 				</tbody>
@@ -90,4 +86,3 @@
   </div>
 </main>
 {% endblock %}
-
