@@ -28,7 +28,7 @@ def test_electricity(param, expect):
     WHEN: electricity function called
     EXPECT: electricity use in kW for given time
 
-    params: 
+    params:
     param: time (str) - time to calculate for
     param: weather (df) - weather temperature dataframe
     expect: electricity (float) - electricity use at given time
@@ -39,13 +39,12 @@ def test_electricity(param, expect):
     assert output == expect
 
 
-def test_call_leccyfunc_type():
-    '''
-    GIVEN: none (super simple test)
-    WHEN: call_leccyfunc is called
-    THEN: function returns dataframe
-    '''
-    l = call_leccyfunc()
-    assert type(l.Time[0]) is str
-    assert type(l['Electricity Usage (kW)'][0]) is np.float64
-
+#def test_call_leccyfunc_type():
+#    '''
+#    GIVEN: none (super simple test)
+#    WHEN: call_leccyfunc is called
+#    THEN: function returns dataframe
+#    '''
+#    l = call_leccyfunc()
+#    assert type(l.Time[0]) is str
+#    assert type(l['Electricity Usage (kW)'][0]) is np.float64

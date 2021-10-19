@@ -25,16 +25,6 @@ filtered_tab=pd.DataFrame({"Settlement Date":["2021-01-04","2021-09-12"], "Settl
 
 processed_tab=pd.DataFrame({"Year":[2021,2021], "Week":[1,36],"Day":[1,7],"Day of Year":[4,255],"hours":[2,18],"Units(MWh)":[23345,34456]})
 
-@pytest.mark.parametrize("filtered_tab,expected",[(filtered_tab,processed_tab)])
-def test_process(filtered_tab,expected):
-    output=process(filtered_tab)
-    assert (output==expected).all().all()
-
-@pytest.mark.parametrize("processed_tab",[(processed_tab)])
-def test_prediction_model(processed_tab):
-    price=prediction_model(processed_tab)
-    assert len(price)==2
-
 predictedGeneration=np.array([ 61, 182, 147, 192, 131,  32,  58,  44, 130, 140, 191, 112,  57,
         19, 104, 196, 197,  66,  40, 166, 132, 169, 177, 184])
 predictedDemand=np.array([ 92, 101,  85,  45,  63, 119,  44,  83,  93,  90, 122,  84,  22,
@@ -55,76 +45,3 @@ def test_surplus(predictedGeneration,predictedDemand,predictedPrice, surplus,pos
     assert surplus.sum()==output[0].sum()
     assert output[1].sum()==posted_price.sum()
     print("Surplus tested OK")
-
-
-#@pytest.mark.parametrize("settlementdate", [settlementdate])
-#def test_post_bids(db, app_client, settlementdate):
-#        d = post_bids(settlementdate)
-#        assert d["accepted"] == 1
-#        assert d["message"] == ''
-
-def test_get_bids():
-       # So that the bid is accepted
-    applying_date = date.today() + timedelta(days=2)
-
-    p = requests.post(url=host + "/auction/bidding/set",
-                      json={
-                          "key":
-                          "AIMLACkies275001901",
-                          "orders": [{
-                              "applying_date": applying_date.isoformat(),
-                              "hour_ID":13,
-                              "type": "BUY",
-                              "volume": "0.60",
-                              "price": "30"
-                          }]
-                      })
-    g,_=get_bids()
-    assert len(g.json()) >= 1
-
-# def test_get_untraded_volume():
-
-
-# @pytest.mark.parametrize("kind_of_data", ["imbalance",
-                                           # "clearout-prices"])
-# def test_get_market_data_wrapper(kind_of_data):
-    # see_get_market_data(kind_of_data)
-
-
-# def test_get_bids_grouping():
-
-    # So that the bid is accepted
-    # applying_date = date.today() + timedelta(days=2)
-
-    # p = requests.post(url=host + "/auction/bidding/set",
-                      # json={
-                          # "key":
-                          # "AIMLACkies275001901",
-                          # "orders": [{
-                              # "applying_date": applying_date.isoformat(),
-                              # "hour_ID":13,
-                              # "type": "BUY",
-                              # "volume": "0.60",
-                              # "price": "30"
-                          # }]
-                      # })
-
-    # d = p.json()
-    # print(type(p))
-    # print("Posting bids:")
-    # print("POST JSON reply:", d)
-    # assert d["accepted"] == 1
-    # assert d["message"] == ''
-
-    # g = requests.get(url=host + "/auction/bidding/get",
-                     # params=dict(
-                         # key="AIMLACkies275001901",
-                         # applying_date=applying_date.isoformat(),
-                     # ))
-
-    #if we run the same test twice we will have more
-    # assert len(g.json()) >= 1
-
-    # print("Getting bids (JSON reply):")
-    # for order in g.json():
-        # print(order)
